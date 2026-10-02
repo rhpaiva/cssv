@@ -1,0 +1,30 @@
+# CSSV
+
+> CSSV (Comma Separated Styled Values) is CSV data with an optional CSS stylesheet at the top of the same file. A renderer turns the CSV into an HTML table with a fixed structure and applies the stylesheet to it. Without its stylesheet, a CSSV file is an ordinary CSV file.
+
+A CSSV file starts with a `---` line, then CSS, then another `---` line, then CSV with a header record. Stylesheets select the table model's hooks: `data-col` (the column name), `data-row` (the record number), `data-key` (the row's name from the key column) and the classes `number`, `negative`, `zero` and `positive`. Two custom properties configure rendering: `--cssv-key` picks the key column and `--cssv-format` takes `Intl.NumberFormat` options. Numbers are written as `-1234.5` in every file and shown in the reader's locale.
+
+The reference renderer is the `<cssv-table>` custom element, published on npm as `@rhpaiva/cssv` with no dependencies. Install it with `npm install @rhpaiva/cssv`, or load it in a page with `<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.1/src/cssv-table.js"></script>`. The package's processor also parses CSSV and renders the table model as HTML in Node.
+
+## Docs
+
+- [Specification](https://cssv.dev/SPEC.md): CSSV v1, covering the file format, value types, the table model, rendering, CSSV properties, localization and security
+- [Skill for AI agents](https://cssv.dev/skills/cssv/SKILL.md): a compact guide to writing correct CSSV files, packaged as a Claude Code skill
+- [Usage](https://cssv.dev/README.md): installing and using `<cssv-table>`, with its attributes, properties and events, and the Node API
+
+## Examples
+
+- [departures.cssv](https://cssv.dev/departures.cssv): a split-flap departures board whose remarks come from sign classes; its look is the imported [split-flap.css](https://cssv.dev/split-flap.css)
+- [budget.cssv](https://cssv.dev/examples/budget.cssv): a small report with a key column, number formats and an imported stylesheet
+- [markets.cssv](https://cssv.dev/examples/markets.cssv): sign classes driving colors, arrows and row highlights
+- [planets.cssv](https://cssv.dev/examples/planets.cssv): rows styled by name through custom properties
+- [invoice.cssv](https://cssv.dev/examples/invoice.cssv): text IDs, multi-line fields and currency placement by locale
+- [league.cssv](https://cssv.dev/examples/league.cssv): a semicolon-delimited export with CSS counters and positional zones
+- [Ledger, page 1](https://cssv.dev/examples/ledger/page-1.cssv): pagination, with one .cssv file per page (page-1 to page-5) sharing the imported [ledger.css](https://cssv.dev/examples/ledger/ledger.css)
+
+## Optional
+
+- [npm package](https://www.npmjs.com/package/@rhpaiva/cssv): `@rhpaiva/cssv`
+- [GitHub repository](https://github.com/rhpaiva/cssv): issues and releases
+- [Conformance matrix](https://cssv.dev/CONFORMANCE.md): every requirement in the spec, mapped to the reference implementation's tests
+- [Website](https://cssv.dev/): a live editor, the examples rendered, and install instructions
