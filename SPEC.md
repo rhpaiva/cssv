@@ -1,4 +1,4 @@
-# CSSV v1 — Comma Separated Styled Values
+# CSSV v1 — Comma-Separated Styled Values
 
 Oct 1, 2026 · @Rodrigo Paiva
 
@@ -6,7 +6,7 @@ Oct 1, 2026 · @Rodrigo Paiva
 
 **Status:** version 1, open for review. Breaking changes are possible until v1 is marked stable. The latest version is at [cssv.dev/spec.html](https://cssv.dev/spec.html).
 
-CSSV (Comma Separated Styled Values) is CSV data with an optional CSS stylesheet at the top of the same file. A CSSV renderer turns the data into an HTML table with the fixed structure defined here, then applies the stylesheet to it. Without its stylesheet a CSSV file is an ordinary CSV file, and most CSV files are valid CSSV files as they are.
+CSSV (Comma-Separated Styled Values) is CSV data with an optional CSS stylesheet at the top of the same file. A CSSV renderer turns the data into an HTML table with the fixed structure defined here, then applies the stylesheet to it. Without its stylesheet a CSSV file is an ordinary CSV file, and most CSV files are valid CSSV files as they are.
 
 ## 1. Introduction
 

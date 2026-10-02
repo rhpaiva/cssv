@@ -1,6 +1,6 @@
 # CSSV
 
-**CSSV (Comma Separated Styled Values)** keeps a table's data and its look in one plain-text file: CSV for the data, with a CSS style block on top for the presentation. A renderer turns the CSV into an HTML table and applies the file's own styles, so the table carries its look to every page that shows it.
+**CSSV (Comma-Separated Styled Values)** keeps a table's data and its look in one plain-text file: CSV for the data, with a CSS style block on top for the presentation. A renderer turns the CSV into an HTML table and applies the file's own styles, so the table carries its look to every page that shows it.
 
 This repository holds the specification, [SPEC.md](SPEC.md), and its reference implementation: the `<cssv-table>` element and a processor that runs in Node.
 

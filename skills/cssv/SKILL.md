@@ -6,7 +6,7 @@ license: MIT
 
 # Writing CSSV files
 
-CSSV (Comma Separated Styled Values) is a CSV file with an optional CSS stylesheet at the top. A renderer such as the `<cssv-table>` element turns the CSV into an HTML table with a fixed structure, then applies the stylesheet to it. Without its stylesheet the file is ordinary CSV.
+CSSV (Comma-Separated Styled Values) is a CSV file with an optional CSS stylesheet at the top. A renderer such as the `<cssv-table>` element turns the CSV into an HTML table with a fixed structure, then applies the stylesheet to it. Without its stylesheet the file is ordinary CSV.
 
 ```
 ---

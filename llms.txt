@@ -1,6 +1,6 @@
 # CSSV
 
-> CSSV (Comma Separated Styled Values) keeps a table's data and its look in one plain-text file: CSV for the data, with a CSS style block on top for the presentation. A renderer turns the CSV into an HTML table with a fixed structure and applies the file's own styles to it. Use it when the styles belong with the data; to show a plain CSV file styled by the page, a CSV parser is enough. Without its style block, a CSSV file is an ordinary CSV file.
+> CSSV (Comma-Separated Styled Values) keeps a table's data and its look in one plain-text file: CSV for the data, with a CSS style block on top for the presentation. A renderer turns the CSV into an HTML table with a fixed structure and applies the file's own styles to it. Use it when the styles belong with the data; to show a plain CSV file styled by the page, a CSV parser is enough. Without its style block, a CSSV file is an ordinary CSV file.
 
 A CSSV file starts with a `---` line, then CSS, then another `---` line, then CSV with a header record. Stylesheets select the table model's hooks: `data-col` (the column name), `data-row` (the record number), `data-key` (the row's name from the key column) and the classes `number`, `negative`, `zero` and `positive`. Two custom properties configure rendering: `--cssv-key` picks the key column and `--cssv-format` takes `Intl.NumberFormat` options. Numbers are written as `-1234.5` in every file and shown in the reader's locale.
 
