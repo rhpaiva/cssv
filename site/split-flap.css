@@ -1,0 +1,118 @@
+/* A split-flap departures board, imported by departures.cssv in the
+   website's hero. It styles the fixed table model only, so any .cssv file
+   can import it: every character sits on its own flap, rows flip in one
+   after another, and signed numbers act as status codes. */
+table {
+  --pitch: 1.32ch;                   /* one flap: a character plus the gap */
+  --board: #0c0c0f;
+  --flap-top: #2a2a30;
+  --flap-bottom: #212126;
+  --ink: #f6f1e1;
+  --amber: #fbbf24;
+  position: relative;
+  margin: 0 1em 2.4em;               /* room for the shadow: painting stays inside the table's box */
+  padding: 4.6em 1.1em 1.2em;
+  border-collapse: separate;
+  border-spacing: 0 0.42em;
+  border-radius: 18px;
+  /* Fits the board, margins included (about 38em wide), to its container. */
+  font: 700 clamp(8px, 2.55cqi, 17px)/1 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  letter-spacing: calc(var(--pitch) - 1ch);
+  text-transform: uppercase;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 14px 14px, #3a3a42 2.5px, transparent 3.5px),
+    radial-gradient(circle at calc(100% - 14px) 14px, #3a3a42 2.5px, transparent 3.5px),
+    radial-gradient(circle at 14px calc(100% - 14px), #3a3a42 2.5px, transparent 3.5px),
+    radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #3a3a42 2.5px, transparent 3.5px),
+    linear-gradient(172deg, rgb(255 255 255 / 0.07), transparent 42%),
+    var(--board);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.07),
+    inset 0 -14px 30px rgb(0 0 0 / 0.6),
+    0 1.4em 2.6em -1.6em rgb(0 0 0 / 0.8);
+}
+
+/* The title and the header row. */
+th {
+  padding: 0 0.55em 0.5em;
+  color: rgb(246 241 225 / 0.42);
+  font-size: 0.62em;
+  font-weight: 600;
+  text-align: start;
+}
+thead th:first-child { position: relative; }
+thead th:first-child::before {
+  content: "\2708\FE0E  Departures";
+  position: absolute;
+  bottom: calc(100% + 1.2em);
+  left: 0.55em;
+  color: var(--amber);
+  font-size: 2.1em;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  text-shadow: 0 0 0.8em rgb(251 191 36 / 0.45);
+}
+thead th:last-child { position: relative; }
+thead th:last-child::before {
+  content: "Partidas · Départs · Abflug";
+  position: absolute;
+  right: 0.55em;
+  bottom: calc(100% + 1.75em);
+  font-size: 1.05em;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+/* The flaps: a gap every --pitch, a split line and two shades. */
+td {
+  padding: 0 0.55em;
+  line-height: 2.3;
+  text-align: start;
+  white-space: pre;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(var(--pitch) - 0.16ch), var(--board) 0 var(--pitch)),
+    linear-gradient(transparent calc(50% - 0.75px), rgb(0 0 0 / 0.75) 0 calc(50% + 0.75px), transparent 0),
+    linear-gradient(var(--flap-top) 50%, var(--flap-bottom) 50%);
+  background-position: -0.08ch 0, 0 0, 0 0;
+  background-origin: content-box;
+  background-clip: content-box;
+  text-shadow: 0 0 0.7em rgb(255 240 200 / 0.28);
+}
+td:first-child { color: var(--amber); }
+
+/* Signed numbers are status codes. The file names each sign with ::before;
+   zero and negative show only that name. */
+td.zero, td.negative { color: transparent; text-shadow: none; }
+td.positive, td.positive::before { color: var(--amber); }
+td.zero::before { color: #4ade80; text-shadow: 0 0 0.7em rgb(74 222 128 / 0.5); }
+td.negative::before { color: #38bdf8; text-shadow: 0 0 0.7em rgb(56 189 248 / 0.5); }
+td:empty::before { color: #f87171; text-shadow: 0 0 0.7em rgb(248 113 113 / 0.5); }
+/* A row whose last cell is empty is out of service. */
+tr:has(td:last-child:empty) td:not(:last-child) { opacity: 0.38; }
+
+/* Rows flip in one after another, each cell a beat after the last. */
+@keyframes flap {
+  0%   { transform: perspective(24em) rotateX(-90deg); filter: brightness(2); }
+  65%  { transform: perspective(24em) rotateX(14deg); }
+  100% { transform: none; }
+}
+@keyframes blink { 50% { opacity: 0.2; } }
+tbody td {
+  animation: flap 0.5s ease-out both;
+  animation-delay: calc(var(--row, 0) * 85ms + var(--col, 0) * 40ms);
+}
+tbody tr:nth-child(2) { --row: 1; }
+tbody tr:nth-child(3) { --row: 2; }
+tbody tr:nth-child(4) { --row: 3; }
+tbody tr:nth-child(5) { --row: 4; }
+tbody tr:nth-child(6) { --row: 5; }
+tbody tr:nth-child(7) { --row: 6; }
+tbody tr:nth-child(n+8) { --row: 7; }
+td:nth-child(2) { --col: 1; }
+td:nth-child(3) { --col: 2; }
+td:nth-child(4) { --col: 3; }
+td:nth-child(n+5) { --col: 4; }
+@media (prefers-reduced-motion: reduce) {
+  tbody td, tbody td::before { animation: none !important; }
+}

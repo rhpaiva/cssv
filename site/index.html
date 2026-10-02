@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSSV · Comma Separated Styled Values</title>
+  <meta name="description" content="CSSV is CSV data with a CSS stylesheet at the top of the same file. One plain-text file renders as a styled HTML table in any browser.">
+  <link rel="canonical" href="https://cssv.dev/">
+  <meta property="og:url" content="https://cssv.dev/">
+  <meta property="og:title" content="CSSV · Comma Separated Styled Values">
+  <meta property="og:description" content="CSV data with a CSS stylesheet on top. Plain text in, styled tables out.">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="site.css">
+  <script type="module" src="../src/cssv-table.js"></script>
+  <script type="module" src="site.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="CSSV home">
+        <img src="favicon.svg" alt="" width="30" height="30">
+        <span>CSSV</span>
+      </a>
+      <nav aria-label="Site">
+        <a href="#why">Why</a>
+        <a class="wide-only" href="#how">How it works</a>
+        <a href="../examples/">Examples</a>
+        <a href="#start">Get started</a>
+        <a class="wide-only" href="#ai">AI</a>
+        <a href="spec.html">Spec</a>
+        <a class="gh" href="https://github.com/rhpaiva/cssv" aria-label="CSSV on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero ------------------------------------------------------------- -->
+    <section class="hero" id="top">
+      <div class="wrap">
+        <p class="eyebrow">CSSV v1 · Comma Separated Styled Values</p>
+        <h1>Plain text in, <span>styled tables</span> out.</h1>
+        <p class="lede">CSSV is a CSV file with a CSS stylesheet on top. One file holds the data and how it looks, renders as a real HTML table, and stays plain text you can read, diff and generate. Delete the stylesheet and it's a CSV again.</p>
+        <div class="cta">
+          <a class="button primary" href="#start">Get started</a>
+          <a class="button" href="#examples">See examples</a>
+          <code class="snippet">&lt;cssv-table src="departures.cssv"&gt;&lt;/cssv-table&gt;</code>
+        </div>
+        <ul class="facts">
+          <li>No new syntax: CSV and CSS</li>
+          <li>Under 10 KB gzipped</li>
+          <li>No dependencies, no build step</li>
+          <li>Open spec, MIT licensed</li>
+        </ul>
+
+        <div class="playground" id="playground">
+          <div class="pg-body">
+            <div class="pg-pane pg-source">
+              <div class="pane-head">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="pane-title file-tab">departures.cssv</span>
+              </div>
+              <div class="editor">
+                <pre class="editor-hl" aria-hidden="true"><code></code></pre>
+                <textarea id="pg-text" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="CSSV source" wrap="off"></textarea>
+              </div>
+            </div>
+            <div class="pg-pane pg-output">
+              <div class="pane-head output-head">
+                <div class="tabs" role="tablist" aria-label="Output">
+                  <button role="tab" id="tab-table" aria-selected="true" aria-controls="out-table">Rendered</button>
+                  <button role="tab" id="tab-md" aria-selected="false" aria-controls="out-md" tabindex="-1">Markdown</button>
+                </div>
+                <span class="status" id="pg-status" role="status"></span>
+              </div>
+              <div class="pg-stage" id="out-table" role="tabpanel" aria-labelledby="tab-table">
+                <cssv-table id="pg-table"><script type="text/cssv"></script></cssv-table>
+              </div>
+              <div class="pg-md" id="out-md" role="tabpanel" aria-labelledby="tab-md" hidden>
+                <pre><code id="pg-md"></code></pre>
+                <p>Exported with <code>toMarkdown()</code> from computed styles: alignment, bold, italic, strikethrough and monospace carry over.</p>
+              </div>
+              <p class="pg-hint">Change a delay: <code>0</code> is on time, <code>25</code> is delayed, <code>-5</code> is early. Delete one to cancel the flight.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why -------------------------------------------------------------- -->
+    <section class="section" id="why">
+      <div class="wrap">
+        <p class="eyebrow">Why CSSV</p>
+        <h2>Tables are data <em>and</em> presentation. Most formats make you pick one.</h2>
+        <p class="lede">CSV has the data but nothing about how it looks. Spreadsheets have both, in a binary file you can't diff, review or write as text. HTML tables wrap every value in markup. Markdown tables are text but stop at bold and alignment. CSSV keeps the data as CSV and puts the presentation in CSS, two languages that people, programs and language models already write.</p>
+
+        <figure class="card dogfood compare">
+          <cssv-table>
+            <script type="text/cssv">
+---
+@import url("tables.css");
+
+/* Each cell holds 1, 0 or -1. The sign classes draw the marks. */
+table { --cssv-key: format; }
+td { vertical-align: middle; }
+th.number, td.number { text-align: center; }
+td.number { font-size: 0; }
+td.number::before { font-size: 1.15rem; font-weight: 700; }
+td.positive::before { content: "✓" / "yes"; color: #16a34a; }
+td.zero::before     { content: "◐" / "partly"; color: #d97706; }
+td.negative::before { content: "✕" / "no"; color: color-mix(in srgb, currentColor 30%, transparent); }
+
+td[data-col="format"] { font-weight: 600; white-space: nowrap; }
+
+/* --accent comes from the page: custom properties inherit into the table. */
+tr[data-key="CSSV"] td { background: color-mix(in srgb, var(--accent, #7c3aed) 12%, transparent); }
+tr[data-key="CSSV"] td[data-col="format"] { color: var(--accent, #7c3aed); }
+---
+format,plain text,styled,data is CSV,numbers in the reader's locale,formulas
+CSV,1,-1,1,-1,-1
+Markdown table,1,0,-1,-1,-1
+HTML table,1,1,-1,-1,-1
+Spreadsheet (XLSX),-1,1,-1,1,1
+CSSV,1,1,1,1,-1
+            </script>
+          </cssv-table>
+          <figcaption>This table is a <code>.cssv</code> file. Its cells hold <code>1</code>, <code>0</code> and <code>-1</code>, and the <code>.positive</code>, <code>.zero</code> and <code>.negative</code> classes draw the marks. CSSV has no formulas on purpose: it describes how a finished table looks, not how it's calculated.</figcaption>
+        </figure>
+
+        <div class="goals">
+          <article>
+            <h3>Plain text</h3>
+            <p>Data and styles are text you can read, diff, review and merge. A change to one number is a one-line diff.</p>
+          </article>
+          <article>
+            <h3>No new languages</h3>
+            <p>Data is RFC&nbsp;4180 CSV and styles are CSS. CSSV only defines how they connect: two fences and a fixed table structure.</p>
+          </article>
+          <article>
+            <h3>A real HTML table</h3>
+            <p>The output is an ordinary <code>&lt;table&gt;</code> that browsers lay out, select, copy, print and read aloud without plugins.</p>
+          </article>
+          <article>
+            <h3>Shared styles</h3>
+            <p>Many files can <code>@import</code> one stylesheet, so changing it restyles every report at once.</p>
+          </article>
+          <article>
+            <h3>Written once</h3>
+            <p>Each value appears once in the file, and each style once per rule rather than once per cell. That keeps files short to write by hand and cheap to generate.</p>
+          </article>
+          <article>
+            <h3>Easy exit</h3>
+            <p>Delete the lines between the fences and you have a CSV file. Most CSV files are already valid CSSV files.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works ----------------------------------------------------- -->
+    <section class="section alt" id="how">
+      <div class="wrap">
+        <p class="eyebrow">How it works</p>
+        <h2>One file, two languages, one fixed table.</h2>
+        <p class="lede">Two <code>---</code> fences split the file: CSS above, CSV below. The renderer turns the CSV into an HTML table whose structure the spec fixes, then applies the CSS to it. Because every renderer builds the same structure, a stylesheet written for one works in all of them.</p>
+
+        <ol class="steps">
+          <li class="step">
+            <div class="step-label"><span class="num">1</span><div><h3>You write a <code>.cssv</code> file</h3><p>A style block between fences, then CSV. This one imports a shared <code>brand.css</code>.</p></div></div>
+            <div class="code-card">
+              <div class="pane-head"><span class="pane-title">examples/budget.cssv</span></div>
+              <pre class="code"><code id="how-source">Loading…</code></pre>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step-label"><span class="num">2</span><div><h3>The renderer builds the table model</h3><p>Column names go in <code>data-col</code>, record numbers in <code>data-row</code>, the key column in <code>data-key</code>, and four classes mark numbers and their sign. Nothing else is added, and cell values are never copied into attributes.</p></div></div>
+            <div class="code-card">
+              <div class="pane-head"><span class="pane-title">The live DOM, read from the table below</span></div>
+              <pre class="code model"><code id="how-model">Loading…</code></pre>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step-label"><span class="num">3</span><div><h3>The reader sees a styled table</h3><p>Numbers are formatted for the reader's locale. Hover or tap a cell to see the selectors that reach it.</p></div></div>
+            <div class="stage-card">
+              <div class="stage inspect-stage" id="how-stage">
+                <cssv-table id="how-table" src="../examples/budget.cssv"></cssv-table>
+                <div class="inspect-box" id="inspect-box" hidden></div>
+              </div>
+              <div class="inspector" id="inspector" aria-live="polite">
+                <span class="inspector-empty">Hover a cell to inspect it.</span>
+              </div>
+            </div>
+          </li>
+        </ol>
+
+        <h3 class="sub">Seven hooks. Everything else is plain CSS.</h3>
+        <div class="hooks">
+          <article><code class="hook">data-col</code><p>Every <code>col</code>, <code>th</code> and <code>td</code> carries its column name, exactly as written.</p><code class="eg">[data-col="diff"]</code></article>
+          <article><code class="hook">data-row</code><p>Every row carries its record number. The header is row 1.</p><code class="eg">tr[data-row="4"]</code></article>
+          <article><code class="hook">data-key</code><p>Pick a key column and style rows by name, wherever they sit in the file.</p><code class="eg">tr[data-key="Total"]</code></article>
+          <article><code class="hook">.number</code><p>Numbers align to the end and line up their digits. Number columns get it on the header too.</p><code class="eg">.number</code></article>
+          <article><code class="hook">.negative .zero .positive</code><p>The renderer signs every number, so colors and arrows need no values in the CSS.</p><code class="eg">[data-col="diff"].negative</code></article>
+          <article><code class="hook">--cssv-key</code><p>Choose the key column from the stylesheet, so the file renders the same in every host.</p><code class="eg">table { --cssv-key: category; }</code></article>
+          <article><code class="hook">--cssv-format</code><p><code>Intl.NumberFormat</code> options per table, column, row or cell. It inherits like any custom property.</p><code class="eg">--cssv-format: "maximumFractionDigits: 0"</code></article>
+          <article class="more"><p><code>:has()</code>, <code>:nth-child</code>, counters, <code>::before</code>, <code>color-mix()</code>, <code>@media print</code>, <code>prefers-color-scheme</code>, <code>@import</code>, cascade layers… the style block is a normal stylesheet.</p></article>
+        </div>
+
+        <figure class="card dogfood">
+          <cssv-table>
+            <script type="text/cssv">
+---
+@import url("tables.css");
+
+col[data-col="to style"] { width: 38%; }
+td[data-col="to style"] { font-weight: 500; }
+td[data-col="selector"] {
+  color: var(--accent, #7c3aed);
+  font: 13px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+---
+to style,selector
+The header row,thead th
+A column,"[data-col=""amount""]"
+A column's width,"col[data-col=""amount""] { width: 8rem; }"
+A column by position,":is(th, td):nth-child(3)"
+A row by position,"tr[data-row=""4""]"
+A row by name (with a key column),"tr[data-key=""Total""]"
+One cell,"tr[data-row=""4""] > [data-col=""diff""]"
+The last row,tbody tr:last-child
+Every other row,tbody tr:nth-child(even)
+All numbers,.number
+Negative numbers in one column,"[data-col=""diff""].negative"
+Rows that contain a negative number,tbody tr:has(.negative)
+Empty cells,td:empty
+Printed output only,@media print { … }
+Dark theme only,@media (prefers-color-scheme: dark) { … }
+Sticky header,thead th { position: sticky; top: 0; }
+            </script>
+          </cssv-table>
+          <figcaption>The selector cookbook from the spec's Appendix A, as a <code>.cssv</code> file.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Examples --------------------------------------------------------- -->
+    <section class="section" id="examples">
+      <div class="wrap">
+        <p class="eyebrow">Examples</p>
+        <h2>Same format, very different tables.</h2>
+        <p class="lede">Each of these is one <code>.cssv</code> file rendered by the same element. The page adds no styles to them: the arrows, planets, letterhead and crests all come from the file's own style block.</p>
+
+        <div class="tabs example-tabs" role="tablist" aria-label="Examples">
+          <button role="tab" aria-selected="true" aria-controls="ex-markets" id="tab-markets">Market close</button>
+          <button role="tab" aria-selected="false" aria-controls="ex-planets" id="tab-planets" tabindex="-1">Solar system</button>
+          <button role="tab" aria-selected="false" aria-controls="ex-invoice" id="tab-invoice" tabindex="-1">Invoice</button>
+          <button role="tab" aria-selected="false" aria-controls="ex-league" id="tab-league" tabindex="-1">League table</button>
+        </div>
+
+        <div class="example card" id="ex-markets" role="tabpanel" aria-labelledby="tab-markets">
+          <header>
+            <div>
+              <h3>A trading terminal from sign classes <span class="file">markets.cssv</span></h3>
+              <p>Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>. That drives the arrows, the colors, the pill tints and the row highlights, and no value is repeated in the CSS.</p>
+            </div>
+            <ul class="chips"><li>sign classes</li><li>tr:has(.negative)</li><li>--cssv-format per column</li><li>@keyframes</li></ul>
+          </header>
+          <div class="stage"><cssv-table src="../examples/markets.cssv"></cssv-table></div>
+        </div>
+
+        <div class="example card" id="ex-planets" role="tabpanel" aria-labelledby="tab-planets" hidden>
+          <header>
+            <div>
+              <h3>Rows styled by name <span class="file">planets.cssv</span></h3>
+              <p><code>--cssv-key: planet</code> names every row, and each row sets a few custom properties that one shared rule draws. The file stores <code>0.387</code>; <code>--cssv-format</code> rounds it to 0.39 for display.</p>
+            </div>
+            <ul class="chips"><li>--cssv-key</li><li>custom properties per row</li><li>::before / ::after</li></ul>
+          </header>
+          <div class="stage"><cssv-table src="../examples/planets.cssv"></cssv-table></div>
+        </div>
+
+        <div class="example card" id="ex-invoice" role="tabpanel" aria-labelledby="tab-invoice" hidden>
+          <header>
+            <div>
+              <h3>An invoice on paper <span class="file">invoice.cssv</span></h3>
+              <p>SKUs like <code>0042</code> stay text because of the leading zero. Quoted fields span two lines and <code>::first-line</code> bolds the title. Summary rows have no SKU, so <code>tr:not([data-key])</code> selects them.</p>
+            </div>
+            <ul class="chips"><li>text IDs</li><li>multi-line fields</li><li>:lang(de)</li><li>@media print</li></ul>
+          </header>
+          <div class="stage"><cssv-table src="../examples/invoice.cssv"></cssv-table></div>
+        </div>
+
+        <div class="example card" id="ex-league" role="tabpanel" aria-labelledby="tab-league" hidden>
+          <header>
+            <div>
+              <h3>A spreadsheet export <span class="file">league.cssv</span></h3>
+              <p>Semicolon-delimited, detected from the header. Ranks come from a CSS counter, crests from two colors per club, and zones from <code>:nth-child</code>. The palette follows <code>prefers-color-scheme</code>.</p>
+            </div>
+            <ul class="chips"><li>; delimiter</li><li>counter(rank)</li><li>prefers-color-scheme</li></ul>
+          </header>
+          <div class="stage"><cssv-table src="../examples/league.cssv"></cssv-table></div>
+        </div>
+
+        <p class="more-link"><a href="../examples/">Open the full gallery</a>, with every file's source, a locale switcher and Markdown export.</p>
+      </div>
+    </section>
+
+    <!-- Localization ----------------------------------------------------- -->
+    <section class="section alt" id="locale">
+      <div class="wrap">
+        <p class="eyebrow">Localization</p>
+        <h2>Write numbers once. Every reader sees their own.</h2>
+        <p class="lede">Files always store numbers the same way: <code>1234.5</code>, whatever the delimiter. The renderer formats them for the reader's language, and <code>--cssv-format</code> picks decimals and grouping. Values are exact and never pass through floating point, so <code>9007199254740993</code>, one more than a JavaScript number can hold exactly, keeps every digit.</p>
+
+        <div class="locale-demo">
+          <div class="code-card">
+            <div class="pane-head"><span class="pane-title">formats.cssv</span></div>
+            <pre class="code"><code id="locale-source"></code></pre>
+          </div>
+          <div class="locale-out">
+            <div class="seg" id="locale-picker" role="radiogroup" aria-label="Reader's locale">
+              <input type="radio" name="locale" id="loc-en" value="en-US" checked><label for="loc-en">en-US</label>
+              <input type="radio" name="locale" id="loc-de" value="de-DE"><label for="loc-de">de-DE</label>
+              <input type="radio" name="locale" id="loc-fr" value="fr-FR"><label for="loc-fr">fr-FR</label>
+              <input type="radio" name="locale" id="loc-hi" value="hi-IN"><label for="loc-hi">hi-IN</label>
+              <input type="radio" name="locale" id="loc-ar" value="ar-EG"><label for="loc-ar">ar-EG</label>
+            </div>
+            <div class="card stage-plain">
+              <cssv-table id="locale-table" lang="en-US">
+                <script type="text/cssv">
+---
+@import url("tables.css");
+
+/* --cssv-format inherits from each row to its cells. */
+table { --cssv-key: format; }
+tr[data-key="2 decimals"] { --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }
+tr[data-key="grouped"]    { --cssv-format: "maximumFractionDigits: 0"; }
+td[data-col="format"] { font-weight: 600; white-space: nowrap; }
+.negative { color: #e11d48; }
+---
+format,price,change,exact
+as written,1234.5,-12.375,9007199254740993
+2 decimals,1234.5,-12.375,9007199254740993
+grouped,1234.5,-12.375,9007199254740993
+                </script>
+              </cssv-table>
+            </div>
+            <ul class="notes">
+              <li><strong>as written</strong> keeps the file's fraction digits and adds no grouping, only the locale's decimal sign.</li>
+              <li><strong>Rounding</strong> is half away from zero, as in spreadsheets: −12.375 becomes −12.38.</li>
+              <li><strong>hi-IN</strong> groups by lakh and crore; <strong>ar-EG</strong> switches to Arabic-Indic digits.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Get started ------------------------------------------------------ -->
+    <section class="section" id="start">
+      <div class="wrap">
+        <p class="eyebrow">Get started</p>
+        <h2>One script tag. No build step.</h2>
+        <p class="lede">The renderer is a custom element, <code>&lt;cssv-table&gt;</code>, in two small ES modules with no dependencies. The parser also runs in Node, without a DOM.</p>
+
+        <ol class="steps install">
+          <li class="step">
+            <div class="step-label"><span class="num">1</span><div><h3>Add the renderer</h3><p>From npm, a CDN, or by copying <code>src/cssv-table.js</code> and <code>src/core.js</code> next to each other.</p></div></div>
+            <div class="code-card">
+              <div class="pane-head">
+                <div class="tabs small" role="tablist" aria-label="Install from">
+                  <button role="tab" aria-selected="true" aria-controls="inst-npm" id="tab-npm">npm</button>
+                  <button role="tab" aria-selected="false" aria-controls="inst-cdn" id="tab-cdn" tabindex="-1">CDN</button>
+                  <button role="tab" aria-selected="false" aria-controls="inst-copy" id="tab-copy" tabindex="-1">Copy the files</button>
+                </div>
+              </div>
+              <div role="tabpanel" id="inst-npm" aria-labelledby="tab-npm">
+<pre class="code" data-lang="shell"><code>npm install @rhpaiva/cssv</code></pre>
+<pre class="code" data-lang="js"><code>// Defines &lt;cssv-table&gt; in the browser
+import '@rhpaiva/cssv/cssv-table.js';
+
+// The DOM-free processor, for Node or the browser
+import { parse, toHtml } from '@rhpaiva/cssv';</code></pre>
+              </div>
+              <div role="tabpanel" id="inst-cdn" aria-labelledby="tab-cdn" hidden>
+<pre class="code" data-lang="html"><code>&lt;script type="module"
+  src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.1/src/cssv-table.js"&gt;&lt;/script&gt;</code></pre>
+              </div>
+              <div role="tabpanel" id="inst-copy" aria-labelledby="tab-copy" hidden>
+<pre class="code" data-lang="html"><code>&lt;!-- core.js must sit next to cssv-table.js --&gt;
+&lt;script type="module" src="/js/cssv-table.js"&gt;&lt;/script&gt;</code></pre>
+              </div>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step-label"><span class="num">2</span><div><h3>Write a file</h3><p>Any CSV file works as it is. Add a style block when you want it to look a certain way.</p></div></div>
+            <div class="code-card">
+              <div class="pane-head"><span class="pane-title">budget.cssv</span></div>
+<pre class="code" data-lang="cssv"><code>---
+@import url("brand.css");
+
+table { --cssv-key: item; }
+.negative { color: crimson; }
+tr[data-key="Total"] { font-weight: bold; }
+---
+item,amount
+Rent,1200
+Refund,-45.50
+Total,1154.50</code></pre>
+            </div>
+          </li>
+          <li class="step">
+            <div class="step-label"><span class="num">3</span><div><h3>Put it on a page</h3><p>Point <code>src</code> at a file, or write the file inline in a <code>&lt;script type="text/cssv"&gt;</code>, which the browser neither runs nor parses as HTML.</p></div></div>
+            <div class="code-card">
+              <div class="pane-head"><span class="pane-title">index.html</span></div>
+<pre class="code" data-lang="html"><code>&lt;cssv-table src="budget.cssv"&gt;&lt;/cssv-table&gt;
+
+&lt;!-- A plain CSV export, with the key column set by the page --&gt;
+&lt;cssv-table src="export.csv" key="category"&gt;&lt;/cssv-table&gt;
+
+&lt;!-- Inline --&gt;
+&lt;cssv-table&gt;
+  &lt;script type="text/cssv"&gt;
+---
+.negative { color: crimson; }
+---
+item,amount
+Refund,-45.50
+  &lt;/script&gt;
+&lt;/cssv-table&gt;</code></pre>
+            </div>
+            <p class="step-note">Serve <code>.cssv</code> files as <code>text/plain; charset=utf-8</code>. Wide tables overflow the element; add <code>cssv-table { overflow-x: auto; }</code> to scroll them, and style the table from the page with <code>cssv-table::part(table)</code>.</p>
+          </li>
+          <li class="step">
+            <div class="step-label"><span class="num">4</span><div><h3>Or render without a browser</h3><p><code>core.js</code> has no DOM dependencies. <code>toHtml()</code> produces the table model for server-side rendering or static output, in the locale you choose.</p></div></div>
+            <div class="code-card">
+              <div class="pane-head"><span class="pane-title">render.js</span></div>
+<pre class="code" data-lang="js"><code>import { readFile } from 'node:fs/promises';
+import { parse, toHtml } from '@rhpaiva/cssv';
+
+const model = parse(await readFile('budget.cssv', 'utf8'));
+// { style, delimiter, columns, numberColumns, rows }
+
+const html = toHtml(model, { locale: 'de-DE', key: 'item' });
+// &lt;table&gt;&lt;colgroup&gt;…&lt;/colgroup&gt;&lt;thead&gt;…&lt;/thead&gt;&lt;tbody&gt;…&lt;/tbody&gt;&lt;/table&gt;</code></pre>
+            </div>
+          </li>
+        </ol>
+
+        <h3 class="sub" id="api">The element's API</h3>
+        <div class="api">
+          <figure class="card dogfood">
+            <cssv-table>
+              <script type="text/cssv">
+---
+@import url("tables.css");
+
+col[data-col="attribute"] { width: 7rem; }
+td[data-col="attribute"] {
+  color: var(--accent, #7c3aed);
+  font: 600 13px/1.65 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+---
+attribute,meaning
+src,"URL of a .cssv (or plain .csv) file. Without it, the element reads a child <script type=""text/cssv"">."
+key,The key column set by the page. Wins over --cssv-key in the file.
+lang,"The display locale. Otherwise the nearest lang around the element, then the browser's locale."
+              </script>
+            </cssv-table>
+            <figcaption>Attributes. The element re-renders when any of them changes.</figcaption>
+          </figure>
+          <figure class="card dogfood">
+            <cssv-table>
+              <script type="text/cssv">
+---
+@import url("tables.css");
+
+table { --cssv-key: member; }
+col[data-col="member"] { width: 8.5rem; }
+td[data-col="member"] {
+  color: var(--accent, #7c3aed);
+  font: 600 13px/1.65 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  white-space: nowrap;
+}
+td[data-col="kind"] { color: color-mix(in srgb, currentColor 55%, transparent); font-size: 0.9em; }
+tr[data-key^="cssv-"] td[data-col="member"] { color: #0891b2; }
+---
+member,kind,meaning
+src,property,"The src attribute, or null when the element reads inline text. Setting it loads the new file."
+ready,property,A promise that resolves when the latest render has finished.
+table,property,"The rendered <table>, or null."
+model,property,"The parsed file: { style, delimiter, columns, numberColumns, rows }."
+errors,property,"Problems from the last render: { section, message, fatal }."
+toMarkdown(),method,The rendered table as GitHub Flavored Markdown.
+cssv-loadstart,event,"Fired when a render starts, for example after src changes."
+cssv-load,event,Fired after a successful render.
+cssv-error,event,"Fired for each problem. Bubbles and crosses shadow roots; detail is { section, message, fatal }."
+cssv-loadend,event,"Fired when the latest render finishes, whether it succeeded or failed."
+              </script>
+            </cssv-table>
+            <figcaption>Properties, methods and events. Event names are styled by key prefix: <code>tr[data-key^="cssv-"]</code>.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI agents ------------------------------------------------------- -->
+    <section class="section alt" id="ai">
+      <div class="wrap">
+        <p class="eyebrow">For AI agents</p>
+        <h2>Teach Claude to write CSSV with one skill.</h2>
+        <p class="lede">Language models already write CSV and CSS. The CSSV skill for Claude Code adds what they can't guess: the fences, the number rules, the table model's hooks, the two CSSV properties and the usual mistakes. Claude loads it whenever you ask for a styled table.</p>
+
+        <div class="ai-grid">
+          <ol class="steps ai-steps">
+            <li class="step">
+              <div class="step-label"><span class="num">1</span><div><h3>Get the skill</h3><p>One Markdown file, <code>SKILL.md</code>, with a short header Claude reads to decide when to use it.</p></div></div>
+              <p class="actions"><a class="button primary" href="../skills/cssv/SKILL.md" download="SKILL.md">Download SKILL.md</a> <button class="button" type="button" id="skill-copy">Copy it</button></p>
+            </li>
+            <li class="step">
+              <div class="step-label"><span class="num">2</span><div><h3>Save it where Claude Code looks</h3><p>In your home folder for every project, as below, or in <code>.claude/skills/cssv/</code> inside one project to share it with your team. Claude Code picks it up without a restart, and <code>/skills</code> lists it.</p></div></div>
+              <div class="code-card">
+<pre class="code" data-lang="shell"><code>curl --create-dirs -o ~/.claude/skills/cssv/SKILL.md https://cssv.dev/skills/cssv/SKILL.md</code></pre>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-label"><span class="num">3</span><div><h3>Ask for a table</h3><p>Claude writes a <code>.cssv</code> file and checks it against the skill's list before it finishes.</p></div></div>
+              <ul class="prompts">
+                <li>Turn <code>sales.csv</code> into a CSSV report: losses in red, the total row in bold.</li>
+                <li>Make a split-flap departures board for these flights.</li>
+                <li>Compare our three plans as a styled table I can embed in the docs page.</li>
+              </ul>
+            </li>
+          </ol>
+          <div class="code-card skill-card">
+            <div class="pane-head"><span class="pane-title">skills/cssv/SKILL.md</span></div>
+            <pre class="code"><code id="skill-source">Loading…</code></pre>
+          </div>
+        </div>
+        <p class="step-note">The skill uses only the standard Agent Skills header fields (<code>name</code>, <code>description</code>, <code>license</code>), so the same file can also be added to Claude.ai or used with the Claude API.</p>
+
+        <div class="perf tokens">
+          <div>
+            <h3 class="sub">Fewer tokens than HTML</h3>
+            <p>To write a styled table in HTML, a model wraps every value in markup, formats every number by hand and adds a class to every cell that needs one. In CSSV it writes the data once plus a few rules, and the renderer does the rest. For data-heavy tables that's a third to half the tokens, and the gap grows with the rows. For a small table with a lot of styling, the CSS is most of the file either way, and the saving drops to 10–25%.</p>
+          </div>
+          <figure class="card dogfood">
+            <cssv-table>
+              <script type="text/cssv">
+---
+@import url("tables.css");
+
+table { --cssv-format: "maximumFractionDigits: 0"; }
+td[data-col="table"] { font-weight: 500; }
+:is(th, td)[data-col="CSSV"] { color: var(--accent, #7c3aed); font-weight: 700; }
+@media (max-width: 640px) {
+  :is(th, td)[data-col="HTML"] { display: none; }
+  th, td { padding-inline: 0.55em; }
+}
+---
+table,CSSV,HTML,HTML + classes
+Departures board,254,463,491
+"Report, 20 rows",502,1108,1367
+"Report, 100 rows",1944,4790,6049
+"Report, 500 rows",9155,23201,29460
+planets.cssv,2361,2667,2847
+              </script>
+            </cssv-table>
+            <figcaption>Tokens to write each table, counted with gpt-tokenizer (o200k_base); other tokenizers give different counts. Every version carries the same CSS. Plain HTML can't color by sign; the classed version adds the number and sign classes CSSV adds for free. The departures board has 7 rows and planets.cssv 8, most of it CSS.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Spec ------------------------------------------------------------- -->
+    <section class="section" id="spec">
+      <div class="wrap">
+        <p class="eyebrow">Open specification</p>
+        <h2>A short spec, with tests for every rule.</h2>
+        <p class="lede">CSSV v1 is open for review. The spec fixes the file format, the table model and how renderers apply styles, so other implementations can render the same files the same way.</p>
+
+        <div class="spec-cards">
+          <a class="spec-card" href="spec.html">
+            <span class="kicker">SPEC.md</span>
+            <strong>The specification</strong>
+            <span>File structure, data and value types, the table model, rendering, CSSV properties, localization, and security, with a selector cookbook and Markdown conversion.</span>
+          </a>
+          <a class="spec-card" href="spec.html?doc=conformance">
+            <span class="kicker">CONFORMANCE.md</span>
+            <strong>The conformance matrix</strong>
+            <span>Every MUST and SHOULD in the spec, mapped to the tests that cover it. Test names start with their spec section.</span>
+          </a>
+          <a class="spec-card" href="spec.html?doc=readme#tests">
+            <span class="kicker">test/spec-examples</span>
+            <strong>Reusable spec tests</strong>
+            <span>Every example printed in the spec is asserted literally, in Node and in headless Chromium. Another implementation can run them to check itself.</span>
+          </a>
+        </div>
+
+        <div class="perf">
+          <div>
+            <h3 class="sub">Fast where it matters</h3>
+            <p>Median times for generated 6-column tables in headless Chromium, with a style block, <code>--cssv-key</code> and <code>--cssv-format</code>. Parsing is a small share; most of the time is the browser creating cells and computing their styles, which grows linearly.</p>
+          </div>
+          <figure class="card dogfood">
+            <cssv-table>
+              <script type="text/cssv">
+---
+@import url("tables.css");
+
+table { --cssv-key: records; }
+td[data-col="records"] { --cssv-format: "maximumFractionDigits: 0"; font-weight: 600; }
+td.number:not([data-col="records"])::after {
+  content: " ms";
+  color: color-mix(in srgb, currentColor 50%, transparent);
+}
+th:is([data-col="parse()"], [data-col="toMarkdown()"]) {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  text-transform: none;
+  letter-spacing: 0;
+}
+---
+records,parse(),until ready,until painted,toMarkdown()
+100,0.1,5,15,1.2
+500,0.5,31,51,6.7
+5000,4.7,333,467,67
+              </script>
+            </cssv-table>
+            <figcaption><code>npm run bench</code> on an i7-11800H with Chromium 153.</figcaption>
+          </figure>
+        </div>
+
+        <h3 class="sub">Questions</h3>
+        <div class="faq">
+          <details>
+            <summary>Why not just write an HTML table?</summary>
+            <p>You can, and CSSV produces one. Written by hand, though, every value sits inside markup, and the attributes you style by have to be kept in sync with the data. With CSSV the data stays CSV, so any spreadsheet export or CSV library can produce it, and the renderer adds the hooks.</p>
+          </details>
+          <details>
+            <summary>Will it open in Excel or Google Sheets?</summary>
+            <p>A file without a style block is a plain CSV file and opens anywhere. A file with one shows its CSS lines as rows in a spreadsheet; delete the lines between the fences and it's CSV again.</p>
+          </details>
+          <details>
+            <summary>Is it safe to render files I didn't write?</summary>
+            <p>A CSSV file can't run scripts, and cell values are always inserted as text. The renderer isolates each table in shadow DOM and contains its painting to the table's box. A stylesheet can still load remote resources and change what the reader sees, so treat an untrusted file like a stylesheet from an untrusted page. The spec's section 11 covers this.</p>
+          </details>
+          <details>
+            <summary>Can a language model write it?</summary>
+            <p>It's CSV and CSS, which models already write well, so there's no new syntax to learn, and a data-heavy table takes a third to half the tokens of the same table in HTML. The <a href="#ai">CSSV skill</a> teaches Claude the rest.</p>
+          </details>
+          <details>
+            <summary>What isn't in v1?</summary>
+            <p>Formulas, merged cells, multiple sheets and editing are out of scope. Dates, comma decimals, percent and currency formats, files without a header and XLSX export are candidates for later versions.</p>
+          </details>
+          <details>
+            <summary>Which browsers does it support?</summary>
+            <p>It uses web components, shadow DOM, cascade layers and <code>Intl.NumberFormat</code>. The test suite runs in Chromium, and the site has been checked by hand in Chrome and Firefox. Safari isn't tested yet.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>CSSV</strong> · Comma Separated Styled Values · v1, open for review · MIT license</p>
+      <p>Every table on this page is a <code>.cssv</code> file rendered by <code>&lt;cssv-table&gt;</code>. Its source is shown beside it or under <em>View source</em>.</p>
+      <nav aria-label="Documents">
+        <a href="spec.html">Spec</a>
+        <a href="spec.html?doc=conformance">Conformance</a>
+        <a href="spec.html?doc=readme">README</a>
+        <a href="../examples/">Examples gallery</a>
+        <a href="https://github.com/rhpaiva/cssv">GitHub</a>
+        <a href="https://www.npmjs.com/package/@rhpaiva/cssv">npm package</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,26 @@
+---
+@import url("split-flap.css");
+
+table { --cssv-key: flight; }
+.number { --cssv-format: "minimumIntegerDigits: 2"; }
+
+/* Each remark comes from the sign of the delay. */
+.zero::before     { content: "On time"; }
+.negative::before { content: "Early"; }
+.positive::before { content: "Delayed +"; }
+[data-col="delay"]:empty::before { content: "Cancelled"; }
+
+/* One flight, picked out by its key. */
+tr[data-key="LH 441"] .zero::before {
+  content: "Boarding";
+  animation: blink 1s step-end infinite;
+}
+---
+time,flight,destination,gate,delay
+08:15,LH 441,Frankfurt,B07,0
+08:30,BA 117,London,A12,25
+08:45,AF 1023,Paris,C03,0
+09:05,KL 1786,Amsterdam,B11,
+09:20,IB 3171,Madrid,A04,-5
+09:40,TP 1351,Lisbon,C09,0
+10:05,SK 674,Copenhagen,B02,10
