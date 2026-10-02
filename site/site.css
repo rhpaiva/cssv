@@ -726,6 +726,10 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
 .doc tr:last-child td { border-bottom: 0; }
 .doc-layout.no-toc { grid-template-columns: minmax(0, 1fr); gap: 8px; }
 .no-toc .doc { max-width: none; }
+/* Imprint and privacy: short documents, at reading width. */
+.no-toc .doc.legal { max-width: 72ch; }
+.doc address { margin: 0 0 14px; font-style: normal; }
+.doc .updated { margin-top: 40px; color: var(--muted); font-size: 14px; }
 @media (max-width: 1000px) { .toc details:not([open]) { padding-bottom: 12px; border-bottom: 1px solid var(--border); } }
 .doc-switch { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 20px; }
 .doc-switch a {
