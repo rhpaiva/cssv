@@ -307,7 +307,7 @@ These four classes are a closed list. Text and empty fields get no class.
 
 Renderers MUST NOT add other elements, attributes or classes to the table model. The one exception is `part="table"` on the `table` element (section 8.1).
 
-> **Note:** This rule keeps the model identical across implementations, so a stylesheet written against one renderer works in all of them. Cell content is deliberately never copied into an attribute (section 1.4).
+> **Note:** This rule keeps the model identical across implementations, so a stylesheet written against one renderer works in all of them. Apart from key values (section 9.1), cell content is deliberately never copied into an attribute (section 1.4).
 
 ## 8. Rendering
 
@@ -482,7 +482,7 @@ Column names and field values MUST be inserted as text (section 7.4). A renderer
 
 ### 11.3 Data leaking through selectors
 
-A stylesheet can match column names and key values with attribute selectors and load a different URL for each match, which sends those values to another server. Authors should import only stylesheets they trust. This is one reason cell content is never copied into attributes (section 1.4).
+A stylesheet can match column names and key values with attribute selectors and load a different URL for each match, which sends those values to another server. Any stylesheet, including an imported one, can set `--cssv-key` and so choose which column's values become key values; a host that sets the key column takes that choice away (section 9.1). Authors should import only stylesheets they trust. This is one reason no other cell content is copied into attributes (section 1.4).
 
 ### 11.4 Drawing outside the table
 
