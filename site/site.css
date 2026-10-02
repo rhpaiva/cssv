@@ -165,6 +165,32 @@ h3.sub { margin: 56px 0 16px; font-size: 1.3rem; }
   background: var(--accent);
   vertical-align: 2px;
 }
+/* A prompt for the playground's file, so it reads as request, source, result. */
+.ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 28px;
+  margin-top: 40px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.ask + .playground { margin-top: 12px; }
+.ask-intro { display: grid; gap: 4px; }
+.ask-intro p { margin: 0; }
+.ask-intro a { font-size: 14px; font-weight: 600; text-decoration: none; }
+.ask-intro a:hover { text-decoration: underline; }
+.ask-prompt {
+  flex: 1 1 420px;
+  padding: 10px 16px 12px;
+  border-radius: 14px 14px 14px 4px;
+  background: var(--accent-soft);
+}
+.ask-prompt .eyebrow { color: var(--accent-text); font-size: 11px; }
+.ask-text { margin: 6px 0 0; font-size: 15.5px; }
 
 /* Segmented control and tabs ------------------------------------------- */
 .seg {
