@@ -53,7 +53,9 @@
   <script type="module">
     // Renders one of the repository's Markdown documents. Code blocks that
     // are CSSV files (they start with a fence) get the site's highlighting.
-    import { marked } from 'https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.esm.js';
+    // marked 18.0.14, copied unchanged from its npm package so the site runs
+    // no code from other origins.
+    import { marked } from './vendor/marked.esm.js';
     import { highlighters } from './highlight.js';
 
     const DOCS = {
