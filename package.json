@@ -1,0 +1,51 @@
+{
+  "name": "@rhpaiva/cssv",
+  "version": "0.1.0",
+  "description": "Reference implementation of CSSV v1 (Comma Separated Styled Values)",
+  "keywords": [
+    "cssv",
+    "csv",
+    "css",
+    "table",
+    "styled-table",
+    "web-component",
+    "custom-element",
+    "spreadsheet",
+    "llm"
+  ],
+  "author": "Rodrigo Paiva",
+  "homepage": "https://cssv.dev/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhpaiva/cssv.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rhpaiva/cssv/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/core.js",
+    "./cssv-table.js": "./src/cssv-table.js"
+  },
+  "files": [
+    "src",
+    "SPEC.md",
+    "CONFORMANCE.md"
+  ],
+  "sideEffects": [
+    "./src/cssv-table.js"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "npm run test:unit && npm run test:browser",
+    "test:unit": "node --test \"test/unit/*.test.js\" test/spec-examples/core.test.js",
+    "test:browser": "node --test --test-concurrency=1 \"test/browser/*.test.js\" test/spec-examples/browser.test.js",
+    "bench": "node bench/render.bench.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}
