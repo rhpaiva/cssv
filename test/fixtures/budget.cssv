@@ -1,0 +1,18 @@
+---
+@import url("brand.css");
+
+table   { --cssv-key: category; --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }
+thead th { background: #1f2937; color: #fff; }
+
+[data-col="diff"].negative { color: #15803d; }
+[data-col="diff"].positive { color: #b91c1c; }
+
+tr[data-key="Total"] { font-weight: bold; border-top: 2px solid; }
+td:empty::after      { content: "—"; color: #9ca3af; }
+---
+category,owner,planned,actual,diff,status
+Rent,Ana,1200,1200,0,paid
+Software,Ben,300,254.50,-45.50,paid
+Travel,Ana,800,1130,330,over
+Marketing,Caro,500,410,-90,pending
+Total,,2800,2994.50,194.50,
