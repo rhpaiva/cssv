@@ -9,7 +9,8 @@
   <meta property="og:url" content="https://cssv.dev/">
   <meta property="og:title" content="CSSV · Comma-Separated Styled Values">
   <meta property="og:description" content="CSV data with a CSS stylesheet on top. Plain text in, styled tables out.">
-  <meta name="theme-color" content="#6d28d9">
+  <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d0d0c" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="nav.css">
@@ -127,9 +128,8 @@ td.negative::before { content: "✕" / "no"; color: color-mix(in srgb, currentCo
 
 td[data-col="format"] { font-weight: 600; white-space: nowrap; }
 
-/* --accent comes from the page: custom properties inherit into the table. */
-tr[data-key="CSSV"] td { background: color-mix(in srgb, var(--accent, #7c3aed) 12%, transparent); }
-tr[data-key="CSSV"] td[data-col="format"] { color: var(--accent, #7c3aed); }
+/* --accent-soft comes from the page: custom properties inherit into the table. */
+tr[data-key="CSSV"] td { background: var(--accent-soft, #fcf3c4); }
 ---
 format,plain text,styled,data is CSV,numbers in the reader's locale,formulas
 CSV,1,-1,1,-1,-1
@@ -216,7 +216,7 @@ CSSV,1,1,1,1,-1
           <article><code class="hook">.negative .zero .positive</code><p>The renderer signs every number, so colors and arrows need no values in the CSS.</p><code class="eg">[data-col="diff"].negative</code></article>
           <article><code class="hook">--cssv-key</code><p>Choose the key column from the stylesheet, so the file renders the same in every host.</p><code class="eg">table { --cssv-key: category; }</code></article>
           <article><code class="hook">--cssv-format</code><p><code>Intl.NumberFormat</code> options per table, column, row or cell. It inherits like any custom property.</p><code class="eg">--cssv-format: "maximumFractionDigits: 0"</code></article>
-          <article class="more"><p><code>:has()</code>, <code>:nth-child</code>, counters, <code>::before</code>, <code>color-mix()</code>, <code>@media print</code>, <code>prefers-color-scheme</code>, <code>@import</code>, cascade layers… the style block is a normal stylesheet.</p></article>
+          <article class="more"><span class="hook">plain CSS</span><p><code>:has()</code>, <code>:nth-child</code>, counters, <code>::before</code>, <code>color-mix()</code>, <code>@media print</code>, <code>prefers-color-scheme</code>, <code>@import</code>, cascade layers… the style block is a normal stylesheet.</p></article>
         </div>
 
         <figure class="card dogfood">
@@ -228,7 +228,7 @@ CSSV,1,1,1,1,-1
 col[data-col="to style"] { width: 38%; }
 td[data-col="to style"] { font-weight: 500; }
 td[data-col="selector"] {
-  color: var(--accent, #7c3aed);
+  color: var(--accent, #1c1a17);
   font: 13px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 ---
@@ -466,7 +466,7 @@ const html = toHtml(model, { locale: 'de-DE', key: 'item' });
 
 col[data-col="attribute"] { width: 7rem; }
 td[data-col="attribute"] {
-  color: var(--accent, #7c3aed);
+  color: var(--accent, #1c1a17);
   font: 600 13px/1.65 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 ---
@@ -487,7 +487,7 @@ lang,"The display locale. Otherwise the nearest lang around the element, then th
 table { --cssv-key: member; }
 col[data-col="member"] { width: 8.5rem; }
 td[data-col="member"] {
-  color: var(--accent, #7c3aed);
+  color: var(--accent, #1c1a17);
   font: 600 13px/1.65 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   white-space: nowrap;
 }
@@ -561,7 +561,7 @@ cssv-loadend,event,"Fired when the latest render finishes, whether it succeeded 
 
 table { --cssv-format: "maximumFractionDigits: 0"; }
 td[data-col="table"] { font-weight: 500; }
-:is(th, td)[data-col="CSSV"] { color: var(--accent, #7c3aed); font-weight: 700; }
+:is(th, td)[data-col="CSSV"] { background: var(--accent-soft, #fcf3c4); font-weight: 700; }
 @media (max-width: 640px) {
   :is(th, td)[data-col="HTML"] { display: none; }
   th, td { padding-inline: 0.55em; }

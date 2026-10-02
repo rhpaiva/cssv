@@ -13,37 +13,47 @@
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #f4f5f8;
-      --surface: #ffffff;
-      --stage: #eceef3;
-      --dots: rgb(15 23 42 / 0.09);
-      --text: #111827;
-      --muted: #5b6474;
-      --border: #e1e4ea;
-      --accent: #6d28d9;
-      --chip-bg: #f1edfd;
-      --chip-fg: #5b21b6;
-      --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 10px 30px -14px rgb(15 23 42 / 0.18);
-      --code-bg: #0e111b;
-      --code-bar: #151926;
-      --code-text: #d5daea;
-      --code-muted: #7d869f;
+      --bg: #f5f3ee;
+      --surface: #fffdf9;
+      --stage: #ece8df;
+      --dots: rgb(40 30 10 / 0.09);
+      --text: #1c1a17;
+      --muted: #625c52;
+      --border: #e3ded3;
+      --accent: #1c1a17;
+      --chip-bg: #fcf3c4;
+      --chip-fg: #1c1a17;
+      --mark: #ffe45c;
+      --mark-top: 58%;
+      --mark-bottom: 94%;
+      --mark-text: var(--text);
+      --link-line: #806400;
+      --shadow: 0 1px 2px rgb(40 30 10 / 0.04), 0 10px 30px -14px rgb(40 30 10 / 0.18);
+      --code-bg: #15140f;
+      --code-bar: #1d1c17;
+      --code-text: #e3dfd3;
+      --code-muted: #8a8478;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #0a0c11;
-        --surface: #12151d;
-        --stage: #0d1017;
-        --dots: rgb(226 232 240 / 0.07);
-        --text: #e7e9ef;
-        --muted: #98a1b3;
-        --border: #232836;
-        --accent: #a78bfa;
-        --chip-bg: #1f1a33;
-        --chip-fg: #c4b5fd;
+        --bg: #0d0d0c;
+        --surface: #161614;
+        --stage: #11110f;
+        --dots: rgb(236 232 223 / 0.07);
+        --text: #ece8df;
+        --muted: #a39d91;
+        --border: #2a2924;
+        --accent: #ece8df;
+        --chip-bg: #2a2715;
+        --chip-fg: #f0e27a;
+        --mark: #e9d54a;
+        --mark-top: 0%;
+        --mark-bottom: 100%;
+        --mark-text: #15140f;
+        --link-line: var(--mark);
         --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 34px -16px rgb(0 0 0 / 0.6);
-        --code-bg: #090b11;
-        --code-bar: #10131c;
+        --code-bg: #0b0b0a;
+        --code-bar: #131311;
       }
     }
 
@@ -56,7 +66,13 @@
     }
     .wrap { max-width: 1480px; margin: 0 auto; padding: 0 16px; }
     code, kbd { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 0.9em; }
-    a { color: var(--accent); }
+    a {
+      color: var(--accent);
+      text-decoration-color: var(--link-line);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration-color: currentColor; }
 
     .hero { padding: 64px 0 28px; }
     .eyebrow {
@@ -73,10 +89,12 @@
       letter-spacing: -0.025em;
     }
     h1 span {
-      background: linear-gradient(90deg, #7c3aed, #db2777 55%, #f59e0b);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      padding: 0 0.08em;
+      border-radius: 2px;
+      background: linear-gradient(transparent var(--mark-top), var(--mark) 0 var(--mark-bottom), transparent 0);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      color: var(--mark-text);
     }
     .lede { margin: 0; max-width: 62ch; color: var(--muted); font-size: 1.08rem; }
 
@@ -210,7 +228,7 @@
       font: 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     }
     .source-bar strong { color: var(--code-text); font-weight: 600; }
-    .source-bar a { color: #c4b5fd; }
+    .source-bar a { color: var(--code-text); text-decoration-color: #e9d54a; }
     .source-bar .meta > * + *::before { content: "·"; margin: 0 8px; opacity: 0.6; }
     .source-bar .actions { display: flex; gap: 8px; }
     .source-bar button, .source-bar .open {
@@ -232,23 +250,23 @@
       font: 12.5px/1.65 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
       tab-size: 2;
     }
-    .t-fence   { color: #f472b6; font-weight: 700; }
-    .t-comment { color: #6b7591; font-style: italic; }
-    .t-at      { color: #f472b6; }
-    .t-atp     { color: #c7cde0; }
-    .t-sel     { color: #fcd34d; }
+    .t-fence   { color: #f2e46b; font-weight: 700; }
+    .t-comment { color: #857f73; font-style: italic; }
+    .t-at      { color: #f2e46b; }
+    .t-atp     { color: #d6d1c4; }
+    .t-sel     { color: #e8e4d8; }
     .t-hook    { color: #fb923c; font-weight: 600; }
     .t-prop    { color: #7dd3fc; }
-    .t-var     { color: #a5b4fc; }
-    .t-cssv    { color: #c084fc; font-weight: 700; }
-    .t-val     { color: #d5daea; }
+    .t-var     { color: #d6d1c4; }
+    .t-cssv    { color: #f2e46b; font-weight: 700; }
+    .t-val     { color: #e3dfd3; }
     .t-str     { color: #86efac; }
-    .t-punct   { color: #7d869f; }
-    .t-head    { color: #f8fafc; font-weight: 700; }
-    .t-delim   { color: #f472b6; }
+    .t-punct   { color: #8a8478; }
+    .t-head    { color: #f7f4ec; font-weight: 700; }
+    .t-delim   { color: #f2e46b; }
     .t-num     { color: #fdba74; }
     .t-quoted  { color: #86efac; }
-    .t-text    { color: #d5daea; }
+    .t-text    { color: #e3dfd3; }
 
     /* Cards side by side. Each card spans three rows of a shared subgrid
        (header, table, source), so headers and tables line up across a row. */

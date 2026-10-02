@@ -1,16 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- CSSV: CSS braces around a CSV comma. -->
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7c3aed"/>
-      <stop offset=".6" stop-color="#db2777"/>
-      <stop offset="1" stop-color="#f59e0b"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8" fill="url(#g)"/>
+  <!-- CSSV: CSS braces around a CSV comma, the comma in highlighter yellow. -->
+  <rect width="32" height="32" rx="8" fill="#1c1a17"/>
   <g fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12.8 7.5C10.5 7.5 9.5 8.5 9.5 10.5V13.5C9.5 15.2 8.6 16 6.9 16C8.6 16 9.5 16.8 9.5 18.5V21.5C9.5 23.5 10.5 24.5 12.8 24.5"/>
     <path d="M19.2 7.5C21.5 7.5 22.5 8.5 22.5 10.5V13.5C22.5 15.2 23.4 16 25.1 16C23.4 16 22.5 16.8 22.5 18.5V21.5C22.5 23.5 21.5 24.5 19.2 24.5"/>
   </g>
-  <path fill="#fff" transform="translate(16 19) scale(1.2) translate(-16 -19)" d="M16 15.6a2.25 2.25 0 0 1 2.25 2.25c0 2.5-1.25 4.4-3.3 5.35l-.75-1.15c1.05-.6 1.7-1.35 1.9-2.25A2.25 2.25 0 1 1 16 15.6z"/>
+  <path fill="#ffe45c" transform="translate(16 19) scale(1.2) translate(-16 -19)" d="M16 15.6a2.25 2.25 0 0 1 2.25 2.25c0 2.5-1.25 4.4-3.3 5.35l-.75-1.15c1.05-.6 1.7-1.35 1.9-2.25A2.25 2.25 0 1 1 16 15.6z"/>
 </svg>

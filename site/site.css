@@ -3,23 +3,31 @@
    is styled only by its own file. */
 :root {
   color-scheme: light dark;
-  --bg: #f6f7fa;
-  --bg-alt: #eef0f5;
-  --surface: #ffffff;
-  --stage: #eceef3;
-  --dots: rgb(15 23 42 / 0.09);
-  --text: #111827;
-  --muted: #5b6474;
-  --border: #e1e4ea;
-  --accent: #6d28d9;
-  --accent-soft: #f1edfd;
-  --accent-text: #5b21b6;
-  --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 10px 30px -14px rgb(15 23 42 / 0.18);
-  --shadow-lg: 0 1px 2px rgb(15 23 42 / 0.05), 0 30px 60px -24px rgb(15 23 42 / 0.28);
-  --code-bg: #0e111b;
-  --code-bar: #151926;
-  --code-text: #d5daea;
-  --code-muted: #7d869f;
+  --bg: #f7f5f0;
+  --bg-alt: #efece4;
+  --surface: #fffdf9;
+  --stage: #ece8df;
+  --dots: rgb(40 30 10 / 0.09);
+  --text: #1c1a17;
+  --muted: #625c52;
+  --border: #e3ded3;
+  /* Ink on paper, and one highlighter. Links are ink, so their underline
+     is what marks them. The headline mark is a band in light mode and a
+     solid block, with dark text, in dark mode. */
+  --accent: #1c1a17;
+  --accent-soft: #fcf3c4;
+  --accent-text: #1c1a17;
+  --mark: #ffe45c;
+  --mark-top: 58%;
+  --mark-bottom: 94%;
+  --mark-text: var(--text);
+  --link-line: #806400;
+  --shadow: 0 1px 2px rgb(40 30 10 / 0.04), 0 10px 30px -14px rgb(40 30 10 / 0.18);
+  --shadow-lg: 0 1px 2px rgb(40 30 10 / 0.05), 0 30px 60px -24px rgb(40 30 10 / 0.28);
+  --code-bg: #15140f;
+  --code-bar: #1d1c17;
+  --code-text: #e3dfd3;
+  --code-muted: #8a8478;
   --good: #16a34a;
   --bad: #e11d48;
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
@@ -27,21 +35,26 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a0c11;
-    --bg-alt: #0e1118;
-    --surface: #12151d;
-    --stage: #0d1017;
-    --dots: rgb(226 232 240 / 0.07);
-    --text: #e7e9ef;
-    --muted: #98a1b3;
-    --border: #232836;
-    --accent: #a78bfa;
-    --accent-soft: #1f1a33;
-    --accent-text: #c4b5fd;
+    --bg: #0d0d0c;
+    --bg-alt: #121210;
+    --surface: #161614;
+    --stage: #11110f;
+    --dots: rgb(236 232 223 / 0.07);
+    --text: #ece8df;
+    --muted: #a39d91;
+    --border: #2a2924;
+    --accent: #ece8df;
+    --accent-soft: #2a2715;
+    --accent-text: #f0e27a;
+    --mark: #e9d54a;
+    --mark-top: 0%;
+    --mark-bottom: 100%;
+    --mark-text: #15140f;
+    --link-line: var(--mark);
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 34px -16px rgb(0 0 0 / 0.6);
     --shadow-lg: 0 1px 2px rgb(0 0 0 / 0.3), 0 30px 60px -24px rgb(0 0 0 / 0.75);
-    --code-bg: #090b11;
-    --code-bar: #10131c;
+    --code-bg: #0b0b0a;
+    --code-bar: #131311;
     --good: #4ade80;
     --bad: #fb7185;
   }
@@ -59,7 +72,13 @@ body {
 }
 .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
 @media (max-width: 640px) { .wrap { padding: 0 16px; } }
-a { color: var(--accent); }
+a {
+  color: var(--accent);
+  text-decoration-color: var(--link-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+}
+a:hover { text-decoration-color: currentColor; }
 code, kbd, pre { font-family: var(--mono); }
 :not(pre) > code { font-size: 0.88em; overflow-wrap: anywhere; }
 h1, h2, h3 { text-wrap: balance; }
@@ -94,10 +113,12 @@ h1 {
   letter-spacing: -0.035em;
 }
 h1 span, h2 em {
-  background: linear-gradient(90deg, #7c3aed, #db2777 55%, #f59e0b);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  padding: 0 0.08em;
+  border-radius: 2px;
+  background: linear-gradient(transparent var(--mark-top), var(--mark) 0 var(--mark-bottom), transparent 0);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  color: var(--mark-text);
 }
 h2 em { font-style: normal; }
 h2 {
@@ -181,8 +202,7 @@ h3.sub { margin: 56px 0 16px; font-size: 1.3rem; }
 .ask + .playground { margin-top: 12px; }
 .ask-intro { display: grid; gap: 4px; }
 .ask-intro p { margin: 0; }
-.ask-intro a { font-size: 14px; font-weight: 600; text-decoration: none; }
-.ask-intro a:hover { text-decoration: underline; }
+.ask-intro a { font-size: 14px; font-weight: 600; }
 .ask-prompt {
   flex: 1 1 420px;
   padding: 10px 16px 12px;
@@ -317,7 +337,7 @@ h3.sub { margin: 56px 0 16px; font-size: 1.3rem; }
   outline: none;
   resize: none;
 }
-.editor textarea::selection { background: rgb(167 139 250 / 0.35); color: transparent; }
+.editor textarea::selection { background: rgb(255 228 92 / 0.28); color: transparent; }
 .editor textarea:focus-visible { box-shadow: inset 0 0 0 2px rgb(167 139 250 / 0.5); }
 @media (max-width: 900px) { .editor { min-height: 340px; } }
 
@@ -421,7 +441,7 @@ figure.dogfood .source-panel pre, .example .source-panel pre { max-height: 520px
   height: 4px;
   margin-bottom: 14px;
   border-radius: 2px;
-  background: linear-gradient(90deg, #7c3aed, #db2777);
+  background: var(--mark);
 }
 .goals p { margin: 0; color: var(--muted); font-size: 15px; }
 
@@ -517,7 +537,7 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
   z-index: 1;
   border: 2px solid var(--accent);
   border-radius: 4px;
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  background: color-mix(in srgb, var(--mark) 30%, transparent);
   pointer-events: none;
   transition: all 0.08s ease-out;
 }
@@ -549,10 +569,11 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
   border-radius: 14px;
   background: var(--surface);
 }
-.hooks .hook { align-self: flex-start; padding: 4px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-text); font-size: 13.5px; font-weight: 700; }
+.hooks .hook { align-self: flex-start; padding: 4px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-text); font-family: var(--mono); font-size: 13.5px; font-weight: 700; }
 .hooks p { flex: 1; margin: 0; color: var(--muted); font-size: 14.5px; }
 .hooks .eg { color: var(--text); font-size: 12.5px; }
-.hooks .more { justify-content: center; border-style: dashed; background: transparent; }
+/* The rest of CSS: a neutral chip, so the yellow stays on CSSV's own hooks. */
+.hooks .more .hook { background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text); }
 
 /* Examples ------------------------------------------------------------ */
 .example-tabs { margin: 36px 0 16px; }
@@ -655,27 +676,27 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
 .footer nav { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; }
 
 /* Syntax colors, as in examples/index.html ----------------------------- */
-.t-fence   { color: #f472b6; font-weight: 700; }
-.t-comment { color: #6b7591; font-style: italic; }
-.t-at      { color: #f472b6; }
-.t-atp     { color: #c7cde0; }
-.t-sel     { color: #fcd34d; }
+.t-fence   { color: #f2e46b; font-weight: 700; }
+.t-comment { color: #857f73; font-style: italic; }
+.t-at      { color: #f2e46b; }
+.t-atp     { color: #d6d1c4; }
+.t-sel     { color: #e8e4d8; }
 .t-hook    { color: #fb923c; font-weight: 600; }
 .t-prop    { color: #7dd3fc; }
-.t-var     { color: #a5b4fc; }
-.t-cssv    { color: #c084fc; font-weight: 700; }
-.t-val     { color: #d5daea; }
+.t-var     { color: #d6d1c4; }
+.t-cssv    { color: #f2e46b; font-weight: 700; }
+.t-val     { color: #e3dfd3; }
 .t-str     { color: #86efac; }
-.t-punct   { color: #7d869f; }
-.t-head    { color: #f8fafc; font-weight: 700; }
-.t-delim   { color: #f472b6; }
+.t-punct   { color: #8a8478; }
+.t-head    { color: #f7f4ec; font-weight: 700; }
+.t-delim   { color: #f2e46b; }
 .t-num     { color: #fdba74; }
 .t-quoted  { color: #86efac; }
-.t-text    { color: #d5daea; }
-.t-tag     { color: #f472b6; }
+.t-text    { color: #e3dfd3; }
+.t-tag     { color: #f2e46b; }
 .t-attr    { color: #7dd3fc; }
-.t-kw      { color: #c084fc; }
-.t-dim     { color: #6b7591; font-style: italic; }
+.t-kw      { color: #f2e46b; }
+.t-dim     { color: #857f73; font-style: italic; }
 
 /* Document pages (spec.html) ------------------------------------------- */
 .doc-layout {
@@ -707,7 +728,7 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
 .doc .anchor:hover { color: var(--accent); }
 .doc p, .doc ul, .doc ol { margin: 0 0 14px; }
 .doc li + li { margin-top: 4px; }
-.doc :not(pre) > code { padding: 0.1em 0.35em; border-radius: 5px; background: var(--accent-soft); color: var(--accent-text); }
+.doc :not(pre) > code { padding: 0.1em 0.35em; border-radius: 5px; background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text); }
 .doc pre.code { margin: 0 0 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--code-bg); }
 .doc blockquote {
   margin: 0 0 16px;

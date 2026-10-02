@@ -457,7 +457,7 @@ function editor() {
   const [, , stillSlot, , stillCol] = caretRuns.filter(([, t1]) => t1 <= still).at(-1);
 
   return `<g clip-path="url(#editor)" class="m" font-size="${C.size}">`
-    + `<path${cls(selection)} d="M${C.x - 3} ${slotY(0)}${outline}H${C.x - 3}Z" fill="#a78bfa" fill-opacity="0.35" opacity="0"/>`
+    + `<path${cls(selection)} d="M${C.x - 3} ${slotY(0)}${outline}H${C.x - 3}Z" fill="#ffe45c" fill-opacity="0.28" opacity="0"/>`
     + typedLine('open', 0, open)
     + style.map((runs, k) => typedLine(k, k + 1, runs)).join('')
     + `<g${cls(tailMoves)} transform="translate(0 ${num(at(tail, still) * C.lh)})">`
