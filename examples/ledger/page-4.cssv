@@ -1,0 +1,17 @@
+---
+/* Page 4 of 5, as a server would send it. The styles live in ledger.css. */
+@import url("ledger.css");
+---
+date,id,description,category,amount,balance
+2026-08-20,TX-4024,Metro top-up,transport,-23.48,2989.25
+2026-08-19,TX-4023,Noodle Bar,dining,-17.76,3012.73
+2026-08-18,TX-4022,Cloud storage,subscriptions,-2.99,3030.49
+2026-08-17,TX-4021,Metro top-up,transport,-22.17,3033.48
+2026-08-15,TX-4020,Bookshop,shopping,-30.34,3055.65
+2026-08-14,TX-4019,Electricity,utilities,-86.40,3085.99
+2026-08-12,TX-4018,Cinema,leisure,-14.85,3172.39
+2026-08-11,TX-4017,City Bikes,transport,-3.58,3187.24
+2026-08-10,TX-4016,City Bikes,transport,-5.78,3190.82
+2026-08-09,TX-4015,City Bikes,transport,-5.66,3196.60
+2026-08-08,TX-4014,Bookshop,shopping,-40.99,3202.26
+2026-08-07,TX-4013,Pizzeria Roma,dining,-43.30,3243.25

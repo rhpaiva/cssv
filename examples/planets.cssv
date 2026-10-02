@@ -1,0 +1,146 @@
+---
+/* The solar system. Every planet's look is set by name, through --cssv-key. */
+table {
+  --cssv-key: planet;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  font: 13px/1.4 system-ui, sans-serif;
+  color: #dbe4ff;
+  background-color: #060818;
+  background-image:
+    radial-gradient(circle at -4% -40%, rgb(255 200 100 / 0.6), rgb(255 130 50 / 0.16) 20%, transparent 46%),
+    radial-gradient(70% 90% at 92% 120%, rgb(124 58 237 / 0.28), transparent 70%),
+    radial-gradient(1.2px 1.2px at 24px 36px, #fff, transparent),
+    radial-gradient(1px 1px at 140px 90px, rgb(255 255 255 / 0.75), transparent),
+    radial-gradient(1.4px 1.4px at 80px 150px, rgb(190 210 255 / 0.9), transparent),
+    radial-gradient(1px 1px at 210px 20px, rgb(255 255 255 / 0.55), transparent);
+  background-size: auto, auto, 230px 190px, 290px 210px, 170px 250px, 340px 160px;
+  background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, repeat;
+}
+
+th, td {
+  padding: 0.8em 0.6em;
+  border-bottom: 1px solid rgb(255 255 255 / 0.07);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+thead th {
+  font-size: 0.66em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(219 228 255 / 0.55);
+  border-bottom-color: rgb(255 255 255 / 0.14);
+  vertical-align: bottom;
+}
+tbody tr:last-child td { border-bottom: 0; }
+td[data-col="type"] { color: rgb(219 228 255 / 0.6); font-style: italic; }
+
+/* Each row sets --orb, --size and --glow; one rule draws them all. */
+td[data-col="planet"] {
+  position: relative;
+  color: #fff;
+  font-size: 1.05em;
+  font-weight: 650;
+}
+td[data-col="planet"]::before {
+  content: "";
+  display: inline-block;
+  width: var(--size);
+  height: var(--size);
+  margin-inline: calc((2.2em - var(--size)) / 2) calc((2.2em - var(--size)) / 2 + 0.6em);
+  border-radius: 50%;
+  background: var(--orb);
+  box-shadow: 0 0 1.1em -0.1em var(--glow), inset -0.22em -0.22em 0.45em rgb(0 0 0 / 0.5);
+  vertical-align: middle;
+}
+tr[data-key="Mercury"] { --size: 0.55em; --glow: #a8a29e; --orb: radial-gradient(circle at 32% 30%, #f5f0ea, #a39b91 50%, #57514a); }
+tr[data-key="Venus"]   { --size: 0.95em; --glow: #f5c66b; --orb: radial-gradient(circle at 32% 30%, #fff6d5, #e9b85f 50%, #9a6420); }
+tr[data-key="Earth"]   { --size: 1em;    --glow: #60a5fa; --orb: radial-gradient(circle at 32% 30%, #d9f7ff, #3b9cf0 40%, #1a7f5a 64%, #0b2f6e); }
+tr[data-key="Mars"]    { --size: 0.75em; --glow: #f97316; --orb: radial-gradient(circle at 32% 30%, #ffc2a1, #d4512f 50%, #6b1a0c); }
+tr[data-key="Jupiter"] {
+  --size: 2.2em;
+  --glow: #f59e0b;
+  --orb:
+    radial-gradient(ellipse 18% 11% at 64% 60%, #b44a2a 70%, transparent 100%),
+    linear-gradient(170deg, #f6e1c6 0 16%, #c98a5c 16% 25%, #f1d6b4 25% 41%, #b8683f 41% 50%, #ecd2ad 50% 66%, #cf9967 66% 76%, #f5e3c9 76%);
+}
+tr[data-key="Saturn"]  { --size: 1.9em;  --glow: #eab308; --orb: linear-gradient(175deg, #f8eac4 0 22%, #dcc08a 22% 34%, #f3e1b5 34% 55%, #cfae72 55% 66%, #f1dfb2 66%); }
+tr[data-key="Uranus"]  { --size: 1.35em; --glow: #67e8f9; --orb: radial-gradient(circle at 32% 30%, #e6fdff, #8fdbe6 50%, #2f8592); }
+tr[data-key="Neptune"] { --size: 1.3em;  --glow: #818cf8; --orb: radial-gradient(circle at 32% 30%, #d4defe, #4466ea 50%, #16206b); }
+
+/* Saturn gets its rings. */
+tr[data-key="Saturn"] td[data-col="planet"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.15em;
+  box-sizing: border-box;
+  width: 3.4em;
+  height: 0.95em;
+  border: 0.16em solid rgb(234 214 160 / 0.8);
+  border-top-color: rgb(234 214 160 / 0.3);
+  border-radius: 50%;
+  translate: 0 -50%;
+  rotate: -16deg;
+}
+
+/* The asteroid belt divides the rocky planets from the giants. */
+tr[data-key="Jupiter"] td { border-top: 1px dashed rgb(255 255 255 / 0.22); }
+tr[data-key="Mars"] td { border-bottom-color: transparent; }
+td[data-col="type"] { position: relative; }
+tr[data-key="Jupiter"] td[data-col="type"]::before {
+  content: "asteroid belt";
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0.8em;
+  padding: 0 0.6em;
+  translate: 0 -55%;
+  background: #070a1c;
+  color: rgb(219 228 255 / 0.5);
+  font-size: 0.62em;
+  font-style: normal;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+tr[data-key="Earth"] td { background-color: rgb(96 165 250 / 0.09); }
+tr[data-key="Earth"] td[data-col="planet"]::after {
+  content: "you are here";
+  display: block;
+  width: fit-content;
+  margin-block-start: 0.5em;
+  margin-inline-start: calc(2.8em / 0.6); /* under the name: the orb slot is 2.8em at the cell's size */
+  padding: 0.3em 0.75em;
+  border-radius: 999px;
+  background: rgb(96 165 250 / 0.2);
+  color: #bfdbfe;
+  font-size: 0.6em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Formats per column: the file stores 0.387, the table shows 0.39. */
+td[data-col="from sun (AU)"] { --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }
+td[data-col="diameter (km)"] { --cssv-format: "maximumFractionDigits: 0"; }
+td[data-col="day (h)"]       { --cssv-format: "minimumFractionDigits: 1, maximumFractionDigits: 1"; }
+td[data-col="orbit (yr)"]    { --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }
+
+td[data-col="temp (°C)"] { font-weight: 600; }
+td[data-col="temp (°C)"]::after { content: "°"; }
+td[data-col="temp (°C)"].positive { color: #fdba74; text-shadow: 0 0 12px rgb(251 146 60 / 0.6); }
+td[data-col="temp (°C)"].negative { color: #7dd3fc; text-shadow: 0 0 12px rgb(56 189 248 / 0.55); }
+---
+planet,type,from sun (AU),diameter (km),day (h),orbit (yr),temp (°C)
+Mercury,Rocky,0.387,4879,4222.6,0.241,167
+Venus,Rocky,0.723,12104,2802.0,0.615,464
+Earth,Rocky,1.000,12756,24.0,1.000,15
+Mars,Rocky,1.524,6792,24.7,1.881,-65
+Jupiter,Gas giant,5.203,142984,9.9,11.86,-110
+Saturn,Gas giant,9.537,120536,10.7,29.46,-140
+Uranus,Ice giant,19.19,51118,17.2,84.01,-195
+Neptune,Ice giant,30.07,49528,16.1,164.8,-200

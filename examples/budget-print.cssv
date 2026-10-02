@@ -1,0 +1,15 @@
+---
+table { --cssv-key: category; --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }
+table { font: 15px/1.5 Georgia, serif; width: 100%; }
+thead th { border-bottom: 1px solid; font-style: italic; font-weight: normal; }
+tbody tr:nth-child(even) { background: color-mix(in srgb, currentColor 6%, transparent); }
+.negative { font-style: italic; }
+[data-col="status"] { font-variant: small-caps; }
+tr[data-key="Total"] td { border-top: 3px double; font-weight: 600; }
+---
+category,owner,planned,actual,diff,status
+Rent,Ana,1200,1200,0,paid
+Software,Ben,300,254.50,-45.50,paid
+Travel,Ana,800,1130,330,over
+Marketing,Caro,500,410,-90,pending
+Total,,2800,2994.50,194.50,

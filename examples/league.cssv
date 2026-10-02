@@ -1,0 +1,144 @@
+---
+/* Standings from a spreadsheet export: semicolons, club colors by name, ranks from a counter. */
+table {
+  --cssv-key: club;
+  --bg: #ffffff;
+  --fg: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --head: #f1f5f9;
+  --win: #15803d;
+  --loss: #dc2626;
+  --top: #2563eb;
+  --cup: #0891b2;
+  --drop: #dc2626;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  font: 14px/1.4 system-ui, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+@media (prefers-color-scheme: dark) {
+  table {
+    --bg: #0f172a;
+    --fg: #e2e8f0;
+    --muted: #94a3b8;
+    --line: #1e293b;
+    --head: #0b1222;
+    --win: #4ade80;
+    --loss: #f87171;
+    --top: #60a5fa;
+    --cup: #22d3ee;
+    --drop: #f87171;
+  }
+}
+
+th, td {
+  padding: 0.7em 0.6em;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+thead th {
+  background: var(--head);
+  color: var(--muted);
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background-color: color-mix(in srgb, var(--fg) 4%, transparent); }
+col:not([data-col="club"]) { width: 3em; }
+
+/* Ranks are a CSS counter, so the row order in the file is the standings. */
+tbody { counter-reset: rank; }
+tbody tr { counter-increment: rank; }
+td[data-col="club"] {
+  position: relative;
+  padding-inline-start: 4.4em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+td[data-col="club"]::before {
+  content: counter(rank);
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.5em;
+  width: 2em;
+  translate: 0 -50%;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
+}
+table:lang(ar) td[data-col="club"]::before { content: counter(rank, arabic-indic); }
+
+/* The crest: two colors per club, set by name. */
+td[data-col="club"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 2.75em;
+  width: 1.1em;
+  height: 1.3em;
+  translate: 0 -50%;
+  border-radius: 0.2em 0.2em 50% 50% / 0.2em 0.2em 70% 70%;
+  background: linear-gradient(135deg, var(--c1, var(--muted)) 0 50%, var(--c2, var(--line)) 50%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18);
+}
+tr[data-key="Northbridge FC"]     { --c1: #c8102e; --c2: #ffffff; }
+tr[data-key="Harbor City"]        { --c1: #38bdf8; --c2: #0c4a6e; }
+tr[data-key="Real Valmonte"]      { --c1: #7c3aed; --c2: #fde047; }
+tr[data-key="Kingsport Athletic"] { --c1: #f59e0b; --c2: #111827; }
+tr[data-key="FC Ostmark"]         { --c1: #16a34a; --c2: #ffffff; }
+tr[data-key="Sporting Alba"]      { --c1: #0f766e; --c2: #99f6e4; }
+tr[data-key="Riverside Rovers"]   { --c1: #1d4ed8; --c2: #f8fafc; }
+tr[data-key="Union Lindenau"]     { --c1: #be185d; --c2: #fbcfe8; }
+tr[data-key="Port Saline"]        { --c1: #475569; --c2: #e2e8f0; }
+tr[data-key="Dynamo Kestrel"]     { --c1: #ea580c; --c2: #1e3a8a; }
+
+/* Zones by position: title race, cup qualifier, relegation. */
+tbody tr:nth-child(-n+3) { --zone: var(--top); }
+tbody tr:nth-child(4)    { --zone: var(--cup); }
+tbody tr:nth-last-child(-n+2) { --zone: var(--drop); }
+tbody tr td:first-child { box-shadow: inset 4px 0 0 var(--zone, transparent); }
+tbody tr td[data-col="club"]::before { color: var(--zone, var(--muted)); }
+tbody tr:first-child {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--top) 12%, transparent), transparent 55%);
+}
+tbody tr:nth-child(4) td,
+tbody tr:nth-last-child(3) td { border-bottom-style: dashed; border-bottom-color: color-mix(in srgb, var(--muted) 45%, transparent); }
+
+td[data-col="GD"].positive { color: var(--win); }
+td[data-col="GD"].positive::before { content: "+"; }
+td[data-col="GD"].negative { color: var(--loss); }
+td[data-col="GD"].zero     { color: var(--muted); }
+
+td:is([data-col="P"], [data-col="GF"], [data-col="GA"]) { color: var(--muted); }
+th[data-col="Pts"] { background: color-mix(in srgb, var(--top) 14%, var(--head)); color: var(--top); }
+td[data-col="Pts"] {
+  background-color: color-mix(in srgb, var(--top) 6%, transparent);
+  font-size: 1.1em;
+  font-weight: 800;
+}
+td[data-col="xG"] {
+  --cssv-format: "minimumFractionDigits: 1, maximumFractionDigits: 1";
+  color: var(--muted);
+  font-style: italic;
+}
+---
+club;P;W;D;L;GF;GA;GD;Pts;xG
+Northbridge FC;18;13;3;2;40;14;26;42;38.4
+Harbor City;18;12;4;2;36;17;19;40;33.9
+Real Valmonte;18;10;5;3;33;19;14;35;34.7
+Kingsport Athletic;18;9;4;5;29;22;7;31;27.2
+FC Ostmark;18;7;6;5;26;24;2;27;27.8
+Sporting Alba;18;6;5;7;24;24;0;23;22.6
+Riverside Rovers;18;5;4;9;21;27;-6;19;23.1
+Union Lindenau;18;4;3;11;20;30;-10;15;18.5
+Port Saline;18;2;5;11;16;36;-20;11;17.9
+Dynamo Kestrel;18;1;3;14;12;44;-32;6;14.2

@@ -1,0 +1,116 @@
+---
+/* An invoice on paper. Line items are keyed by SKU; the summary rows have none. */
+table {
+  --cssv-key: sku;
+  --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2";
+  --ink: #1c1917;
+  --muted: #78716c;
+  --rule: #e9e2d8;
+  --accent: #b45309;
+  --before: "€\2009";
+  --after: "";
+  width: calc(100% - 2rem);
+  margin: 0.5rem 1rem 2rem;
+  padding: 0 1.25rem 1.25rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-top: 6px solid var(--accent);
+  border-radius: 6px;
+  font: 15px/1.5 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  color: var(--ink);
+  background: linear-gradient(#fffdf9, #fbf6ee);
+  box-shadow: 0 1px 2px rgb(41 37 36 / 0.08), 0 14px 28px -14px rgb(41 37 36 / 0.4);
+}
+
+/* German and French put the currency sign after the amount. */
+table:is(:lang(de), :lang(fr)) { --before: ""; --after: "\2009€"; }
+
+th, td { padding: 0.8em 0.6em; }
+thead th {
+  padding-top: 7em;
+  vertical-align: bottom;
+  border-bottom: 1.5px solid var(--ink);
+  color: var(--muted);
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* The letterhead lives in the header cells, so it stays on the paper. */
+th:is([data-col="sku"], [data-col="amount"]) { position: relative; }
+th[data-col="sku"]::before {
+  content: "Invoice";
+  position: absolute;
+  top: 1.3rem;
+  inset-inline-start: 0.6rem;
+  color: var(--ink);
+  font: italic 400 2.6rem/1 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  white-space: nowrap;
+}
+th[data-col="amount"]::before {
+  content: "✦ Studio Lumen";
+  position: absolute;
+  top: 1.9rem;
+  inset-inline-end: 0.6rem;
+  color: var(--accent);
+  font: 700 0.8rem/1 system-ui, sans-serif;
+  letter-spacing: 0.3em;
+  white-space: nowrap;
+}
+
+/* Line items. SKUs such as 0042 stay text, so they keep their zeros. */
+tbody tr[data-key] td { border-bottom: 1px solid var(--rule); }
+td[data-col="sku"] {
+  color: var(--muted);
+  font: 0.8em/1.9 ui-monospace, Menlo, Consolas, monospace;
+  letter-spacing: 0.05em;
+}
+td[data-col="description"] { color: var(--muted); }
+td[data-col="description"]::first-line { color: var(--ink); font-weight: 600; }
+td[data-col="qty"] { --cssv-format: "maximumFractionDigits: 0"; }
+td[data-col="qty"].number::before { content: "×\2009"; color: var(--muted); }
+td.number:is([data-col="unit price"], [data-col="amount"])::before { content: var(--before); color: var(--muted); }
+td.number:is([data-col="unit price"], [data-col="amount"])::after  { content: var(--after); color: var(--muted); }
+td[data-col="amount"] { font-weight: 600; }
+td[data-col="amount"].zero { color: var(--muted); font-weight: 400; text-decoration: line-through; }
+
+/* Summary rows: no SKU, so no data-key. */
+tbody tr:not([data-key]) td { padding-block: 0.35em; }
+tbody tr[data-key] + tr:not([data-key]) td { padding-top: 1.2em; }
+tbody tr:not([data-key]) td[data-col="description"] {
+  color: var(--muted);
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  text-align: end;
+}
+tbody tr:last-child td {
+  padding-top: 0.6em;
+  border-top: 2px solid var(--ink);
+  color: var(--accent);
+  font-size: 1.2em;
+  font-weight: 700;
+}
+tbody tr:last-child td[data-col="description"] { color: var(--ink); font-size: 1em; padding-top: 1.1em; }
+tbody tr:last-child td[data-col="sku"] { border-top-color: transparent; }
+
+@media print {
+  table { width: 100%; margin: 0; box-shadow: none; background: none; }
+}
+---
+sku,description,qty,unit price,amount
+0042,"Brand workshop
+Two half-day sessions",2,1450,2900
+0107,"Identity system
+Logo, type and color tokens",1,6800,6800
+0230,"Website design
+Twelve page templates",12,540,6480
+0315,"Illustration set
+Twenty-four spot drawings",24,95,2280
+0400,"Rush delivery
+Waived for repeat clients",1,0,0
+,Subtotal,,,18460
+,VAT 19 %,,,3507.40
+,Total due,,,21967.40

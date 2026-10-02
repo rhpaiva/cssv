@@ -1,0 +1,120 @@
+---
+/* Market close: a trading-terminal look from one style block. */
+table {
+  --cssv-key: ticker;
+  --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2";
+  --up: #34d399;
+  --down: #fb7185;
+  --flat: #94a3b8;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  font: 13px/1.4 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  color: #cbd5e1;
+  background:
+    radial-gradient(60% 120% at 100% 0%, rgb(52 211 153 / 0.12), transparent 60%),
+    radial-gradient(50% 100% at 0% 100%, rgb(251 113 133 / 0.10), transparent 60%),
+    linear-gradient(160deg, #111827, #030712);
+}
+
+th, td {
+  padding: 0.8em 0.75em;
+  border-bottom: 1px solid rgb(148 163 184 / 0.12);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+thead th {
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+  background: rgb(2 6 23 / 0.5);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background-color: rgb(148 163 184 / 0.08); }
+
+/* A pulsing "live" dot in the first header. */
+th[data-col="ticker"]::before {
+  content: "";
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-inline-end: 0.9em;
+  border-radius: 50%;
+  background: var(--up);
+  vertical-align: -0.05em;
+  animation: live 2s ease-out infinite;
+}
+@keyframes live {
+  from { box-shadow: 0 0 0 0 rgb(52 211 153 / 0.7); }
+  to   { box-shadow: 0 0 0 0.9em rgb(52 211 153 / 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  th[data-col="ticker"]::before { animation: none; }
+}
+
+td[data-col="ticker"]  { color: #f8fafc; font-weight: 700; letter-spacing: 0.06em; }
+td[data-col="company"] { color: #94a3b8; font-family: system-ui, sans-serif; }
+td[data-col="last"]    { color: #f8fafc; font-weight: 600; }
+td[data-col="volume"]  { --cssv-format: "maximumFractionDigits: 0"; color: #94a3b8; }
+td[data-col="cap (bn)"] { --cssv-format: "minimumFractionDigits: 1, maximumFractionDigits: 1"; color: #94a3b8; }
+
+/* .positive, .negative and .zero come from the data itself. */
+td:is([data-col="change"], [data-col="change %"]).positive { color: var(--up); }
+td:is([data-col="change"], [data-col="change %"]).negative { color: var(--down); }
+td:is([data-col="change"], [data-col="change %"]).zero     { color: var(--flat); }
+td:is([data-col="change"], [data-col="change %"]):not(.zero) {
+  text-shadow: 0 0 14px color-mix(in srgb, currentColor 55%, transparent);
+}
+td[data-col="change"].positive::before { content: "+"; }
+
+/* The percentage sits in a pill tinted with its own color. */
+td[data-col="change %"] {
+  position: relative;
+  isolation: isolate;
+  padding-inline: 1.3em;
+  font-weight: 700;
+}
+td[data-col="change %"]::before {
+  content: "";
+  position: absolute;
+  inset: 0.45em 0.4em;
+  z-index: -1;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 32%, transparent);
+}
+td[data-col="change %"].positive::after { content: "%\2002▲"; }
+td[data-col="change %"].negative::after { content: "%\2002▼"; }
+td[data-col="change %"].zero::after     { content: "%\2002■"; }
+
+/* Whole rows react to the sign of their change. */
+tbody tr:has([data-col="change"].positive) {
+  background: linear-gradient(90deg, rgb(52 211 153 / 0.08), transparent 40%);
+}
+tbody tr:has([data-col="change"].negative) {
+  background: linear-gradient(90deg, rgb(251 113 133 / 0.10), transparent 40%);
+}
+tbody tr:has([data-col="change"].positive) td:first-child { box-shadow: inset 3px 0 0 var(--up); }
+tbody tr:has([data-col="change"].negative) td:first-child { box-shadow: inset 3px 0 0 var(--down); }
+tbody tr:has([data-col="change"].zero) td:first-child     { box-shadow: inset 3px 0 0 var(--flat); }
+
+/* One row picked out by name. */
+tr[data-key="QBIT"] td[data-col="ticker"]::after {
+  content: "\2002★";
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgb(251 191 36 / 0.7);
+}
+---
+ticker,company,last,change,change %,volume,cap (bn)
+NOVR,Nova Robotics,184.22,4.87,2.71,18234500,92.4
+QBIT,Quantum Bits,412.75,12.30,3.07,4410200,301.6
+HLXB,Helix Bio,62.10,-3.42,-5.22,9120330,14.8
+ORBF,Orbital Freight,27.48,0.00,0.00,2210980,6.2
+SOLG,Solar Grid,98.31,-0.56,-0.57,7781020,41.0
+KELP,Kelp Foods,15.06,0.38,2.59,25664010,3.9
+AERO,Aerolite Air,44.90,-1.85,-3.96,11902455,22.7
+MNTL,Mantle Mining,233.40,1.12,0.48,1874300,58.3

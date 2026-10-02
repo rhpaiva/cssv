@@ -1,0 +1,70 @@
+/* Shared by every page of the ledger example. Each page's style block only
+   imports this file, so a page carries just its records and the browser can
+   cache the styles. The key column and the number format are set here too.
+   Colors are mixed from currentColor, so the table follows the page's
+   light or dark theme. */
+table {
+  --cssv-key: id;
+  --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2";
+  --credit: #059669;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font: 14px/1.5 system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  table { --credit: #34d399; }
+}
+
+th, td {
+  padding: 0.65em 0.9em;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+thead th {
+  border-bottom-color: color-mix(in srgb, currentColor 22%, transparent);
+  color: color-mix(in srgb, currentColor 55%, transparent);
+  font-size: 0.72em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: color-mix(in srgb, currentColor 4%, transparent); }
+
+td[data-col="date"] {
+  color: color-mix(in srgb, currentColor 60%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+td[data-col="id"] {
+  color: color-mix(in srgb, currentColor 50%, transparent);
+  font: 0.8em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+td[data-col="description"] { font-weight: 550; }
+td[data-col="category"] {
+  color: color-mix(in srgb, currentColor 65%, transparent);
+  font-size: 0.86em;
+}
+td[data-col="category"]::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-inline-end: 0.5em;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+  vertical-align: 0.1em;
+}
+
+/* Money in is green with a plus sign; money out keeps the text color. */
+td[data-col="amount"] { font-weight: 600; }
+td[data-col="amount"].positive { color: var(--credit); }
+td[data-col="amount"].positive::before { content: "+"; }
+td[data-col="balance"] { color: color-mix(in srgb, currentColor 60%, transparent); }
+
+/* Narrow screens keep the date, the description and the amount. */
+@media (max-width: 640px) {
+  th, td { padding-inline: 0.5em; }
+  [data-col="id"], [data-col="category"], [data-col="balance"] { display: none; }
+}

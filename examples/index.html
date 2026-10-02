@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSSV examples</title>
+  <meta name="description" content="CSSV examples: trading terminal, solar system, invoice, league table, release notes and a paginated ledger, each one .cssv file rendered by <cssv-table>.">
+  <link rel="canonical" href="https://cssv.dev/examples/">
+  <link rel="icon" href="../site/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../site/apple-touch-icon.png">
+  <link rel="stylesheet" href="../site/nav.css">
+  <script type="module" src="../src/cssv-table.js"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f5f8;
+      --surface: #ffffff;
+      --stage: #eceef3;
+      --dots: rgb(15 23 42 / 0.09);
+      --text: #111827;
+      --muted: #5b6474;
+      --border: #e1e4ea;
+      --accent: #6d28d9;
+      --chip-bg: #f1edfd;
+      --chip-fg: #5b21b6;
+      --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 10px 30px -14px rgb(15 23 42 / 0.18);
+      --code-bg: #0e111b;
+      --code-bar: #151926;
+      --code-text: #d5daea;
+      --code-muted: #7d869f;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0a0c11;
+        --surface: #12151d;
+        --stage: #0d1017;
+        --dots: rgb(226 232 240 / 0.07);
+        --text: #e7e9ef;
+        --muted: #98a1b3;
+        --border: #232836;
+        --accent: #a78bfa;
+        --chip-bg: #1f1a33;
+        --chip-fg: #c4b5fd;
+        --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 34px -16px rgb(0 0 0 / 0.6);
+        --code-bg: #090b11;
+        --code-bar: #10131c;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .wrap { max-width: 1480px; margin: 0 auto; padding: 0 16px; }
+    code, kbd { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 0.9em; }
+    a { color: var(--accent); }
+
+    .hero { padding: 64px 0 28px; }
+    .eyebrow {
+      margin: 0;
+      color: var(--accent);
+      font: 600 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 14px 0 12px;
+      font-size: clamp(2.1rem, 6vw, 3.4rem);
+      line-height: 1.04;
+      letter-spacing: -0.025em;
+    }
+    h1 span {
+      background: linear-gradient(90deg, #7c3aed, #db2777 55%, #f59e0b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .lede { margin: 0; max-width: 62ch; color: var(--muted); font-size: 1.08rem; }
+
+    .toolbar {
+      position: sticky;
+      top: var(--nav-height, 0px);
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      margin: 0 -16px;
+      padding: 12px 16px;
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .toolbar .label { color: var(--muted); font-size: 13px; }
+    .seg {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      margin: 0;
+      padding: 3px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+    }
+    .seg input { position: absolute; opacity: 0; pointer-events: none; }
+    .seg label {
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: var(--muted);
+      cursor: pointer;
+      font: 500 12.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    .seg label:hover { color: var(--text); }
+    .seg input:checked + label { background: var(--text); color: var(--surface); }
+    .seg input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .toolbar .hint { color: var(--muted); font-size: 13px; }
+
+    .example {
+      margin: 28px 0;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .example > header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px 20px;
+      padding: 20px 22px 18px;
+    }
+    .example > header > div { flex: 1 1 320px; min-width: 0; }
+    .example h2, .example h3 { margin: 0 0 4px; font-size: 1.2rem; letter-spacing: -0.01em; }
+    .example h3 { font-size: 1.05rem; }
+    .example .file { margin-inline-start: 8px; color: var(--muted); font-size: 0.78rem; font-weight: 500; }
+    .example p { margin: 0; max-width: 72ch; color: var(--muted); }
+    .example p code { white-space: nowrap; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+    .chips li {
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: var(--chip-bg);
+      color: var(--chip-fg);
+      font: 500 12px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 14px;
+      margin-inline-end: 6px;
+      border-radius: 2px;
+      background: var(--swatch);
+      vertical-align: -2px;
+    }
+    .stage {
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      background-color: var(--stage);
+      background-image: radial-gradient(var(--dots) 1px, transparent 1.5px);
+      background-size: 18px 18px;
+    }
+    cssv-table { overflow-x: auto; }
+    @media (max-width: 640px) {
+      .stage { padding: 12px; }
+      .example > header { padding: 16px; }
+      .toolbar .hint { display: none; }
+    }
+
+    .source-toggle {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font: 600 13px/1 system-ui, sans-serif;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .source-toggle:hover { border-color: var(--muted); }
+    .source-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .source-toggle[aria-expanded="true"] { background: var(--text); border-color: var(--text); color: var(--surface); }
+    .source-toggle svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .source { border-top: 1px solid var(--border); background: var(--code-bg); color: var(--code-text); }
+    .source:not([hidden]) { animation: reveal 0.22s ease-out; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(-6px); } }
+    @media (prefers-reduced-motion: reduce) { .source:not([hidden]) { animation: none; } }
+    .source-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 16px;
+      padding: 10px 16px;
+      background: var(--code-bar);
+      border-bottom: 1px solid rgb(255 255 255 / 0.06);
+      color: var(--code-muted);
+      font: 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    .source-bar strong { color: var(--code-text); font-weight: 600; }
+    .source-bar a { color: #c4b5fd; }
+    .source-bar .meta > * + *::before { content: "·"; margin: 0 8px; opacity: 0.6; }
+    .source-bar .actions { display: flex; gap: 8px; }
+    .source-bar button, .source-bar .open {
+      padding: 5px 10px;
+      border: 1px solid rgb(255 255 255 / 0.14);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--code-text);
+      cursor: pointer;
+      font: inherit;
+      text-decoration: none;
+    }
+    .source-bar button:hover, .source-bar .open:hover { background: rgb(255 255 255 / 0.06); }
+    .source pre {
+      margin: 0;
+      max-height: 560px;
+      overflow: auto;
+      padding: 16px 18px 22px;
+      font: 12.5px/1.65 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+      tab-size: 2;
+    }
+    .t-fence   { color: #f472b6; font-weight: 700; }
+    .t-comment { color: #6b7591; font-style: italic; }
+    .t-at      { color: #f472b6; }
+    .t-atp     { color: #c7cde0; }
+    .t-sel     { color: #fcd34d; }
+    .t-hook    { color: #fb923c; font-weight: 600; }
+    .t-prop    { color: #7dd3fc; }
+    .t-var     { color: #a5b4fc; }
+    .t-cssv    { color: #c084fc; font-weight: 700; }
+    .t-val     { color: #d5daea; }
+    .t-str     { color: #86efac; }
+    .t-punct   { color: #7d869f; }
+    .t-head    { color: #f8fafc; font-weight: 700; }
+    .t-delim   { color: #f472b6; }
+    .t-num     { color: #fdba74; }
+    .t-quoted  { color: #86efac; }
+    .t-text    { color: #d5daea; }
+
+    /* Cards side by side. Each card spans three rows of a shared subgrid
+       (header, table, source), so headers and tables line up across a row. */
+    .grid {
+      --card-min: 660px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(var(--card-min), 100%), 1fr));
+      gap: 0 24px;
+      margin: 24px 0 0;
+    }
+    .grid > .example {
+      display: grid;
+      grid-row: span 3;
+      grid-template-rows: subgrid;
+      grid-template-columns: minmax(0, 1fr);
+      margin: 0 0 24px;
+    }
+    .grid > .example > .stage { grid-row: 2 / span 2; padding: 20px; }
+    .grid > .example:has(> .source:not([hidden])) > .stage { grid-row: 2; }
+    .grid > .example > .source { grid-row: 3; }
+    .grid > .example.wide { grid-column: 1 / -1; }
+    .grid.trio { --card-min: 440px; }
+    .grid.trio .example > header > div { flex-basis: 160px; }
+    section > h2 { margin: 56px 0 6px; font-size: 1.5rem; letter-spacing: -0.015em; }
+    section > p { margin: 0 0 8px; color: var(--muted); max-width: 70ch; }
+
+    .pager {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 12px;
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
+    }
+    .pager > button {
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font: 600 13px/1 system-ui, sans-serif;
+    }
+    .pager > button:hover:not(:disabled) { border-color: var(--muted); }
+    .pager > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .pager > button:disabled { opacity: 0.45; cursor: default; }
+    .pager .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-inline-start: auto;
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+    .pager .spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .pager.loading .spinner { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .pager .spinner { animation-duration: 2.4s; } }
+    @media (max-width: 640px) {
+      .pager { padding: 12px 16px; }
+      .pager .status { margin-inline-start: 0; flex-basis: 100%; }
+    }
+    footer { margin: 64px 0 40px; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="../site/" aria-label="CSSV home">
+        <img src="../site/favicon.svg" alt="" width="30" height="30">
+        <span>CSSV</span>
+      </a>
+      <nav aria-label="Site">
+        <a href="../site/#why">Why</a>
+        <a class="wide-only" href="../site/#how">How it works</a>
+        <a href="./" aria-current="page">Examples</a>
+        <a href="../site/#start">Get started</a>
+        <a class="wide-only" href="../site/#ai">AI</a>
+        <a href="../site/spec.html">Spec</a>
+        <a class="gh" href="https://github.com/rhpaiva/cssv" aria-label="CSSV on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <header class="hero">
+      <p class="eyebrow">CSSV v1 · Comma Separated Styled Values</p>
+      <h1>Plain text in, <span>styled tables</span> out.</h1>
+      <p class="lede">Each table below is one <code>.cssv</code> file: a CSS style block between <code>---</code> fences, then ordinary CSV. <code>&lt;cssv-table&gt;</code> renders the data as a fixed HTML table and applies the file's styles to it. The page adds no styles of its own to the tables. Use <strong>View source</strong> to see each file.</p>
+    </header>
+
+    <section id="showcase">
+      <div class="toolbar">
+        <span class="label" id="locale-label">Display numbers in</span>
+        <div class="seg" id="locale" role="radiogroup" aria-labelledby="locale-label">
+          <input type="radio" name="locale" id="loc-en" value="en-US" checked><label for="loc-en">en-US</label>
+          <input type="radio" name="locale" id="loc-de" value="de-DE"><label for="loc-de">de-DE</label>
+          <input type="radio" name="locale" id="loc-fr" value="fr-FR"><label for="loc-fr">fr-FR</label>
+          <input type="radio" name="locale" id="loc-hi" value="hi-IN"><label for="loc-hi">hi-IN</label>
+          <input type="radio" name="locale" id="loc-ar" value="ar-EG"><label for="loc-ar">ar-EG</label>
+        </div>
+        <span class="hint">Files store <code>1234.5</code>; the reader's locale decides how it looks.</span>
+      </div>
+
+      <div class="grid">
+      <article class="example">
+        <header>
+          <div>
+            <h2>Market close <span class="file">markets.cssv</span></h2>
+            <p>A trading terminal built from sign classes. Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>, which drives the arrows, the colors, the pill tints and the row highlights. No value is repeated in the CSS.</p>
+            <ul class="chips">
+              <li>.positive / .negative / .zero</li>
+              <li>tr:has(.negative)</li>
+              <li>--cssv-format per column</li>
+              <li>tr[data-key="QBIT"]</li>
+              <li>@keyframes</li>
+            </ul>
+          </div>
+        </header>
+        <div class="stage"><cssv-table src="markets.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example">
+        <header>
+          <div>
+            <h2>The solar system <span class="file">planets.cssv</span></h2>
+            <p><code>--cssv-key: planet</code> names every row, and each row sets a few custom properties (<code>--orb</code>, <code>--size</code>, <code>--glow</code>) that one shared rule draws. The file stores <code>0.387</code>, and <code>--cssv-format</code> rounds it to 0.39 for display.</p>
+            <ul class="chips">
+              <li>--cssv-key</li>
+              <li>custom properties per row</li>
+              <li>::before / ::after</li>
+              <li>rounding: halfExpand</li>
+              <li>grouping by locale</li>
+            </ul>
+          </div>
+        </header>
+        <div class="stage"><cssv-table src="planets.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example">
+        <header>
+          <div>
+            <h2>Invoice <span class="file">invoice.cssv</span></h2>
+            <p>SKUs like <code>0042</code> stay text because of the leading zero. Quoted fields span two lines, and <code>::first-line</code> bolds the title. Summary rows have no SKU, so they get no <code>data-key</code> and <code>tr:not([data-key])</code> selects them. Switch to de-DE or fr-FR to move the € sign after the amount with <code>:lang()</code>.</p>
+            <ul class="chips">
+              <li>text IDs</li>
+              <li>multi-line fields</li>
+              <li>tr:not([data-key])</li>
+              <li>:lang(de)</li>
+              <li>@media print</li>
+            </ul>
+          </div>
+        </header>
+        <div class="stage"><cssv-table src="invoice.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example">
+        <header>
+          <div>
+            <h2>League table <span class="file">league.cssv</span></h2>
+            <p>A semicolon-delimited spreadsheet export, detected from the header. Ranks come from a CSS counter, and crests come from two colors set per club by name. Zones are selected by position. The style block switches palettes with <code>prefers-color-scheme</code>.</p>
+            <ul class="chips">
+              <li>; delimiter</li>
+              <li>counter(rank)</li>
+              <li>:nth-child zones</li>
+              <li>prefers-color-scheme</li>
+            </ul>
+            <div class="legend">
+              <span style="--swatch: #3b82f6">Title race</span>
+              <span style="--swatch: #06b6d4">Cup qualifier</span>
+              <span style="--swatch: #ef4444">Relegation</span>
+            </div>
+          </div>
+        </header>
+        <div class="stage"><cssv-table src="league.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example wide">
+        <header>
+          <div>
+            <h2>Release notes <span class="file">inline &lt;script type="text/cssv"&gt;</span></h2>
+            <p>This file sits inline in the page instead of being loaded with <code>src</code>. Prefix selectors on the key (<code>[data-key^="feat-"]</code>) color each entry, and the timeline is drawn with pseudo-elements. Colors are mixed from <code>currentColor</code>, so the table follows the page's light or dark theme.</p>
+            <ul class="chips">
+              <li>inline &lt;script&gt;</li>
+              <li>[data-key^="break-"]</li>
+              <li>color-mix(currentColor)</li>
+              <li>::first-line</li>
+            </ul>
+          </div>
+        </header>
+        <div class="stage">
+          <cssv-table>
+            <script type="text/cssv">
+---
+/* Release notes, inline in the page. Each entry's color comes from its id prefix. */
+table {
+  --cssv-key: id;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font: 14px/1.5 system-ui, sans-serif;
+}
+th, td {
+  padding: 0.9em;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+thead th {
+  border-bottom-color: color-mix(in srgb, currentColor 22%, transparent);
+  color: color-mix(in srgb, currentColor 55%, transparent);
+  font-size: 0.72em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+tbody tr:last-child td { border-bottom: 0; }
+
+tr[data-key^="feat-"]  { --tone: #8b5cf6; }
+tr[data-key^="fix-"]   { --tone: #10b981; }
+tr[data-key^="perf-"]  { --tone: #f59e0b; }
+tr[data-key^="break-"] { --tone: #ef4444; }
+
+/* The timeline: a rail and a dot in the version column. */
+td[data-col="version"] {
+  position: relative;
+  padding-inline-start: 2.8em;
+  font: 600 0.9em/1.65 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  white-space: nowrap;
+}
+td[data-col="version"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0 -1px;
+  inset-inline-start: 1.15em;
+  width: 2px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+tbody tr:first-child td[data-col="version"]::before { top: 1.4em; }
+tbody tr:last-child td[data-col="version"]::before { bottom: auto; height: 1.4em; }
+td[data-col="version"]::after {
+  content: "";
+  position: absolute;
+  top: 1.05em;
+  inset-inline-start: calc(1.15em + 1px - 0.45em);
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 0 0.28em color-mix(in srgb, var(--tone) 22%, transparent);
+}
+
+td[data-col="date"] {
+  color: color-mix(in srgb, currentColor 60%, transparent);
+  font-size: 0.88em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The id as a tinted tag. */
+td[data-col="id"] {
+  position: relative;
+  isolation: isolate;
+  color: color-mix(in srgb, var(--tone) 72%, currentColor);
+  font: 600 0.78em/2 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  text-align: center;
+  white-space: nowrap;
+}
+td[data-col="id"]::before {
+  content: "";
+  position: absolute;
+  inset: 0.9em 0.4em auto;
+  height: 2em;
+  z-index: -1;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tone) 15%, transparent);
+}
+
+td[data-col="change"]::first-line { font-weight: 650; }
+td[data-col="author"] { color: color-mix(in srgb, currentColor 65%, transparent); }
+td[data-col="author"]::before { content: "@"; opacity: 0.6; }
+
+tr[data-key^="break-"] td { background: color-mix(in srgb, var(--tone) 8%, transparent); }
+tr[data-key^="break-"] td[data-col="change"]::before {
+  content: "Breaking";
+  margin-inline-end: 0.6em;
+  padding: 0.15em 0.55em;
+  border-radius: 0.35em;
+  background: var(--tone);
+  color: #fff;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: 0.15em;
+}
+---
+version,date,id,change,author
+3.2.0,2026-09-29,feat-231,"Command palette
+Press Ctrl+K anywhere to jump to a page or run an action.",ines
+3.1.4,2026-09-22,fix-229,"Tooltips no longer flicker
+Moving the pointer across an element's edge kept reopening them.",tomas
+3.1.3,2026-09-15,perf-226,"Long lists render three times faster
+Rows outside the viewport are skipped until you scroll to them.",ines
+3.0.0,2026-09-01,break-220,"Removed the legacy theme API
+Use design tokens instead; the migration guide lists every rename.",ade
+2.9.0,2026-08-18,feat-214,"Dark mode
+Follows the system setting unless someone picks a theme.",mara
+2.8.2,2026-08-11,fix-211,"Calendars start on the right weekday
+The date picker uses each locale's first day of the week.",tomas
+            </script>
+          </cssv-table>
+        </div>
+      </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Same data, three ways</h2>
+      <p><code>budget.cssv</code> and <code>budget-print.cssv</code> have identical CSV and different style blocks; <code>budget.cssv</code> imports a shared <code>brand.css</code>. The third card is <code>budget.cssv</code> again, inside an element with <code>lang="de-DE"</code>, which the locale buttons above don't change.</p>
+      <div class="grid trio">
+        <article class="example">
+          <header>
+            <div><h3>budget.cssv</h3></div>
+          </header>
+          <div class="stage"><cssv-table src="budget.cssv"></cssv-table></div>
+        </article>
+        <article class="example">
+          <header>
+            <div><h3>budget-print.cssv</h3></div>
+          </header>
+          <div class="stage"><cssv-table src="budget-print.cssv"></cssv-table></div>
+        </article>
+        <article class="example">
+          <header>
+            <div><h3>budget.cssv <span class="file">lang="de-DE"</span></h3></div>
+          </header>
+          <div class="stage" lang="de-DE"><cssv-table src="budget.cssv"></cssv-table></div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Paginated data</h2>
+      <p>A server can send <code>.cssv</code> where it would send JSON. This site is static, so the five pages are files; a real endpoint would take <code>?page=2</code> and report the total, for example in a response header. The page script sets the table's <code>src</code> and listens for its loading events.</p>
+      <article class="example">
+        <header>
+          <div>
+            <h3>Account activity <span class="file" id="ledger-file">ledger/page-1.cssv</span></h3>
+            <p>Each page's style block is a comment and <code>@import url("ledger.css")</code>. The shared stylesheet sets the key column and the number format and styles the rows, so a page carries only its records and the browser can cache the styles. The current page stays on screen while the next one loads, and <code>cssv-loadstart</code> and <code>cssv-loadend</code> drive the spinner; throttle the network in your browser's developer tools to see it. Click ahead quickly and only the last page you asked for is shown.</p>
+            <ul class="chips">
+              <li>table.src = …</li>
+              <li>cssv-loadstart / cssv-loadend</li>
+              <li>shared @import</li>
+              <li>.positive::before</li>
+            </ul>
+          </div>
+        </header>
+        <div class="stage"><cssv-table id="ledger" src="ledger/page-1.cssv"></cssv-table></div>
+        <nav class="pager" id="ledger-pager" aria-label="Ledger pages">
+          <button type="button" data-step="-1" disabled>Previous</button>
+          <div class="seg" role="radiogroup" aria-label="Page">
+            <input type="radio" name="ledger-page" id="ledger-p1" value="1" checked><label for="ledger-p1">1</label>
+            <input type="radio" name="ledger-page" id="ledger-p2" value="2"><label for="ledger-p2">2</label>
+            <input type="radio" name="ledger-page" id="ledger-p3" value="3"><label for="ledger-p3">3</label>
+            <input type="radio" name="ledger-page" id="ledger-p4" value="4"><label for="ledger-p4">4</label>
+            <input type="radio" name="ledger-page" id="ledger-p5" value="5"><label for="ledger-p5">5</label>
+          </div>
+          <button type="button" data-step="1">Next</button>
+          <span class="status"><span class="spinner" aria-hidden="true"></span><span aria-live="polite">Page 1 of 5 · records 1–12 of 60</span></span>
+        </nav>
+      </article>
+    </section>
+
+    <footer>Rendered by <code>src/cssv-table.js</code>. The format is defined in <a href="../SPEC.md">SPEC.md</a>.</footer>
+  </div>
+
+  <script type="module">
+    // Locale switcher: sets lang on the showcase tables, which re-render (SPEC 10.1).
+    const showcase = document.querySelectorAll('#showcase cssv-table');
+    document.getElementById('locale').addEventListener('change', (event) => {
+      for (const table of showcase) table.setAttribute('lang', event.target.value);
+    });
+  </script>
+
+  <script type="module">
+    // Pagination: each page is its own file. Setting src makes the table fetch
+    // and render it, and the current page stays visible until the next one is
+    // ready. When pages are clicked faster than they load, only the latest one
+    // is shown.
+    const PAGES = 5;
+    const PER_PAGE = 12;
+    const ledger = document.getElementById('ledger');
+    const stage = ledger.parentElement;
+    const pager = document.getElementById('ledger-pager');
+    const [prev, next] = pager.querySelectorAll(':scope > button');
+    const status = pager.querySelector('[aria-live]');
+    let current = 1;
+    let spinnerTimer;
+
+    function show(page) {
+      current = page;
+      document.getElementById(`ledger-p${page}`).checked = true;
+      prev.disabled = page === 1;
+      next.disabled = page === PAGES;
+      ledger.src = `ledger/page-${page}.cssv`;
+      document.getElementById('ledger-file').textContent = ledger.src;
+    }
+
+    // The spinner appears only when a page takes more than a moment to load.
+    // cssv-loadend follows the last cssv-loadstart, even after several clicks.
+    ledger.addEventListener('cssv-loadstart', () => {
+      stage.setAttribute('aria-busy', 'true');
+      clearTimeout(spinnerTimer);
+      spinnerTimer = setTimeout(() => pager.classList.add('loading'), 150);
+    });
+    ledger.addEventListener('cssv-loadend', () => {
+      clearTimeout(spinnerTimer);
+      pager.classList.remove('loading');
+      stage.removeAttribute('aria-busy');
+      const first = (current - 1) * PER_PAGE + 1;
+      status.textContent = ledger.model
+        ? `Page ${current} of ${PAGES} · records ${first}–${first + ledger.model.rows.length - 1} of ${PAGES * PER_PAGE}`
+        : `Page ${current} could not be loaded.`;
+    });
+
+    pager.addEventListener('change', (event) => show(Number(event.target.value)));
+    for (const button of [prev, next]) {
+      button.addEventListener('click', () => show(current + Number(button.dataset.step)));
+    }
+  </script>
+
+  <script type="module">
+    // "View source": shows each example's CSSV text, read from the same src
+    // or inline script the table renders, with light syntax highlighting.
+    const NUMBER = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/; // SPEC 6.1
+    const FENCE = /^﻿?---[ \t]*\r?\n?$/;     // SPEC 3.4
+    const HOOK = /(data-(?:col|row|key)|\.(?:number|negative|positive|zero)\b)/;
+    const CSS_TOKEN = /\/\*[\s\S]*?(?:\*\/|$)|"(?:[^"\\\n]|\\[\s\S])*"?|'(?:[^'\\\n]|\\[\s\S])*'?|[{};:]|[^{};:"'/]+|\//g;
+    const NESTING_AT_RULE = /^\s*@(?:media|supports|layer|container|keyframes|scope|document)\b/;
+
+    function span(cls, text) {
+      const el = document.createElement('span');
+      el.className = cls;
+      el.textContent = text;
+      return el;
+    }
+
+    // Selectors, with the table model's hooks (data-* and the four classes) marked.
+    function selector(text, out) {
+      text.split(HOOK).forEach((part, i) => {
+        if (part) out.append(span(i % 2 ? 't-hook' : 't-sel', part));
+      });
+    }
+
+    function highlightCss(css, out) {
+      const stack = ['rules'];
+      let prelude = '';
+      let inValue = false;
+      for (const [tok] of css.matchAll(CSS_TOKEN)) {
+        const isString = tok[0] === '"' || tok[0] === "'";
+        if (tok.startsWith('/*')) { out.append(span('t-comment', tok)); continue; }
+        if (tok === '{' || tok === '}' || tok === ';') {
+          if (tok === '{') stack.push(stack.at(-1) === 'rules' && NESTING_AT_RULE.test(prelude) ? 'rules' : 'decls');
+          if (tok === '}' && stack.length > 1) stack.pop();
+          prelude = '';
+          inValue = false;
+          out.append(span('t-punct', tok));
+          continue;
+        }
+        if (stack.at(-1) === 'rules') {
+          prelude += tok;
+          if (isString) out.append(span('t-str', tok));
+          else if (prelude.trimStart().startsWith('@')) {
+            tok.split(/(@[\w-]+)/).forEach((part, i) => { if (part) out.append(span(i % 2 ? 't-at' : 't-atp', part)); });
+          } else selector(tok, out);
+          continue;
+        }
+        if (tok === ':' && !inValue) { inValue = true; out.append(span('t-punct', tok)); continue; }
+        if (isString) { out.append(span('t-str', tok)); continue; }
+        if (inValue) { out.append(span('t-val', tok)); continue; }
+        const name = tok.trim();
+        out.append(span(name.startsWith('--cssv-') ? 't-cssv' : name.startsWith('--') ? 't-var' : 't-prop', tok));
+      }
+    }
+
+    function highlightCsv(data, out) {
+      // SPEC 5.1: the delimiter is whichever of , and ; the header uses more.
+      let quoted = false, commas = 0, semicolons = 0;
+      for (const ch of data) {
+        if (ch === '"') quoted = !quoted;
+        else if (quoted) continue;
+        else if (ch === '\n' || ch === '\r') break;
+        else if (ch === ',') commas++;
+        else if (ch === ';') semicolons++;
+      }
+      const delimiter = semicolons > commas ? ';' : ',';
+      let pos = 0, record = 0, lineHasField = false;
+      while (pos < data.length) {
+        const ch = data[pos];
+        if (ch === delimiter) { out.append(span('t-delim', ch)); pos++; lineHasField = true; continue; }
+        if (ch === '\r' || ch === '\n') {
+          const end = data.startsWith('\r\n', pos) ? pos + 2 : pos + 1;
+          out.append(data.slice(pos, end));
+          if (lineHasField) record++;
+          lineHasField = false;
+          pos = end;
+          continue;
+        }
+        let end = pos;
+        if (ch === '"') {
+          end++;
+          while (end < data.length) {
+            if (data[end] !== '"') end++;
+            else if (data[end + 1] === '"') end += 2;
+            else { end++; break; }
+          }
+        }
+        while (end < data.length && data[end] !== delimiter && data[end] !== '\n' && data[end] !== '\r') end++;
+        const field = data.slice(pos, end);
+        const cls = record === 0 ? 't-head' : ch === '"' ? 't-quoted' : NUMBER.test(field) ? 't-num' : 't-text';
+        out.append(span(cls, field));
+        lineHasField = true;
+        pos = end;
+      }
+    }
+
+    function highlight(text) {
+      const out = document.createDocumentFragment();
+      const lines = text.split(/(?<=\n)/);
+      let i = 0;
+      if (lines.length && FENCE.test(lines[0])) {
+        out.append(span('t-fence', lines[i++]));
+        let css = '';
+        while (i < lines.length && !FENCE.test(lines[i])) css += lines[i++];
+        highlightCss(css, out);
+        if (i < lines.length) out.append(span('t-fence', lines[i++]));
+      }
+      highlightCsv(lines.slice(i).join(''), out);
+      return out;
+    }
+
+    async function readSource(table) {
+      const src = table.getAttribute('src');
+      if (src !== null) {
+        const url = new URL(src, document.baseURI);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Could not load ${src} (HTTP ${res.status}).`);
+        return { text: await res.text(), name: src, url: res.url };
+      }
+      // Same normalization as the renderer (SPEC Appendix C).
+      const script = table.querySelector(':scope > script[type="text/cssv"]');
+      const text = (script?.textContent ?? '').replace(/^(?:[ \t]*\r?\n)+/, '').replace(/\s+$/, '');
+      return { text, name: 'inline <script type="text/cssv">', url: null };
+    }
+
+    function meta(model, source) {
+      const items = [];
+      if (!model) return items;
+      items.push(model.style === null ? 'no style block' : `${model.style.split('\n').length} lines of CSS`);
+      items.push(`${model.rows.length} records × ${model.columns.length} columns`);
+      if (model.delimiter === ';') items.push('semicolon-delimited');
+      for (const [, href] of (model.style ?? '').matchAll(/@import\s+(?:url\(\s*)?["']([^"']+)["']/g)) {
+        const a = document.createElement('a');
+        a.href = new URL(href, source.url ?? document.baseURI).href;
+        a.textContent = `imports ${href}`;
+        a.target = '_blank';
+        items.push(a);
+      }
+      return items;
+    }
+
+    let panels = 0;
+    async function buildPanel(example, table) {
+      const panel = document.createElement('div');
+      panel.className = 'source';
+      panel.id = `source-${++panels}`;
+      panel.hidden = true;
+      const bar = document.createElement('div');
+      bar.className = 'source-bar';
+      const pre = document.createElement('pre');
+      const code = document.createElement('code');
+      pre.append(code);
+      panel.append(bar, pre);
+      example.append(panel);
+      try {
+        const source = await readSource(table);
+        await table.ready;
+        const info = document.createElement('div');
+        info.className = 'meta';
+        const name = document.createElement('strong');
+        name.textContent = source.name;
+        info.append(name);
+        for (const item of meta(table.model, source)) {
+          const el = typeof item === 'string' ? document.createElement('span') : item;
+          if (typeof item === 'string') el.textContent = item;
+          info.append(el);
+        }
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        const copy = document.createElement('button');
+        copy.type = 'button';
+        copy.textContent = 'Copy';
+        copy.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(source.text);
+            copy.textContent = 'Copied';
+          } catch {
+            copy.textContent = 'Copy failed';
+          }
+          setTimeout(() => { copy.textContent = 'Copy'; }, 1400);
+        });
+        actions.append(copy);
+        if (source.url) {
+          const open = document.createElement('a');
+          open.className = 'open';
+          open.href = source.url;
+          open.target = '_blank';
+          open.textContent = 'Open file';
+          actions.append(open);
+        }
+        bar.append(info, actions);
+        code.append(highlight(source.text));
+      } catch (error) {
+        bar.textContent = error.message;
+      }
+      return panel;
+    }
+
+    const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>';
+    for (const example of document.querySelectorAll('.example')) {
+      const table = example.querySelector('cssv-table');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'source-toggle';
+      button.setAttribute('aria-expanded', 'false');
+      button.innerHTML = `${ICON}<span>View source</span>`;
+      example.querySelector(':scope > header').append(button);
+      // A panel shows one file. When the table's src changes (the paginated
+      // example), the panel is replaced with one for the new file.
+      let panel = null;
+      let panelSrc = null;
+      async function sync() {
+        const src = table.getAttribute('src');
+        if (panel && panelSrc !== src) {
+          panel.then((el) => el.remove());
+          panel = null;
+        }
+        if (!panel) {
+          panelSrc = src;
+          panel = buildPanel(example, table);
+        }
+        const current = panel;
+        const el = await current;
+        if (current !== panel) return;
+        button.setAttribute('aria-controls', el.id);
+        el.hidden = button.getAttribute('aria-expanded') !== 'true';
+      }
+      button.addEventListener('click', () => {
+        const open = button.getAttribute('aria-expanded') !== 'true';
+        button.setAttribute('aria-expanded', String(open));
+        button.lastElementChild.textContent = open ? 'Hide source' : 'View source';
+        sync();
+      });
+      table.addEventListener('cssv-load', () => {
+        if (!panel || panelSrc === table.getAttribute('src')) return;
+        if (button.getAttribute('aria-expanded') === 'true') return sync();
+        panel.then((el) => el.remove()); // closed: rebuild when next opened
+        panel = null;
+        button.removeAttribute('aria-controls');
+      });
+    }
+  </script>
+</body>
+</html>
