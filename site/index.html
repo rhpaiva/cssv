@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CSSV · Comma Separated Styled Values</title>
-  <meta name="description" content="CSSV is CSV data with a CSS stylesheet at the top of the same file. One plain-text file renders as a styled HTML table in any browser.">
+  <meta name="description" content="CSSV keeps a table's data and its look in one plain-text file: CSV for the data, with a CSS style block on top. It renders as a styled HTML table in the browser.">
   <link rel="canonical" href="https://cssv.dev/">
   <meta property="og:url" content="https://cssv.dev/">
   <meta property="og:title" content="CSSV · Comma Separated Styled Values">
@@ -394,7 +394,7 @@ import { parse, toHtml } from '@rhpaiva/cssv';</code></pre>
             </div>
           </li>
           <li class="step">
-            <div class="step-label"><span class="num">2</span><div><h3>Write a file</h3><p>Any CSV file works as it is. Add a style block when you want it to look a certain way.</p></div></div>
+            <div class="step-label"><span class="num">2</span><div><h3>Write a file</h3><p>Start from the CSV you have and put a style block above it. The styles travel with the file, so every page that renders it gets them.</p></div></div>
             <div class="code-card">
               <div class="pane-head"><span class="pane-title">budget.cssv</span></div>
 <pre class="code" data-lang="cssv"><code>---
@@ -415,9 +415,6 @@ Total,1154.50</code></pre>
             <div class="code-card">
               <div class="pane-head"><span class="pane-title">index.html</span></div>
 <pre class="code" data-lang="html"><code>&lt;cssv-table src="budget.cssv"&gt;&lt;/cssv-table&gt;
-
-&lt;!-- A plain CSV export, with the key column set by the page --&gt;
-&lt;cssv-table src="export.csv" key="category"&gt;&lt;/cssv-table&gt;
 
 &lt;!-- Inline --&gt;
 &lt;cssv-table&gt;
@@ -633,6 +630,10 @@ records,parse(),until ready,until painted,toMarkdown()
 
         <h3 class="sub">Questions</h3>
         <div class="faq">
+          <details>
+            <summary>I just want to show a CSV file. Do I need CSSV?</summary>
+            <p>Probably not. A CSV parser and a few lines that build a table will do, and your page's CSS can style it. CSSV is for when the styles belong to the file: a report that a script or a language model writes complete with its look, or one file shown on several pages that should bring its styles along. <code>&lt;cssv-table&gt;</code> still renders a plain CSV file with neutral defaults, so you can start from an export and add a style block later.</p>
+          </details>
           <details>
             <summary>Why not just write an HTML table?</summary>
             <p>You can, and CSSV produces one. Written by hand, though, every value sits inside markup, and the attributes you style by have to be kept in sync with the data. With CSSV the data stays CSV, so any spreadsheet export or CSV library can produce it, and the renderer adds the hooks.</p>

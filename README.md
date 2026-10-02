@@ -1,6 +1,8 @@
 # CSSV
 
-Reference implementation of **CSSV v1 — Comma Separated Styled Values**: CSV data with an optional CSS stylesheet at the top of the same file. The format is defined in [SPEC.md](SPEC.md).
+**CSSV (Comma Separated Styled Values)** keeps a table's data and its look in one plain-text file: CSV for the data, with a CSS style block on top for the presentation. A renderer turns the CSV into an HTML table and applies the file's own styles, so the table carries its look to every page that shows it.
+
+This repository holds the specification, [SPEC.md](SPEC.md), and its reference implementation: the `<cssv-table>` element and a processor that runs in Node.
 
 [Website and live editor](https://cssv.dev/) · [npm package](https://www.npmjs.com/package/@rhpaiva/cssv) · [Skill for AI agents](skills/cssv/SKILL.md)
 
@@ -16,6 +18,12 @@ Rent,1200
 Refund,-45.50
 Total,1154.50
 ```
+
+## When to use it
+
+Use CSSV when the styles belong with the data: a report that a script or a language model writes complete with its look, a file shown on several pages or sites that should bring its styles along, or a table reviewed as a text diff. Many files can import one shared stylesheet, so a change to it restyles all of them.
+
+If you only need to show a CSV file and your page's CSS styles it, a CSV parser and a few lines that build a table are enough. Existing CSV files are already valid CSSV files, though, so you can start from an export and add a style block above it.
 
 ## Install
 
