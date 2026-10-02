@@ -12,7 +12,7 @@ await customElements.whenDefined('cssv-table');
 const inlineText = (table) =>
   ($(':scope > script[type="text/cssv"]', table)?.textContent ?? '')
     .replace(/^(?:[ \t]*\r?\n)+/, '')
-    .replace(/\s+$/, '');
+    .trimEnd();
 
 async function sourceOf(table) {
   const src = table.getAttribute('src');

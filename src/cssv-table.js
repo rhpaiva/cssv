@@ -228,7 +228,7 @@ export class CssvTable extends Base {
     const script = this.querySelector(':scope > script[type="text/cssv"]');
     if (!script) return { text: null };
     // Appendix C: drop leading empty lines and trailing whitespace.
-    const text = script.textContent.replace(/^(?:[ \t]*\r?\n)+/, '').replace(/\s+$/, '');
+    const text = script.textContent.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
     return { text, base: document.baseURI };
   }
 

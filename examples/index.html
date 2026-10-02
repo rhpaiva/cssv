@@ -807,7 +807,7 @@ The date picker uses each locale's first day of the week.",tomas
       }
       // Same normalization as the renderer (SPEC Appendix C).
       const script = table.querySelector(':scope > script[type="text/cssv"]');
-      const text = (script?.textContent ?? '').replace(/^(?:[ \t]*\r?\n)+/, '').replace(/\s+$/, '');
+      const text = (script?.textContent ?? '').replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
       return { text, name: 'inline <script type="text/cssv">', url: null };
     }
 
