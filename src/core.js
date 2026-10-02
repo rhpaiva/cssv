@@ -508,3 +508,20 @@ export function toMarkdown({ header, rows }, { direction = 'ltr' } = {}) {
     ...rows.map((r) => line(r.map(mdCell))),
   ].join('\n');
 }
+
+// --- Appendix C: inline text -----------------------------------------------
+
+// The text of an inline <script type="text/cssv">. Drops leading empty lines
+// and trailing whitespace, then removes the first line's indentation from every
+// line, so the text can be indented like the markup around it. A line indented
+// less loses only what it has.
+export function inlineText(text) {
+  text = text.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
+  const indent = /^[ \t]*/.exec(text)[0];
+  if (indent === '') return text;
+  return text.split('\n').map((line) => {
+    let i = 0;
+    while (i < indent.length && line[i] === indent[i]) i++;
+    return line.slice(i);
+  }).join('\n');
+}

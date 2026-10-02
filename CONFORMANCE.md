@@ -60,7 +60,7 @@ Files: **U** = `test/unit/`, **B** = `test/browser/`, **S** = `test/spec-example
 | 11.5 | Converters never use generated content | — | S `browser`: Appendix B (the `—` from `::after` is absent) |
 | 11.6 | Limits | MAY | Not implemented |
 | App. B | Markdown conversion | informative | U `markdown`; B `properties`: Appendix B; S `browser`: printed Markdown |
-| App. C | Inline text, leading empty lines, page-relative URLs | informative | B `rendering`: Appendix C; S `browser`: Appendix C |
+| App. C | Inline text, leading empty lines, indentation, page-relative URLs | informative | U `embedding`; B `rendering`: Appendix C; S `browser`: Appendix C |
 
 ## Checking that the tests can fail
 

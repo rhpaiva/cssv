@@ -690,6 +690,8 @@ The date picker uses each locale's first day of the week.",tomas
   <script type="module">
     // "View source": shows each example's CSSV text, read from the same src
     // or inline script the table renders, with light syntax highlighting.
+    import { inlineText } from '../src/core.js';
+
     const NUMBER = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/; // SPEC 6.1
     const FENCE = /^﻿?---[ \t]*\r?\n?$/;     // SPEC 3.4
     const HOOK = /(data-(?:col|row|key)|\.(?:number|negative|positive|zero)\b)/;
@@ -807,8 +809,7 @@ The date picker uses each locale's first day of the week.",tomas
       }
       // Same normalization as the renderer (SPEC Appendix C).
       const script = table.querySelector(':scope > script[type="text/cssv"]');
-      const text = (script?.textContent ?? '').replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
-      return { text, name: 'inline <script type="text/cssv">', url: null };
+      return { text: inlineText(script?.textContent ?? ''), name: 'inline <script type="text/cssv">', url: null };
     }
 
     function meta(model, source) {

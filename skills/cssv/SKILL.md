@@ -135,17 +135,17 @@ In a web page, load the renderer from a CDN; no build step is needed. With npm, 
 
 <cssv-table>
   <script type="text/cssv">
----
-.negative { color: crimson; }
----
-item,amount
-Refund,-45.50
+    ---
+    .negative { color: crimson; }
+    ---
+    item,amount
+    Refund,-45.50
   </script>
 </cssv-table>
 ```
 
 - A `key="column"` attribute sets the key column and wins over `--cssv-key`. `lang="de-DE"` sets the display locale; otherwise it comes from the nearest `lang` around the element.
-- Inline text can't contain `</script`.
+- Inline text can be indented like the markup around it: the renderer removes the first line's indentation from every line. It can't contain `</script`.
 - Serve `.cssv` files as `text/plain; charset=utf-8`.
 - In Markdown, use a fenced code block with the language `cssv`.
 

@@ -142,6 +142,29 @@ describe('Appendix C Embedding', () => {
     assert.deepEqual(result, { x: 'y', rows: 1 });
   });
 
+  it('reads inline text indented like the markup around it', async () => {
+    const page = await ctx.open(`<main>
+      <cssv-table id="t">
+        <script type="text/cssv">
+          ---
+          table { --cssv-key: item; }
+          ---
+          item,amount
+          Rent,1200
+        </script>
+      </cssv-table>
+    </main>`);
+    const result = await page.evaluate(() => {
+      const table = document.getElementById('t').table;
+      return {
+        cols: [...table.querySelectorAll('col')].map((c) => c.dataset.col),
+        key: table.tBodies[0].rows[0].dataset.key,
+        number: table.querySelector('td[data-col="amount"]').className,
+      };
+    });
+    assert.deepEqual(result, { cols: ['item', 'amount'], key: 'Rent', number: 'number positive' });
+  });
+
   it('renders inline text that is added after the page loads', async () => {
     const page = await ctx.open('<cssv-table id="t"></cssv-table>');
     await page.evaluate(async () => {

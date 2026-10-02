@@ -128,11 +128,11 @@ describe('Spec examples (renderer)', () => {
   it('Appendix C the inline example renders', async () => {
     const page = await ctx.open(`<cssv-table id="t">
   <script type="text/cssv">
----
-table { --cssv-key: item; }
----
-item,amount
-Rent,1200
+    ---
+    table { --cssv-key: item; }
+    ---
+    item,amount
+    Rent,1200
   </script>
 </cssv-table>`);
     assert.equal(await page.evaluate(() => document.getElementById('t').table.tBodies[0].rows[0].getAttribute('data-key')), 'Rent');

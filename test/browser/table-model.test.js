@@ -49,7 +49,9 @@ describe('§7 Table model in the browser', () => {
   });
 
   it('§7.2 sets data-col and data-row exactly', async () => {
-    const page = await ctx.open(inline(' Item ,""\nx,1\n\ny,2'));
+    // Served as a file: inline text would read the leading space as indentation (Appendix C).
+    ctx.server.file('/exact.cssv', ' Item ,""\nx,1\n\ny,2');
+    const page = await ctx.open('<cssv-table id="t" src="/exact.cssv"></cssv-table>');
     const attrs = await page.evaluate(() => {
       const table = document.querySelector('#t').table;
       return {

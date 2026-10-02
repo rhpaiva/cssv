@@ -51,11 +51,11 @@ The package has no dependencies and two entry points: `@rhpaiva/cssv/cssv-table.
 
 <cssv-table>
   <script type="text/cssv">
----
-.negative { color: crimson; }
----
-item,amount
-Refund,-45.50
+    ---
+    .negative { color: crimson; }
+    ---
+    item,amount
+    Refund,-45.50
   </script>
 </cssv-table>
 ```

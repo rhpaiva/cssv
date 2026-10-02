@@ -1,6 +1,7 @@
 // Behavior for the CSSV website. The tables themselves need none of this:
 // <cssv-table> renders them. This adds the playground, the inspector, tabs,
 // "View source" panels and copy buttons.
+import { inlineText as normalize } from '../src/core.js';
 import { highlightCssv, highlighters, span } from './highlight.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -9,10 +10,7 @@ const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 await customElements.whenDefined('cssv-table');
 
 // The text a renderer reads from an inline <script type="text/cssv"> (SPEC Appendix C).
-const inlineText = (table) =>
-  ($(':scope > script[type="text/cssv"]', table)?.textContent ?? '')
-    .replace(/^(?:[ \t]*\r?\n)+/, '')
-    .trimEnd();
+const inlineText = (table) => normalize($(':scope > script[type="text/cssv"]', table)?.textContent ?? '');
 
 async function sourceOf(table) {
   const src = table.getAttribute('src');

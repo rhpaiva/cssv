@@ -640,16 +640,16 @@ This specification does not define an element name. Implementations are encourag
 <cssv-table src="export.csv" key="category"></cssv-table>   <!-- host sets the key column -->
 ```
 
-**Inline:** a `script` element with type `text/cssv` keeps the text exactly as written, because browsers neither run it nor parse it as HTML. Relative URLs in it resolve against the page (section 4.3). Implementations should drop leading empty lines and trailing whitespace from inline text, because the first line must be the fence. The text cannot contain `</script`.
+**Inline:** a `script` element with type `text/cssv` keeps the text exactly as written, because browsers neither run it nor parse it as HTML. Relative URLs in it resolve against the page (section 4.3). Implementations should drop leading empty lines and trailing whitespace from inline text, because the first line must be the fence. They should then remove the first line's indentation from every line, so the text can be indented like the markup around it; a line indented less loses only the indentation it has. The text cannot contain `</script`.
 
 ```html
 <cssv-table>
   <script type="text/cssv">
----
-table { --cssv-key: item; }
----
-item,amount
-Rent,1200
+    ---
+    table { --cssv-key: item; }
+    ---
+    item,amount
+    Rent,1200
   </script>
 </cssv-table>
 ```
