@@ -74,7 +74,8 @@ The package has no dependencies and two entry points: `@rhpaiva/cssv/cssv-table.
 | `model` | The parsed file: `{ style, delimiter, columns, numberColumns, rows }`. |
 | `errors` | Problems from the last render: `{ section, message, fatal }`. |
 | `toMarkdown()` | The rendered table as GitHub Flavored Markdown (Appendix B). |
-| `cssv-loadstart` event | Fired at the start of every render (on connection, and when `src`, `key`, `lang` or the inline text changes), even when there is nothing to load. |
+| `update(text)` | Shows `text`, a whole CSSV file, instead of the current content, and returns `ready`. The text stays until `src` or the inline text changes; `src` keeps its value. See [Updating in place](#updating-in-place). |
+| `cssv-loadstart` event | Fired at the start of every render (on connection, on `update()`, and when `src`, `key`, `lang` or the inline text changes), even when there is nothing to load. |
 | `cssv-load` event | Fired after a successful render. |
 | `cssv-error` event | Fired for each problem; bubbles and crosses shadow roots. `detail` is `{ section, message, fatal }`. |
 | `cssv-loadend` event | Fired when the latest render finishes, whether it succeeded or failed. A render replaced by a newer one ends without events, so the last `cssv-loadstart` is always followed by one `cssv-loadend`. |
@@ -91,18 +92,20 @@ table.addEventListener('cssv-loadend', () => { spinner.hidden = true; });
 table.src = '/api/orders.cssv?page=2';
 ```
 
-To send credentials or custom headers, or to read pagination details from the response, fetch the file yourself and write the text into the element's `<script type="text/cssv">`. The table renders again whenever that text changes:
-
-```html
-<cssv-table id="orders"><script type="text/cssv"></script></cssv-table>
-```
+To send credentials or custom headers, or to read pagination details from the response, fetch the file yourself and pass the text to `update()`:
 
 ```js
 const res = await fetch('/api/orders.cssv?page=2', { headers: { Authorization: `Bearer ${token}` } });
-document.querySelector('#orders > script').textContent = await res.text();
+await document.querySelector('#orders').update(await res.text());
 ```
 
-Relative URLs in inline text resolve against the page, not the address it was fetched from (SPEC Appendix C), so the server should write absolute or root-relative imports such as `@import url("/styles/orders.css")`.
+`update()` uses the text exactly as given. Relative URLs in it resolve against the last file the element loaded with `src`, or against the page if there was none, so a server that sends text for `update()` should write absolute or root-relative imports such as `@import url("/styles/orders.css")`. Writing the text into a `<script type="text/cssv">` inside the element also works, but inline text is dedented and trimmed (SPEC Appendix C).
+
+### Updating in place
+
+If a new text has the same columns and number of rows, and its style block changes only in rules that need nothing loaded, the element doesn't build a new table. It changes the cells that differ in the table on screen, replaces the changed style rules, then applies `--cssv-key` and `--cssv-format` again. The result is the table a full render would build, and `table` stays the same element. This suits editing values or styles, and live data such as a dashboard's numbers. It applies to every render, including a change of `src`, `key` or `lang`. Adding or removing rows or columns, or changing an `@import`, renders in full.
+
+With 1,000 records and a heavy stylesheet, a one-cell change takes about a tenth as long as a full render until painted, and with 10,000 records about a twentieth. The rest is the browser laying the table out again, since one cell can change the column widths.
 
 The page can style the table with `cssv-table::part(table)`. Wide tables overflow the element; add `cssv-table { overflow-x: auto; }` to scroll them instead.
 

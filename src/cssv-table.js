@@ -13,10 +13,16 @@
 //
 // The second shadow root keeps paint containment out of reach of the author
 // stylesheet: it can match its own :host (.frame) but never .clip.
+//
+// When a new render keeps the shown table's columns and row count, and its
+// style block differs only in rules that need no loading, the shown table is
+// updated in place instead of rebuilt: changed cells, changed rules (through
+// the CSSOM), then keys and formats again. The result is the table a full
+// render would build.
 
 import {
   parse, inlineText, DEFAULT_CSS, rewriteCssUrls, parseCssvValue, parseFormat, formatNumber,
-  display, keyIndex, toMarkdown, CssvError,
+  defaultDisplay, display, keyIndex, toMarkdown, CssvError,
 } from './core.js';
 
 const OUTER_CSS = `
@@ -25,6 +31,8 @@ const OUTER_CSS = `
 .clip { display: block; contain: paint; width: max-content; min-width: 100%; }
 .clip.pending { opacity: 0; }
 `;
+
+const IMPORT_FAILED = 'An imported stylesheet failed to load; the rest of the styles still apply.';
 
 function styleElement(css) {
   const el = document.createElement('style');
@@ -92,6 +100,10 @@ export class CssvTable extends Base {
   #abort = null;
   #observer = null;
   #ready = this.#deferred();
+  #text = null; // set by update(); shown instead of src or the inline text until either changes
+  #base = null; // the URL relative URLs resolve against: the last file loaded, or the page
+  #shown = null; // what the table shows: { model, locale, css, author, importFailed }, or null
+  #formats = new WeakMap(); // number cell → the --cssv-format value its text was made with
 
   constructor() {
     super();
@@ -126,6 +138,18 @@ export class CssvTable extends Base {
     else this.setAttribute('src', value);
   }
 
+  /**
+   * Shows `text`, a whole CSSV file, in place of the current content, and
+   * returns `ready`. The text stays the content (also across key and lang
+   * changes) until src or the inline text changes; src keeps its value.
+   * Relative URLs resolve against the last file loaded, or the page.
+   */
+  update(text) {
+    this.#text = String(text);
+    if (this.isConnected) this.#schedule();
+    return this.ready;
+  }
+
   connectedCallback() {
     // A src set before the element was defined is an own property that hides
     // the accessor; move it to the attribute.
@@ -135,7 +159,9 @@ export class CssvTable extends Base {
       this.src = value;
     }
     this.#observer = new MutationObserver(() => {
-      if (!this.hasAttribute('src')) this.#schedule();
+      if (this.hasAttribute('src')) return;
+      this.#text = null;
+      this.#schedule();
     });
     this.#observer.observe(this, { childList: true, subtree: true, characterData: true });
     this.#schedule();
@@ -146,7 +172,8 @@ export class CssvTable extends Base {
     this.#abort?.abort();
   }
 
-  attributeChangedCallback() {
+  attributeChangedCallback(name) {
+    if (name === 'src') this.#text = null;
     if (this.isConnected) this.#schedule();
   }
 
@@ -183,7 +210,7 @@ export class CssvTable extends Base {
   }
 
   #schedule() {
-    if (document.readyState === 'loading' && !this.hasAttribute('src')) {
+    if (document.readyState === 'loading' && !this.hasAttribute('src') && this.#text === null) {
       // Wait for an inline <script type="text/cssv"> to be fully parsed.
       document.addEventListener('DOMContentLoaded', () => this.#schedule(), { once: true });
       return;
@@ -218,13 +245,16 @@ export class CssvTable extends Base {
   }
 
   async #source(signal) {
+    if (this.#text !== null) return { text: this.#text, base: this.#base ?? document.baseURI };
     const src = this.getAttribute('src');
     if (src !== null) {
       const url = new URL(src, document.baseURI);
       const res = await fetch(url, { signal });
       if (!res.ok) throw new CssvError(`Could not load ${url.href} (HTTP ${res.status}).`, 'load');
+      this.#base = res.url;
       return { text: await res.text(), base: res.url }; // text() always decodes UTF-8 (3.1)
     }
+    this.#base = null;
     const script = this.querySelector(':scope > script[type="text/cssv"]');
     if (!script) return { text: null };
     return { text: inlineText(script.textContent), base: document.baseURI }; // Appendix C
@@ -242,28 +272,38 @@ export class CssvTable extends Base {
       if (!current()) return;
       if (text === null) {
         this.model = null;
+        this.#shown = null;
         this.#inner.replaceChildren();
         return;
       }
       const model = parse(text); // 8.3 step 1
       const locale = this.#locale();
+      if (this.#patch(model, locale, base)) {
+        this.model = model;
+        this.dispatchEvent(new CustomEvent('cssv-load'));
+        return;
+      }
       const table = buildTable(model, locale); // step 2
-      const author = styleElement(model.style === null ? '' : rewriteCssUrls(model.style, base));
+      const css = model.style === null ? '' : rewriteCssUrls(model.style, base);
+      const author = styleElement(css);
       const loaded = settled(author);
       // The previous table stays visible while the file loads; the new one is
       // hidden from here until step 6.
       this.#clip.classList.add('pending');
+      this.#shown = null;
       this.#inner.replaceChildren(styleElement(DEFAULT_CSS), author, table); // step 3
       const ok = await loaded;
       if (!current()) return;
-      if (!ok) this.#report('4.2', 'An imported stylesheet failed to load; the rest of the styles still apply.');
+      if (!ok) this.#report('4.2', IMPORT_FAILED);
       this.model = model;
       this.#applyKey(table, model); // step 4
       this.#applyFormats(table, model, locale); // step 5
+      this.#shown = { model, locale, css, author, importFailed: !ok };
       this.dispatchEvent(new CustomEvent('cssv-load'));
     } catch (error) {
       if (!current() || error.name === 'AbortError') return;
       this.model = null;
+      this.#shown = null;
       this.#inner.replaceChildren(); // 3.4, 5: no part of a malformed file is shown
       this.#report(error.section ?? 'load', error.message, true);
     } finally {
@@ -278,7 +318,83 @@ export class CssvTable extends Base {
     }
   }
 
-  // 9.1: the host's key attribute wins over --cssv-key.
+  // Brings the shown table in line with `model` without rebuilding it, when
+  // that gives the table a full render would build. Changes nothing and
+  // returns false when it can't: no table, other columns or row count, or a
+  // style block whose change needs loading.
+  #patch(model, locale, base) {
+    const shown = this.#shown;
+    const table = this.table;
+    if (!shown || !table) return false;
+    const old = shown.model;
+    if (old.rows.length !== model.rows.length || old.columns.length !== model.columns.length) return false;
+    if (old.columns.some((name, c) => name !== model.columns[c])) return false; // names are on every cell
+    const css = model.style === null ? '' : rewriteCssUrls(model.style, base);
+    if (css !== shown.css) {
+      const restyle = this.#planStyle(css);
+      if (!restyle) return false;
+      try {
+        restyle();
+      } catch {
+        return false; // the full render replaces the stylesheet anyway
+      }
+    }
+    const body = table.tBodies[0].rows;
+    model.rows.forEach((row, i) => {
+      const before = old.rows[i].fields;
+      row.fields.forEach((field, c) => {
+        if (field === before[c]) return;
+        const td = body[i].cells[c];
+        const { type, sign } = row.types[c];
+        if (type === 'number') td.className = `number ${sign}`;
+        else td.removeAttribute('class');
+        td.textContent = display(field, type, locale); // 7.4; formats follow below
+        this.#formats.delete(td);
+      });
+    });
+    const head = table.tHead.rows[0].cells;
+    model.numberColumns.forEach((number, c) => {
+      if (number === old.numberColumns[c]) return;
+      if (number) head[c].className = 'number';
+      else head[c].removeAttribute('class');
+    });
+    this.#shown = { ...shown, model, locale, css };
+    if (shown.importFailed) this.#report('4.2', IMPORT_FAILED);
+    this.#applyKey(table, model);
+    this.#applyFormats(table, model, locale, locale !== shown.locale);
+    return true;
+  }
+
+  // The CSSOM edits that turn the author stylesheet into `css`: the rules
+  // between the unchanged ones at both ends are replaced. Returns null when
+  // an @import would be added or removed, since imports need loading.
+  #planStyle(css) {
+    const sheet = this.#shown.author.sheet;
+    if (!sheet) return null;
+    // A document without a browsing context parses rules but loads nothing.
+    const doc = document.implementation.createHTMLDocument('');
+    const probe = doc.createElement('style');
+    probe.textContent = css;
+    doc.head.append(probe);
+    if (!probe.sheet) return null;
+    const prev = [...sheet.cssRules];
+    const next = [...probe.sheet.cssRules];
+    let start = 0;
+    while (start < prev.length && start < next.length && prev[start].cssText === next[start].cssText) start++;
+    let end = 0;
+    while (end < prev.length - start && end < next.length - start
+      && prev[prev.length - 1 - end].cssText === next[next.length - 1 - end].cssText) end++;
+    const removed = prev.slice(start, prev.length - end);
+    const added = next.slice(start, next.length - end);
+    if ([...removed, ...added].some((rule) => rule instanceof CSSImportRule)) return null;
+    return () => {
+      for (let i = 0; i < removed.length; i++) sheet.deleteRule(start);
+      added.forEach((rule, i) => sheet.insertRule(rule.cssText, start + i));
+    };
+  }
+
+  // 9.1: the host's key attribute wins over --cssv-key. Sets, changes or
+  // removes data-key on every row, so it also brings an updated table in line.
   #applyKey(table, model) {
     let key;
     if (this.hasAttribute('key')) {
@@ -286,39 +402,49 @@ export class CssvTable extends Base {
     } else {
       const raw = getComputedStyle(table).getPropertyValue('--cssv-key');
       key = parseCssvValue(raw);
-      if (key === null) return this.#report('9', `--cssv-key has an invalid value: ${raw.trim()}`);
-      if (key === undefined) return;
+      if (key === null) this.#report('9', `--cssv-key has an invalid value: ${raw.trim()}`);
     }
-    const k = keyIndex(model, key);
-    if (k < 0) return this.#report('9.1', `No column is named "${key}", so rows get no data-key.`);
+    const k = typeof key === 'string' ? keyIndex(model, key) : -1;
+    if (typeof key === 'string' && k < 0) this.#report('9.1', `No column is named "${key}", so rows get no data-key.`);
     [...table.tBodies[0].rows].forEach((tr, i) => {
-      const value = model.rows[i].fields[k];
-      if (value !== '') tr.setAttribute('data-key', value);
+      const value = k < 0 ? '' : model.rows[i].fields[k];
+      if (value === '') tr.removeAttribute('data-key');
+      else if (tr.getAttribute('data-key') !== value) tr.setAttribute('data-key', value);
     });
   }
 
   // 9.2: each number cell's computed --cssv-format. All reads happen before
   // any write: changing a cell's text invalidates styles, so interleaving
-  // them would recompute styles once per cell.
-  #applyFormats(table, model, locale) {
+  // them would recompute styles once per cell. A cell is only formatted again
+  // when its format, its field or the locale changed: #formats remembers the
+  // format each cell's text was made with, and a cell missing from it shows
+  // its default display for `locale`.
+  #applyFormats(table, model, locale, localeChanged = false) {
     const parsed = new Map();
     const updates = [];
     [...table.tBodies[0].rows].forEach((tr, i) => {
       [...tr.cells].forEach((td, c) => {
         if (model.rows[i].types[c].type !== 'number') return;
         const raw = getComputedStyle(td).getPropertyValue('--cssv-format').trim();
-        if (raw === '') return;
-        if (!parsed.has(raw)) {
+        if (raw !== '' && !parsed.has(raw)) {
           const value = parseCssvValue(raw);
           const options = typeof value === 'string' ? parseFormat(value) : null;
           parsed.set(raw, options);
           if (!options) this.#report('9.2', `--cssv-format has an invalid value: ${raw}`);
         }
-        const options = parsed.get(raw);
-        if (options) updates.push([td, model.rows[i].fields[c], options]);
+        const options = raw === '' ? null : parsed.get(raw);
+        const format = options ? raw : ''; // an invalid format leaves the default display
+        if (!localeChanged && (this.#formats.get(td) ?? '') === format) return;
+        const field = model.rows[i].fields[c];
+        const text = options ? formatNumber(field, options, locale) : defaultDisplay(field, locale);
+        updates.push([td, text, format]);
       });
     });
-    for (const [td, field, options] of updates) td.textContent = formatNumber(field, options, locale);
+    for (const [td, text, format] of updates) {
+      if (td.textContent !== text) td.textContent = text;
+      if (format) this.#formats.set(td, format);
+      else this.#formats.delete(td);
+    }
   }
 }
 

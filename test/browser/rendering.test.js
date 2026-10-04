@@ -248,3 +248,188 @@ describe('Element API', () => {
     assert.deepEqual(events, ['cssv-loadstart', 'cssv-error', 'cssv-loadend']);
   });
 });
+
+describe('update()', () => {
+  const BASE = `---
+table { --cssv-key: item; }
+td.negative { color: rgb(200, 0, 0); }
+tr[data-key="Total"] td { font-weight: 700; }
+td[data-col="amount"] { --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }
+---
+item,amount,code
+Rent,1200,7
+Refund,-45.5,8
+Total,1154.5,9`;
+
+  // Updates #t to each text in turn. For each: did the table stay the same
+  // element, and does it match a new element given the same text (markup,
+  // computed styles, errors)?
+  const updates = (page, texts) => page.evaluate(async (list) => {
+    const t = document.getElementById('t');
+    const styles = (table) => JSON.stringify([...table.querySelectorAll('th, td')].map((cell) => {
+      const s = getComputedStyle(cell);
+      return [s.color, s.fontWeight, s.backgroundColor];
+    }));
+    const results = [];
+    for (const text of list) {
+      const before = t.table;
+      await t.update(text);
+      const fresh = document.createElement('cssv-table');
+      for (const name of ['lang', 'key']) if (t.hasAttribute(name)) fresh.setAttribute(name, t.getAttribute(name));
+      fresh.update(text);
+      document.body.append(fresh);
+      await fresh.ready;
+      results.push({
+        same: t.table === before,
+        html: t.table.outerHTML === fresh.table.outerHTML,
+        styles: styles(t.table) === styles(fresh.table),
+        errors: JSON.stringify(t.errors) === JSON.stringify(fresh.errors),
+      });
+      fresh.remove();
+    }
+    return results;
+  }, texts);
+  const patched = { same: true, html: true, styles: true, errors: true };
+
+  it('updates changed cells in place, as a full render would', async () => {
+    const page = await ctx.open(inline(BASE));
+    // Each change applies on top of the previous ones.
+    const changes = [
+      ['Rent,1200', 'Rent,1300'], // a number
+      ['Refund,-45.5', 'Refund,45.5'], // its sign
+      ['Total,', 'Sum,'], // a key: data-key changes, the bold rule stops matching
+      ['Sum,', ','], // an empty key: no data-key
+      [',9', ',x9'], // a number column that becomes text: the th loses its class
+      [',x9', ',9'], // and a number column again: the th gets it back
+      ['Rent,1300', 'Rent,'], // an empty cell
+    ];
+    let text = BASE;
+    const texts = changes.map(([from, to]) => (text = text.replace(from, to)));
+    assert.deepEqual(await updates(page, texts), texts.map(() => patched));
+  });
+
+  it('updates changed style rules in place, then keys and formats again', async () => {
+    const page = await ctx.open(inline(BASE));
+    const texts = [
+      BASE.replace('"minimumFractionDigits: 2, maximumFractionDigits: 2"', '"maximumFractionDigits: 0"'),
+      BASE.replace('--cssv-key: item', '--cssv-key: code'),
+      BASE.replace('---\nitem', 'td[data-col="item"] { color: rgb(0, 0, 255); }\n---\nitem'),
+      BASE.replace('"minimumFractionDigits: 2, maximumFractionDigits: 2"', '"precision: 2"'), // invalid: reported, default display
+      BASE,
+    ];
+    assert.deepEqual(await updates(page, texts), texts.map(() => patched));
+  });
+
+  it('updates in place when lang or key changes', async () => {
+    const page = await ctx.open(inline(BASE));
+    const result = await page.evaluate(async () => {
+      const t = document.getElementById('t');
+      const before = t.table;
+      t.setAttribute('lang', 'de-DE');
+      await new Promise((r) => t.addEventListener('cssv-loadend', r, { once: true }));
+      const amount = t.table.tBodies[0].rows[1].cells[1].textContent;
+      t.setAttribute('key', 'code');
+      await new Promise((r) => t.addEventListener('cssv-loadend', r, { once: true }));
+      return { same: t.table === before, amount, key: t.table.tBodies[0].rows[0].dataset.key };
+    });
+    assert.deepEqual(result, { same: true, amount: '-45,50', key: '7' });
+  });
+
+  it('fires the usual events and returns ready', async () => {
+    const page = await ctx.open(inline(BASE));
+    const result = await page.evaluate(async (text) => {
+      const t = document.getElementById('t');
+      const log = [];
+      for (const type of ['cssv-loadstart', 'cssv-load', 'cssv-error', 'cssv-loadend']) t.addEventListener(type, () => log.push(type));
+      const returned = t.update(text);
+      const isReady = returned === t.ready;
+      await returned;
+      return { log, isReady };
+    }, BASE.replace('Rent', 'Lease'));
+    assert.deepEqual(result, { log: ['cssv-loadstart', 'cssv-load', 'cssv-loadend'], isReady: true });
+  });
+
+  it('renders in full when an import changes, and waits for it', async () => {
+    ctx.server.file('/update/import.css', 'td { color: rgb(0, 128, 0); }', { delay: 150 });
+    const page = await ctx.open(inline(BASE));
+    const result = await page.evaluate(async (text) => {
+      const t = document.getElementById('t');
+      const before = t.table;
+      await t.update(text);
+      return { same: t.table === before, color: getComputedStyle(t.table.querySelector('td')).color };
+    }, BASE.replace('---\ntable', '---\n@import url("/update/import.css");\ntable'));
+    assert.deepEqual(result, { same: false, color: 'rgb(0, 128, 0)' });
+  });
+
+  it('renders in full when the rows or columns change', async () => {
+    const page = await ctx.open(inline(BASE));
+    const texts = [`${BASE}\nExtra,1,2`, BASE.replace('item,amount,code', 'item,amount,code,note')];
+    const full = { ...patched, same: false };
+    assert.deepEqual(await updates(page, texts), [full, full]);
+  });
+
+  it('keeps showing the text until src or the inline text changes', async () => {
+    ctx.server.file('/update/file.cssv', 'from-src\n1\n');
+    const page = await ctx.open(inline('first\n1'));
+    const result = await page.evaluate(async () => {
+      const t = document.getElementById('t');
+      const header = () => t.table.querySelector('th').textContent;
+      const loadend = () => new Promise((r) => t.addEventListener('cssv-loadend', r, { once: true }));
+      const seen = [];
+      await t.update('updated\n2');
+      seen.push(header());
+      t.setAttribute('lang', 'fr-FR');
+      await loadend();
+      seen.push(header());
+      t.querySelector('script').textContent = 'inline\n3';
+      await loadend();
+      seen.push(header());
+      await t.update('updated again\n4');
+      seen.push(header(), t.src);
+      t.src = '/update/file.cssv';
+      await t.ready;
+      seen.push(header());
+      return seen;
+    });
+    assert.deepEqual(result, ['updated', 'updated', 'inline', 'updated again', null, 'from-src']);
+  });
+
+  it('replaces a render that is still loading', async () => {
+    ctx.server.file('/update/slow.cssv', 'slow\n1\n', { delay: 300 });
+    const page = await ctx.open('<cssv-table id="t"></cssv-table>');
+    const result = await page.evaluate(async () => {
+      const t = document.getElementById('t');
+      const log = [];
+      for (const type of ['cssv-loadstart', 'cssv-load', 'cssv-error', 'cssv-loadend']) t.addEventListener(type, () => log.push(type));
+      t.src = '/update/slow.cssv';
+      await new Promise((r) => setTimeout(r, 50));
+      await t.update('fast\n2');
+      await new Promise((r) => setTimeout(r, 400)); // the slow file would have arrived by now
+      return { log, header: t.table.querySelector('th').textContent };
+    });
+    assert.deepEqual(result, { log: ['cssv-loadstart', 'cssv-loadstart', 'cssv-load', 'cssv-loadend'], header: 'fast' });
+  });
+
+  it('shows nothing and reports a malformed text', async () => {
+    const page = await ctx.open(inline(BASE));
+    const result = await page.evaluate(async () => {
+      const t = document.getElementById('t');
+      await t.update('---\ntd {}\nitem\n1');
+      return { table: t.table, fatal: t.errors.map((e) => [e.section, e.fatal]) };
+    });
+    assert.deepEqual(result, { table: null, fatal: [['3.4', true]] });
+  });
+
+  it('resolves relative URLs against the last file loaded', async () => {
+    ctx.server.file('/update/dir/table.cssv', 'a\n1\n');
+    ctx.server.file('/update/dir/near.css', 'td { color: rgb(1, 2, 3); }');
+    const page = await ctx.open('<cssv-table id="t" src="/update/dir/table.cssv"></cssv-table>');
+    const color = await page.evaluate(async () => {
+      const t = document.getElementById('t');
+      await t.update('---\n@import url("near.css");\n---\na\n1');
+      return getComputedStyle(t.table.querySelector('td')).color;
+    });
+    assert.equal(color, 'rgb(1, 2, 3)');
+  });
+});
+

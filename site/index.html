@@ -501,6 +501,7 @@ table,property,"The rendered <table>, or null."
 model,property,"The parsed file: { style, delimiter, columns, numberColumns, rows }."
 errors,property,"Problems from the last render: { section, message, fatal }."
 toMarkdown(),method,The rendered table as GitHub Flavored Markdown.
+update(),method,"Shows new CSSV text. When only cells or style rules changed, the table on screen is updated in place."
 cssv-loadstart,event,"Fired when a render starts, for example after src changes."
 cssv-load,event,Fired after a successful render.
 cssv-error,event,"Fired for each problem. Bubbles and crosses shadow roots; detail is { section, message, fatal }."
