@@ -329,8 +329,10 @@ button[aria-pressed="true"] { border-color: var(--text); background: var(--text)
 .colbar { grid-area: 1 / 2; }
 .rowbar { grid-area: 2 / 1; }
 .layer { grid-area: 2 / 2; }
-/* A file that lays its table out its own way gets no bars (sheet.js). */
-.grid.free { --gutter: 0px; --bar-h: 0px; }
+/* A file that lays its table out its own way gets no bars (sheet.js), and
+   the table gets the pane's width, so a style block that sizes it to its
+   container (width: 100%, contain: inline-size) has something to fill. */
+.grid.free { --gutter: 0px; --bar-h: 0px; grid-template-columns: var(--gutter) minmax(max-content, 1fr); }
 .grid.free > :is(.corner, .colbar, .rowbar) { display: none; }
 .corner, .colbar, .rowbar { background: var(--bg-alt); color: var(--muted); user-select: none; }
 .corner {
