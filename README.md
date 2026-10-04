@@ -84,7 +84,7 @@ With a bundler, `import '@rhpaiva/cssv/cssv-table.js';` defines the element inst
 
 ### Loading new data
 
-Set `src` to load another file, for example the next page of results. The current table stays on screen while the file loads, and the new one appears once its styles have loaded. A loading indicator can follow the two loading events:
+Set `src` to load another file, for example the next page of results. The current table stays on screen while the file and its styles load, and the new one replaces it once it is ready. A loading indicator can follow the two loading events:
 
 ```js
 table.addEventListener('cssv-loadstart', () => { spinner.hidden = false; });

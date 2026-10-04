@@ -4,12 +4,13 @@
 //
 //   <cssv-table>                      host, in the page
 //     #shadow-root (outer)            renderer-owned: the page and the file can't style .clip
-//       <div class="clip">            contain: paint (11.4), hidden until step 6 (8.3)
+//       <div class="clip">            contain: paint (11.4); hidden until the first step 6 (8.3)
 //         <div class="frame">         host of the inner root
 //           #shadow-root (inner)      the file's styles live here (8.1)
 //             <style> defaults (8.2)
 //             <style> style block (4)
 //             <table part="table">    the table model (7)
+//         <div class="frame next">    while a table is shown, the next one is built here, out of sight
 //
 // The second shadow root keeps paint containment out of reach of the author
 // stylesheet: it can match its own :host (.frame) but never .clip.
@@ -30,6 +31,7 @@ const OUTER_CSS = `
 :host([hidden]) { display: none; }
 .clip { display: block; contain: paint; width: max-content; min-width: 100%; }
 .clip.pending { opacity: 0; }
+.frame.next { content-visibility: hidden; } /* no size, no paint; styles still compute for steps 4 and 5 */
 `;
 
 const IMPORT_FAILED = 'An imported stylesheet failed to load; the rest of the styles still apply.';
@@ -54,6 +56,13 @@ function el(tag, attrs = {}, text = '') {
   for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, value);
   if (text !== '') node.textContent = text; // 7.4: always text, never HTML
   return node;
+}
+
+// A host for an inner shadow root, which holds one table and its styles.
+function frameElement() {
+  const frame = el('div', { class: 'frame', exportparts: 'table' });
+  frame.attachShadow({ mode: 'open' });
+  return frame;
 }
 
 // 8.3 step 2: a body row, with numbers in their default display.
@@ -98,7 +107,8 @@ export class CssvTable extends Base {
   model = null;
 
   #clip;
-  #inner;
+  #frame; // holds the shown table
+  #next = null; // holds the table a pending render builds while #frame is shown
   #run = 0;
   #queued = false;
   #abort = null;
@@ -112,14 +122,10 @@ export class CssvTable extends Base {
   constructor() {
     super();
     const outer = this.attachShadow({ mode: 'open' });
-    this.#clip = document.createElement('div');
-    this.#clip.className = 'clip pending';
-    const frame = document.createElement('div');
-    frame.className = 'frame';
-    frame.setAttribute('exportparts', 'table');
-    this.#clip.append(frame);
+    this.#clip = el('div', { class: 'clip pending' });
+    this.#frame = frameElement();
+    this.#clip.append(this.#frame);
     outer.append(styleElement(OUTER_CSS), this.#clip);
-    this.#inner = frame.attachShadow({ mode: 'open' });
   }
 
   /** Resolves when the latest render has finished (successfully or not). */
@@ -129,7 +135,7 @@ export class CssvTable extends Base {
 
   /** The rendered table element, or null. */
   get table() {
-    return this.#inner.querySelector('table');
+    return this.#frame.shadowRoot.querySelector('table');
   }
 
   /** The src attribute, or null when the element reads inline text. */
@@ -266,6 +272,9 @@ export class CssvTable extends Base {
 
   async #render() {
     const run = ++this.#run;
+    let next = null; // the frame this render builds a table in
+    this.#next?.remove(); // a render this one replaces will never show its table
+    this.#next = null;
     const current = () => run === this.#run;
     this.#abort?.abort();
     const abort = (this.#abort = new AbortController());
@@ -277,7 +286,7 @@ export class CssvTable extends Base {
       if (text === null) {
         this.model = null;
         this.#shown = null;
-        this.#inner.replaceChildren();
+        this.#frame.shadowRoot.replaceChildren();
         return;
       }
       const model = parse(text); // 8.3 step 1
@@ -291,26 +300,40 @@ export class CssvTable extends Base {
       const css = model.style === null ? '' : rewriteCssUrls(model.style, base);
       const author = styleElement(css);
       const loaded = settled(author);
-      // The previous table stays visible while the file loads; the new one is
-      // hidden from here until step 6.
-      this.#clip.classList.add('pending');
-      this.#shown = null;
-      this.#inner.replaceChildren(styleElement(DEFAULT_CSS), author, table); // step 3
+      // A shown table stays on screen until the new one is ready (step 6):
+      // the new one is built in a second frame, out of sight. With nothing
+      // shown, the clip is hidden instead.
+      if (this.table) {
+        next = this.#next = frameElement();
+        next.classList.add('next');
+        this.#clip.append(next);
+      } else {
+        next = this.#frame;
+        this.#clip.classList.add('pending');
+      }
+      next.shadowRoot.replaceChildren(styleElement(DEFAULT_CSS), author, table); // step 3
       const ok = await loaded;
       if (!current()) return;
       if (!ok) this.#report('4.2', IMPORT_FAILED);
       this.model = model;
       this.#applyKey(table, model); // step 4
       this.#applyFormats(table, model, locale); // step 5
+      if (next !== this.#frame) {
+        this.#frame.remove();
+        next.classList.remove('next');
+        this.#frame = next;
+        this.#next = null;
+      }
       this.#shown = { model, locale, css, author, importFailed: !ok };
       this.dispatchEvent(new CustomEvent('cssv-load'));
     } catch (error) {
       if (!current() || error.name === 'AbortError') return;
       this.model = null;
       this.#shown = null;
-      this.#inner.replaceChildren(); // 3.4, 5: no part of a malformed file is shown
+      this.#frame.shadowRoot.replaceChildren(); // 3.4, 5: no part of a malformed file is shown
       this.#report(error.section ?? 'load', error.message, true);
     } finally {
+      if (next && next !== this.#frame) next.remove(); // replaced, aborted or failed
       if (current()) {
         this.#clip.classList.remove('pending'); // step 6
         this.#ready.done = true;

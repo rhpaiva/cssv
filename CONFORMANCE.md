@@ -37,7 +37,7 @@ Files: **U** = `test/unit/`, **B** = `test/browser/`, **S** = `test/spec-example
 | 8.1 | `part="table"` with shadow DOM | SHOULD | B `rendering`: exposes the table as part "table" |
 | 8.2 | Default stylesheet in layer `cssv-defaults`, before author styles | MUST | B `table-model`: §8.2 tests |
 | 8.3 | Wait for every stylesheet, including nested imports, before steps 4 and 5 | — | B `rendering`: waits for nested imports before reading CSSV properties |
-| 8.3 | Do not display the table before step 6 | SHOULD NOT | B `rendering`: …and hides the table until then |
+| 8.3 | Do not display the table before step 6 | SHOULD NOT | B `rendering`: …and hides the table until then; keeps the previous table on screen until the next one is ready |
 | 8.3 | `--cssv-key` is read once | — | By construction (`#applyKey` runs once per render); not tested |
 | 8.4 | Processors without a style engine produce the step 2 table model | — | U `table-model`; S `core`: §12.1 parses into the §12.2 model |
 | 9 | Unquote strings and resolve CSS escapes | MUST | U `properties`; B `properties`: accepts a quoted column name with CSS escapes |

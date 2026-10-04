@@ -89,6 +89,43 @@ describe('§8.3 Processing order', () => {
     assert.equal(await page.evaluate(() => document.getElementById('t').table.querySelector('th').textContent), 'b');
   });
 
+  it('keeps the previous table on screen until the next one is ready', async () => {
+    ctx.server.file('/next/slow.css', 'td { color: rgb(0, 128, 0); }', { delay: 400 });
+    const page = await ctx.open(inline('a\n1'));
+    const state = () => page.evaluate(() => {
+      const t = document.getElementById('t');
+      return {
+        header: t.table.querySelector('th').textContent,
+        opacity: getComputedStyle(t.shadowRoot.querySelector('.clip')).opacity,
+        frames: t.shadowRoot.querySelectorAll('.frame').length,
+      };
+    });
+    await page.evaluate(() => { document.getElementById('t').update('---\n@import url("/next/slow.css");\n---\nb\n2'); });
+    while (!ctx.server.requests.includes('/next/slow.css')) await new Promise((r) => setTimeout(r, 10));
+    assert.deepEqual(await state(), { header: 'a', opacity: '1', frames: 2 }); // the next table is built out of sight
+    await page.evaluate(() => document.getElementById('t').ready);
+    assert.deepEqual(await state(), { header: 'b', opacity: '1', frames: 1 });
+  });
+
+  it('leaves no hidden table behind when a render is replaced or fails', async () => {
+    ctx.server.file('/next/slower.css', 'td { color: red; }', { delay: 300 });
+    const page = await ctx.open(inline('a\n1'));
+    const frames = await page.evaluate(async () => {
+      const t = document.getElementById('t');
+      const count = () => t.shadowRoot.querySelectorAll('.frame').length;
+      t.update('---\n@import url("/next/slower.css");\n---\nb\n2');
+      await new Promise((r) => setTimeout(r, 50));
+      await t.update('c,d\n3,4'); // replaces the render that waits for its import
+      await new Promise((r) => setTimeout(r, 400));
+      const replaced = [count(), t.table.querySelector('th').textContent];
+      t.update('---\n@import url("/next/slower.css");\n---\ne\n5');
+      await new Promise((r) => setTimeout(r, 50));
+      await t.update('---\nunclosed');
+      return { replaced, failed: [count(), t.table] };
+    });
+    assert.deepEqual(frames, { replaced: [1, 'c'], failed: [1, null] });
+  });
+
   it('keeps the previous table visible while the next file loads', async () => {
     ctx.server.file('/keep/one.cssv', 'a\n1\n');
     ctx.server.file('/keep/two.cssv', 'b\n2\n', { delay: 400 });
