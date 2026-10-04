@@ -1,0 +1,466 @@
+/* The editor's own chrome. The table's look comes only from the file. The
+   tokens are the website's (site/site.css), and the header is its nav.css, so
+   the editor reads as part of the site. */
+:root {
+  color-scheme: light dark;
+  --bg: #f7f5f0;
+  --bg-alt: #efece4;
+  --surface: #fffdf9;
+  --stage: #ece8df;
+  --dots: rgb(40 30 10 / 0.09);
+  --text: #1c1a17;
+  --muted: #625c52;
+  --border: #e3ded3;
+  --accent: #1c1a17;
+  --accent-soft: #fcf3c4;
+  --mark: #ffe45c;
+  --mark-top: 58%;
+  --mark-bottom: 94%;
+  --mark-text: var(--text);
+  --link-line: #806400;
+  --shadow: 0 1px 2px rgb(40 30 10 / 0.04), 0 10px 30px -14px rgb(40 30 10 / 0.18);
+  --warn: #b45309;
+  --bad: #e11d48;
+  --code-bg: #15140f;
+  --code-bar: #1d1c17;
+  --code-text: #e3dfd3;
+  --code-muted: #8a8478;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* The sheet: the highlighter marks the selection, ink the active cell. */
+  --sel-fill: rgb(255 228 92 / 0.24);
+  --sel-line: #806400;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d0d0c;
+    --bg-alt: #121210;
+    --surface: #161614;
+    --stage: #11110f;
+    --dots: rgb(236 232 223 / 0.07);
+    --text: #ece8df;
+    --muted: #a39d91;
+    --border: #2a2924;
+    --accent: #ece8df;
+    --accent-soft: #2a2715;
+    --mark: #e9d54a;
+    --mark-top: 0%;
+    --mark-bottom: 100%;
+    --mark-text: #15140f;
+    --link-line: var(--mark);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 34px -16px rgb(0 0 0 / 0.6);
+    --warn: #fbbf24;
+    --bad: #fb7185;
+    --code-bg: #0b0b0a;
+    --code-bar: #131311;
+    --sel-fill: rgb(233 213 74 / 0.16);
+    --sel-line: #e9d54a;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; } /* .source and others set display */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.55 var(--sans);
+  -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 640px) { .wrap { padding: 0 16px; } }
+a {
+  color: var(--accent);
+  text-decoration-color: var(--link-line);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+}
+a:hover { text-decoration-color: currentColor; }
+code, kbd { font-family: var(--mono); font-size: 0.88em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.skip {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 20;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--surface);
+}
+.skip:focus { top: 12px; }
+
+/* The two views, each a <main> that sheet.js hides. The home is a page that
+   scrolls; the editor fills the window below the header, and only the sheet
+   scrolls. */
+body.home .filebar, body.home > .toolbar, body.home > .formula, body.home > .status { display: none; }
+body:not(.home) > .footer { display: none; }
+body:not(.home) {
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr); /* else a wide table widens the bars too */
+  height: 100dvh;
+}
+body:not(.home) .nav .wrap { max-width: none; padding-inline: 16px; }
+
+/* Home ----------------------------------------------------------------- */
+.hero { padding: 56px 0 8px; }
+.eyebrow {
+  margin: 0;
+  color: var(--accent);
+  font: 600 12px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+h1 {
+  margin: 14px 0 12px;
+  font-size: clamp(2.1rem, 6vw, 3.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+h1 span {
+  padding: 0 0.08em;
+  border-radius: 2px;
+  background: linear-gradient(transparent var(--mark-top), var(--mark) 0 var(--mark-bottom), transparent 0);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  color: var(--mark-text);
+}
+.lede { margin: 0; max-width: 64ch; color: var(--muted); font-size: 1.08rem; text-wrap: pretty; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 24px 0 0; }
+.actions .hint { color: var(--muted); font-size: 14px; }
+@media (max-width: 640px) { .actions .hint { display: none; } } /* phones can't drag files */
+.button {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: 600 15px/1.2 var(--sans);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.button:hover { border-color: var(--muted); }
+.button.primary { border-color: var(--text); background: var(--text); color: var(--surface); }
+.button.primary:hover { opacity: 0.9; }
+.home-note { margin: 16px 0 0; color: var(--bad); }
+.group { margin: 48px 0 0; }
+.group h2 { margin: 0 0 16px; color: var(--muted); font: 600 12px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 20px; }
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s, transform 0.15s;
+}
+.card:hover { border-color: var(--muted); transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+/* The file's first rows at half size, on the gallery's dotted stage. */
+.thumb {
+  position: relative;
+  height: 170px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--stage);
+  background-image: radial-gradient(var(--dots) 1px, transparent 1.5px);
+  background-size: 18px 18px;
+}
+.thumb cssv-table {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: block;
+  width: calc((100% - 12px) * 2);
+  transform: scale(0.5);
+  transform-origin: 0 0;
+}
+.card-body { display: grid; gap: 2px; padding: 14px 16px 16px; }
+.card-name { font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+.card-path, .card-stats { color: var(--muted); font-size: 12.5px; }
+.card-path { font-family: var(--mono); }
+.card-desc {
+  display: -webkit-box;
+  margin: 6px 0 4px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.card-desc:empty { display: none; }
+.card-draft {
+  margin-inline-start: 8px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font: 500 11px/1.4 var(--mono);
+  vertical-align: 1px;
+}
+.card.failed .card-stats { color: var(--bad); }
+
+.footer { margin-top: 72px; padding: 40px 0 56px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; }
+.footer p { margin: 0 0 6px; }
+.footer strong { color: var(--text); }
+.footer nav { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; }
+
+/* Editor bars ---------------------------------------------------------- */
+.filebar, .toolbar, .formula, .status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  font-size: 13px;
+  line-height: 1.4;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.filebar button, .filebar select, .toolbar button, .toolbar select {
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.filebar button:hover, .filebar select:hover, .toolbar button:hover, .toolbar select:hover { border-color: var(--muted); }
+button[aria-pressed="true"] { border-color: var(--text); background: var(--text); color: var(--surface); }
+.filebar { gap: 10px; padding-block: 8px; }
+.crumb { color: var(--muted); font-weight: 500; text-decoration: none; }
+.crumb:hover { color: var(--text); }
+.crumb-sep { color: var(--muted); }
+.name { overflow: hidden; font-family: var(--mono); font-size: 13.5px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.dirty {
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font: 500 11.5px/1.3 var(--mono);
+}
+.draft {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px 2px 10px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  white-space: nowrap;
+}
+.filebar .draft button { height: 24px; padding: 0 8px; }
+.spacer { flex: 1; }
+.field { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+.toolbar { flex-wrap: wrap; background: var(--bg-alt); }
+.sep { width: 1px; height: 20px; margin: 0 4px; background: var(--border); }
+.swatch {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  font-weight: 700;
+}
+.swatch:hover { border-color: var(--muted); }
+.swatch span { border-bottom: 4px solid var(--swatch, #1d4ed8); line-height: 1; padding: 0 2px 1px; }
+.swatch.fill span { border-bottom-color: var(--swatch, #fde68a); }
+.swatch input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.formula { gap: 8px; }
+.ref {
+  min-width: 76px;
+  padding: 3px 8px;
+  border-right: 1px solid var(--border);
+  font: 600 13px var(--mono);
+}
+.meta { color: var(--muted); white-space: nowrap; }
+#value {
+  flex: 1;
+  min-width: 120px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px var(--mono);
+}
+.formula .hint { color: var(--muted); white-space: nowrap; max-width: 40%; overflow: hidden; text-overflow: ellipsis; }
+
+/* The sheet ------------------------------------------------------------ */
+.main { display: flex; min-height: 0; font-size: 13px; line-height: 1.4; }
+.viewport { position: relative; flex: 1; min-width: 0; overflow: auto; background: var(--bg); }
+.viewport:focus { outline: none; }
+.grid {
+  --gutter: 52px;
+  --bar-h: 40px;
+  display: grid;
+  grid-template-columns: var(--gutter) max-content;
+  grid-template-rows: var(--bar-h) max-content;
+  width: max-content;
+  min-width: 100%;
+  padding-right: 24px;
+  padding-bottom: 24px;
+}
+.corner { grid-area: 1 / 1; }
+.colbar { grid-area: 1 / 2; }
+.rowbar { grid-area: 2 / 1; }
+.layer { grid-area: 2 / 2; }
+/* A file that lays its table out its own way gets no bars (sheet.js). */
+.grid.free { --gutter: 0px; --bar-h: 0px; }
+.grid.free > :is(.corner, .colbar, .rowbar) { display: none; }
+.corner, .colbar, .rowbar { background: var(--bg-alt); color: var(--muted); user-select: none; }
+.corner {
+  position: sticky; top: 0; left: 0; z-index: 4;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.colbar {
+  position: sticky; top: 0; z-index: 3;
+  border-bottom: 1px solid var(--border);
+}
+.rowbar {
+  position: sticky; left: 0; z-index: 3;
+  border-right: 1px solid var(--border);
+}
+.cl, .rl { position: absolute; overflow: hidden; cursor: pointer; }
+.cl {
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--border);
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.cl b { font-size: 12px; color: var(--text); }
+.cl span { font-size: 10.5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
+.rl {
+  left: 0;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  border-top: 1px solid var(--border);
+  font: 11px var(--mono);
+}
+.cl.on, .rl.on { background: var(--accent-soft); color: var(--text); }
+
+.layer { position: relative; }
+.sel, .active { position: absolute; pointer-events: none; z-index: 2; }
+.sel { background: var(--sel-fill); border: 1px solid var(--sel-line); }
+/* Ink with a paper edge on both sides, so it shows on light and dark tables. */
+.active { border: 2px solid var(--text); box-shadow: 0 0 0 1px var(--surface), inset 0 0 0 1px var(--surface); }
+.cell-editor {
+  position: absolute;
+  z-index: 5;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 2px solid var(--text);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.25);
+  background: var(--surface);
+  color: var(--text);
+  caret-color: var(--text);
+  resize: none;
+  overflow: hidden;
+  white-space: pre;
+}
+.cell-editor:focus-visible { outline: 2px solid var(--text); outline-offset: 0; }
+.empty { padding: 40px; color: var(--muted); }
+
+/* The file's text, colored as on the website's code panes. The colored
+   <pre> sits in the flow and sets the size; the textarea covers it exactly
+   with transparent text, and the pane scrolls both. */
+.source {
+  display: flex;
+  flex-direction: column;
+  width: min(46vw, 620px);
+  border-left: 1px solid var(--border);
+  background: var(--code-bg);
+}
+.source-head { display: flex; gap: 10px; align-items: baseline; padding: 8px 12px; background: var(--code-bar); color: var(--code-text); }
+.source-head span { color: var(--code-muted); font-size: 12px; }
+.source-body { flex: 1; min-height: 0; overflow: auto; }
+.code-layer { position: relative; width: max-content; min-width: 100%; min-height: 100%; }
+.source-hl, #source {
+  margin: 0;
+  padding: 10px 14px 24px;
+  border: 0;
+  font: 12px/1.6 var(--mono);
+  letter-spacing: normal;
+  tab-size: 2;
+  white-space: pre;
+  word-wrap: normal;
+}
+.source-hl { color: var(--code-text); pointer-events: none; }
+#source {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: transparent;
+  caret-color: #f8fafc;
+  outline: none;
+  resize: none;
+}
+#source::selection { background: rgb(255 228 92 / 0.28); color: transparent; }
+/* Long files show plain text while typing and their colors after a pause. */
+.source.typing .source-hl { visibility: hidden; }
+.source.typing #source, .source.typing #source::selection { color: var(--code-text); }
+
+/* Syntax colors, as in site/site.css */
+.t-fence   { color: #f2e46b; font-weight: 700; }
+.t-comment { color: #857f73; font-style: italic; }
+.t-at      { color: #f2e46b; }
+.t-atp     { color: #d6d1c4; }
+.t-sel     { color: #e8e4d8; }
+.t-hook    { color: #fb923c; font-weight: 600; }
+.t-prop    { color: #7dd3fc; }
+.t-var     { color: #d6d1c4; }
+.t-cssv    { color: #f2e46b; font-weight: 700; }
+.t-val     { color: #e3dfd3; }
+.t-str     { color: #86efac; }
+.t-punct   { color: #8a8478; }
+.t-head    { color: #f7f4ec; font-weight: 700; }
+.t-delim   { color: #f2e46b; }
+.t-num     { color: #fdba74; }
+.t-quoted  { color: #86efac; }
+.t-text    { color: #e3dfd3; }
+.t-tag     { color: #f2e46b; }
+.t-attr    { color: #7dd3fc; }
+.t-kw      { color: #f2e46b; }
+.t-dim     { color: #857f73; font-style: italic; }
+
+
+.status { gap: 14px; border-top: 1px solid var(--border); border-bottom: 0; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.status b { color: var(--text); font-weight: 600; }
+#stat-msg { overflow: hidden; text-overflow: ellipsis; max-width: 55vw; }
+#stat-msg.warn, #stat-warn { color: var(--warn); }
+#stat-msg.error { color: var(--bad); }

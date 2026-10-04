@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <!-- Opened files may import styles, fonts and images from anywhere; the
+       editor loads nothing from other services, so they are blocked here.
+       'unsafe-inline' is for the table's own <style> and the bars' style attributes. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSSV Editor</title>
+  <meta name="description" content="Edit CSSV files in your browser, with the table and the file's plain text side by side, each updating the other.">
+  <link rel="canonical" href="https://cssv.dev/editor/">
+  <meta property="og:url" content="https://cssv.dev/editor/">
+  <meta property="og:title" content="CSSV Editor">
+  <meta property="og:description" content="Edit CSSV files in your browser, with the table and the file's plain text side by side, each updating the other.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CSSV">
+  <meta property="og:image" content="https://cssv.dev/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CSSV: Plain text in, styled tables out.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d0d0c" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="stylesheet" href="../nav.css">
+  <link rel="stylesheet" href="sheet.css">
+  <script type="module" src="sheet.js"></script>
+</head>
+<body class="home">
+  <a class="skip" id="skip" href="#home">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="../" aria-label="CSSV home">
+        <img src="../favicon.svg" alt="" width="30" height="30">
+        <span>CSSV</span>
+      </a>
+      <nav aria-label="Site">
+        <a href="../#why">Why</a>
+        <a class="wide-only" href="../#how">How it works</a>
+        <a href="../../examples/">Examples</a>
+        <a class="phone-hidden" href="./" aria-current="page">Editor</a>
+        <a href="../#start">Get started</a>
+        <a class="wide-only" href="../#ai">AI</a>
+        <a href="../spec.html">Spec</a>
+        <a class="gh" href="https://github.com/rhpaiva/cssv" aria-label="CSSV on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="home-view" id="home">
+    <div class="wrap">
+      <header class="hero">
+        <p class="eyebrow">CSSV Editor</p>
+        <h1>Edit the table, <span>keep the text</span>.</h1>
+        <p class="lede">Open a <code>.cssv</code> file to see its table and its text side by side. Edit cells, sort rows and add styles in the table, or type in the text, and each one updates the other. Every change is written into the file as CSV and CSS, and the rest of the file stays exactly as it was. The editor runs in your browser, and nothing you open is uploaded.</p>
+        <p class="actions">
+          <button type="button" class="button primary" id="open-local">Open a file from your computer</button>
+          <span class="hint">or drop a <code>.cssv</code> or <code>.csv</code> file on this page</span>
+        </p>
+        <p class="home-note" id="home-note" role="alert" hidden></p>
+      </header>
+      <div id="groups"></div>
+    </div>
+  </main>
+
+  <div class="filebar">
+    <a class="crumb" href="./">All files</a>
+    <span class="crumb-sep" aria-hidden="true">/</span>
+    <strong class="name" id="file-name"></strong>
+    <span class="dirty" id="dirty" hidden>edited</span>
+    <span class="draft" id="draft" hidden>Unsaved changes from <span id="draft-when"></span>
+      <button type="button" id="draft-restore">Restore</button>
+      <button type="button" id="draft-discard">Discard</button>
+    </span>
+    <span class="spacer"></span>
+    <label class="field" title="The key column (--cssv-key) names each row by its value. When every row has a different key, styles for single rows and cells follow the row wherever it moves.">Key column
+      <select id="key"><option value="">none</option></select>
+    </label>
+    <label class="field">Locale
+      <select id="locale">
+        <option value="en-US">en-US</option>
+        <option value="de-DE">de-DE</option>
+        <option value="fr-FR">fr-FR</option>
+        <option value="hi-IN">hi-IN</option>
+        <option value="ar-EG">ar-EG</option>
+      </select>
+    </label>
+    <button type="button" id="open">Open…</button>
+    <button type="button" id="save" title="Save (Ctrl+S). Where the browser can't write files, this downloads the file.">Save</button>
+    <button type="button" id="toggle-source" aria-pressed="false">Source</button>
+  </div>
+  <input type="file" id="file" accept=".cssv,.csv,.txt,text/plain" hidden>
+
+  <div class="toolbar" role="toolbar" aria-label="Sheet tools">
+    <button type="button" id="undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
+    <button type="button" id="redo" title="Redo (Ctrl+Shift+Z)" aria-label="Redo">↷</button>
+    <span class="sep"></span>
+    <button type="button" id="sort-asc" title="Sort rows by this column, ascending">Sort A→Z</button>
+    <button type="button" id="sort-desc" title="Sort rows by this column, descending">Z→A</button>
+    <span class="sep"></span>
+    <span class="field">Row</span>
+    <button type="button" id="row-add" title="Insert an empty row below" aria-label="Insert a row">+</button>
+    <button type="button" id="row-del" title="Delete the selected rows" aria-label="Delete the selected rows">−</button>
+    <span class="sep"></span>
+    <span class="field">Column</span>
+    <button type="button" id="col-add" title="Insert a column to the right" aria-label="Insert a column">+</button>
+    <button type="button" id="col-del" title="Delete the selected columns" aria-label="Delete the selected columns">−</button>
+    <button type="button" id="col-left" title="Move the selected columns left" aria-label="Move the selected columns left">←</button>
+    <button type="button" id="col-right" title="Move the selected columns right" aria-label="Move the selected columns right">→</button>
+    <span class="sep"></span>
+    <label class="field" title="Which cells a style applies to. Written as a CSS rule in the style block.">Style
+      <select id="scope">
+        <option value="cells">selected cells</option>
+        <option value="rows">selected rows</option>
+        <option value="columns">selected columns</option>
+        <option value="key">every row with this key</option>
+      </select>
+    </label>
+    <button type="button" id="bold" title="Bold (Ctrl+B)" aria-label="Bold"><b>B</b></button>
+    <button type="button" id="italic" title="Italic (Ctrl+I)" aria-label="Italic"><i>I</i></button>
+    <label class="swatch" title="Text color"><span>A</span><input type="color" id="color" value="#1d4ed8"></label>
+    <label class="swatch fill" title="Fill"><span>▧</span><input type="color" id="fill" value="#fde68a"></label>
+    <button type="button" id="unstyle" title="Remove the editor's rule for this scope">Clear style</button>
+    <span class="sep"></span>
+    <button type="button" id="copy" title="Copy the selection as tab-separated values (Ctrl+C)">Copy</button>
+  </div>
+
+  <div class="formula">
+    <output class="ref" id="ref">A1</output>
+    <span class="meta" id="meta"></span>
+    <input id="value" spellcheck="false" autocomplete="off" aria-label="Raw value of the selected cell">
+    <span class="hint" id="hint"></span>
+  </div>
+
+  <main class="main" id="main" hidden>
+    <p class="sr-only" id="sheet-help">Arrow keys move between cells. Enter or F2 edits a cell, and typing replaces its value. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste.</p>
+    <p class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></p>
+    <div class="viewport" id="viewport" tabindex="0" aria-label="Sheet" aria-describedby="sheet-help">
+      <div class="grid" id="grid">
+        <div class="corner"></div>
+        <div class="colbar" id="colbar"></div>
+        <div class="rowbar" id="rowbar"></div>
+        <div class="layer" id="wrap">
+          <cssv-table></cssv-table>
+          <div class="sel" id="sel" hidden></div>
+          <div class="active" id="active" hidden></div>
+          <textarea class="cell-editor" id="cell-editor" rows="1" wrap="off" spellcheck="false" autocomplete="off" aria-label="Edit cell" hidden></textarea>
+        </div>
+      </div>
+      <p class="empty" id="empty" hidden></p>
+    </div>
+    <aside class="source" id="source-panel" hidden>
+      <div class="source-head">
+        <strong></strong>
+        <span id="source-info"></span>
+      </div>
+      <div class="source-body">
+        <div class="code-layer">
+          <pre class="source-hl" id="source-hl" aria-hidden="true"></pre>
+          <textarea id="source" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="CSSV source"></textarea>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="status">
+    <span id="stat-size"></span>
+    <span id="stat-sel"></span>
+    <span id="stat-layout" title="This file's style block lays the table out its own way, so row and column bars would point at nothing. Arrow keys still move by record and field, and the formula bar shows where you are." hidden>Free layout: no row and column bars</span>
+    <span class="spacer"></span>
+    <span id="stat-msg" role="status"></span>
+    <span id="stat-warn"></span>
+    <span id="stat-time"></span>
+  </footer>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>CSSV</strong> · Comma-Separated Styled Values · v1, open for review · MIT license</p>
+      <p>Every preview on this page is the file's first rows, rendered by <code>&lt;cssv-table&gt;</code> from the file's own style block.</p>
+      <nav aria-label="Documents">
+        <a href="../spec.html">Spec</a>
+        <a href="../spec.html?doc=conformance">Conformance</a>
+        <a href="../spec.html?doc=readme">README</a>
+        <a href="../../examples/">Examples gallery</a>
+        <a href="https://github.com/rhpaiva/cssv">GitHub</a>
+        <a href="https://www.npmjs.com/package/@rhpaiva/cssv">npm package</a>
+        <a href="../imprint.html">Imprint</a>
+        <a href="../privacy.html">Privacy</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

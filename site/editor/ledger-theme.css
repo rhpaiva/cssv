@@ -1,0 +1,259 @@
+@import url("fonts/fonts.css");
+
+/* Liber Transmutationum: the ledger of a society of adepts, 1683 to 1702.
+   Parchment, iron-gall ink, rubrication and gold leaf, from one style block.
+   Every effect hangs off what CSSV exposes: column names, key rows, sign
+   classes, empty cells and the order of rows. */
+
+table {
+  --cssv-key: substantia;
+  --paper: #f1e3bf;
+  --paper-deep: #e2cb93;
+  --ink: #2b1d0e;
+  --ink-faded: #6b5434;
+  --rubric: #9b1c1c;
+  --gold: #9a6f16;
+  --gold-hi: #f2d27a;
+  --verdigris: #2f6f62;
+  --rule: rgb(70 45 15 / 0.28);
+  --stripe: rgb(120 80 20 / 0.05);
+  --hatch: rgb(70 45 15 / 0.10);
+  --leaf-dark: #5e400a;
+  --leaf-light: #b07d16;
+  border-collapse: separate;
+  border-spacing: 3px 2px;
+  padding: 18px 22px 28px;
+  font: 15px/1.35 "IM Fell English", "Iowan Old Style", Palatino, Georgia, serif;
+  color: var(--ink);
+  border: 6px double var(--ink-faded);
+  border-radius: 3px;
+  background-color: var(--paper);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .2 0 0 0 0 .06 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(260px 170px at 14% 9%, rgb(120 70 10 / 0.16), transparent 70%),
+    radial-gradient(circle at 82% 61%, transparent 0 46px, rgb(110 60 10 / 0.14) 47px 52px, transparent 53px),
+    radial-gradient(ellipse 140% 100% at 50% 50%, transparent 62%, rgb(90 50 10 / 0.32)),
+    linear-gradient(var(--paper), var(--paper-deep));
+  background-size: 220px 220px, 1100px 1500px, 1100px 1500px, 100% 100%, 100% 100%;
+  box-shadow: inset 0 0 70px rgb(80 40 0 / 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* By candlelight. */
+  table {
+    --paper: #2b1e10;
+    --paper-deep: #160e06;
+    --ink: #ecd9b0;
+    --ink-faded: #b39a6b;
+    --rubric: #e46a55;
+    --gold: #e2b54a;
+    --verdigris: #74c7b1;
+    --rule: rgb(236 217 176 / 0.16);
+    --stripe: rgb(236 217 176 / 0.035);
+    --hatch: rgb(236 217 176 / 0.07);
+    --leaf-dark: #b8862b;
+    --leaf-light: #f6dc8a;
+  }
+}
+
+col[data-col="adeptus"] { width: 12em; }
+col[data-col="nota"] { width: 19em; }
+
+/* The header: blackletter in red ink, number columns written up the page. */
+thead th {
+  padding: 10px 9px 12px;
+  border-bottom: 3px double var(--ink);
+  font: 400 1.3em/1.1 "UnifrakturMaguntia", "Old English Text MT", serif;
+  color: var(--rubric);
+  text-align: center;
+  vertical-align: bottom;
+  text-shadow: 0 1px 0 rgb(255 240 200 / 0.5);
+  background: linear-gradient(transparent 55%, rgb(155 28 28 / 0.08));
+}
+thead th.number {
+  writing-mode: sideways-lr;
+  text-align: start;
+  height: 6.5em;
+  padding: 10px 6px;
+  font-size: 1.1em;
+}
+th[data-col="adeptus"]::before { content: "\2619\00a0"; color: var(--gold); }
+th[data-col="nota"]::after { content: "\00a0\2767"; color: var(--gold); }
+:lang(de) th[data-col="lucrum"]::after { content: " (Gewinn)"; font-size: 0.6em; }
+
+/* Body cells. */
+td {
+  padding: 5px 9px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: baseline;
+}
+td.number { font-variant-numeric: tabular-nums; }
+tbody tr:nth-child(even) td { background-color: var(--stripe); }
+tbody tr:hover td { box-shadow: inset 0 0 0 999px rgb(168 123 31 / 0.08); }
+
+/* Seven operations of the Great Work: a red double rule after every seventh line. */
+tbody tr:nth-child(7n) td {
+  padding-bottom: 10px;
+  border-bottom: 3px double rgb(155 28 28 / 0.5);
+}
+
+/* A gap in the record: hatched, like a damaged page. */
+td:empty {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 5px, var(--hatch) 5px 6px);
+}
+
+/* Line numbers in small roman numerals, restarting after each year's sum. */
+tbody { counter-reset: linea; }
+tbody tr { counter-increment: linea; }
+tbody tr[data-key^="Summa"] { counter-reset: linea; counter-increment: none; }
+
+td[data-col="folio"] {
+  --cssv-format: "minimumIntegerDigits: 4, useGrouping: false";
+  font-style: italic;
+  font-size: 0.85em;
+  letter-spacing: 0.06em;
+  color: var(--ink-faded);
+}
+td[data-col="folio"]:not(:empty)::before { content: "f.\2009"; }
+
+td[data-col="anno"] { --cssv-format: "useGrouping: false"; color: var(--ink-faded); }
+td[data-col="anno"]::before { content: "A\00b0\2009"; font-size: 0.7em; vertical-align: 0.3em; }
+
+td[data-col="dies"] { white-space: nowrap; }
+td[data-col="dies"]::before {
+  content: counter(linea, lower-roman) ".";
+  display: inline-block;
+  min-width: 3.4em;
+  font-size: 0.72em;
+  color: var(--rubric);
+}
+
+tbody tr[data-key^="Summa"] td[data-col="dies"]::before { content: none; }
+
+td[data-col="adeptus"]::first-letter {
+  font-family: "UnifrakturMaguntia", serif;
+  font-size: 1.3em;
+  color: var(--rubric);
+}
+
+/* One glyph per substance, set by name through the key column. */
+td[data-col="substantia"] { white-space: nowrap; }
+td[data-col="substantia"]::before {
+  display: inline-block;
+  width: 1.5em;
+  margin-right: 0.2em;
+  font: 1.2em/1 "Noto Sans Symbols", "Segoe UI Symbol", "DejaVu Sans", serif;
+  text-align: center;
+  color: var(--gold);
+  content: "\25CB";
+}
+tr[data-key="Mercurius"] td[data-col="substantia"]::before { content: "\263F"; color: #6c7a89; }
+tr[data-key="Sulphur"] td[data-col="substantia"]::before { content: "\1F70D"; color: #b8860b; }
+tr[data-key="Sal"] td[data-col="substantia"]::before { content: "\1F714"; color: #4b6584; }
+tr[data-key="Aurum"] td[data-col="substantia"]::before { content: "\2609"; color: var(--gold); text-shadow: 0 0 6px rgb(242 210 122 / 0.9); }
+tr[data-key="Argentum"] td[data-col="substantia"]::before { content: "\263D"; color: #8a96a3; }
+tr[data-key="Plumbum"] td[data-col="substantia"]::before { content: "\2644"; color: #55595e; }
+tr[data-key="Stannum"] td[data-col="substantia"]::before { content: "\2643"; color: #7d8a7a; }
+tr[data-key="Ferrum"] td[data-col="substantia"]::before { content: "\2642"; color: #9c4a1a; }
+tr[data-key="Cuprum"] td[data-col="substantia"]::before { content: "\2640"; color: var(--verdigris); }
+tr[data-key="Stibium"] td[data-col="substantia"]::before { content: "\2641"; color: #6b5b95; }
+tr[data-key="Arsenicum"] td[data-col="substantia"]::before { content: "\1F73A"; color: #3d7a2a; }
+tr[data-key="Vitriolum"] td[data-col="substantia"]::before { content: "\1F716"; color: #2e6fa3; }
+
+/* Gold is written in gold leaf, arsenic underlined in a poisonous green. */
+tr[data-key="Aurum"] td[data-col="substantia"] {
+  background: linear-gradient(100deg, var(--leaf-dark) 10%, var(--leaf-light) 40%, var(--leaf-dark) 60%, var(--leaf-light) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
+}
+tr[data-key="Arsenicum"] td[data-col="substantia"] {
+  text-decoration: underline wavy rgb(61 122 42 / 0.6);
+  text-underline-offset: 3px;
+}
+
+td[data-col="opus"] {
+  font-family: "IM Fell English SC", "IM Fell English", serif;
+  letter-spacing: 0.03em;
+  color: var(--verdigris);
+}
+
+td[data-col="unciae in"],
+td[data-col="unciae ex"] { --cssv-format: "minimumFractionDigits: 1, maximumFractionDigits: 1"; }
+td[data-col="unciae ex"]::after { content: "\00a0\2125"; font-size: 0.8em; color: var(--ink-faded); }
+
+/* Profit in gold, loss in red ink, nothing as an empty set. */
+td[data-col="lucrum"] {
+  --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2";
+  font-weight: bold;
+}
+td[data-col="lucrum"].positive { color: var(--gold); }
+td[data-col="lucrum"].positive::before { content: "\25B4\2009"; font-size: 0.8em; }
+td[data-col="lucrum"].negative { color: var(--rubric); }
+td[data-col="lucrum"].negative::before { content: "\25BE\2009"; font-size: 0.8em; }
+td[data-col="lucrum"].zero { color: var(--ink-faded); font-weight: normal; }
+td[data-col="lucrum"].zero::before { content: "\2205\2009"; }
+
+td[data-col="sumptus"] { --cssv-format: "maximumFractionDigits: 0"; }
+td[data-col="sumptus"]::after { content: "\2009s."; font-size: 0.8em; color: var(--ink-faded); }
+
+td[data-col="nota"] { font-style: italic; color: var(--ink-faded); }
+
+/* A failed work scorches its whole line. The scorch is on the row, under the
+   cells, so cells that paint their own background (gold leaf) keep it. */
+tbody tr:not([data-key^="Summa"]):has(td.negative[data-col="lucrum"]) {
+  background-image: linear-gradient(90deg, rgb(155 28 28 / 0.09), rgb(155 28 28 / 0.02) 60%, transparent);
+}
+tbody tr:not([data-key^="Summa"]):has(td.negative[data-col="lucrum"]) td[data-col="opus"]::after {
+  content: "\2009\2014\2009combustum";
+  font-family: "IM Fell English", serif;
+  font-style: italic;
+  font-size: 0.8em;
+  color: var(--rubric);
+}
+
+/* Each year closes with a gilded sum, sealed in red wax. */
+tbody tr[data-key="Summa Anni"] td {
+  padding-block: 12px 14px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 4px double var(--ink);
+  background: linear-gradient(rgb(168 123 31 / 0.22), rgb(168 123 31 / 0.06));
+  font-family: "IM Fell English SC", "IM Fell English", serif;
+}
+tbody tr[data-key="Summa Anni"] td[data-col="substantia"]::before { content: "\2720"; color: var(--rubric); }
+tbody tr[data-key="Summa Anni"] td[data-col="nota"]::after {
+  content: "R";
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: 10px;
+  vertical-align: middle;
+  border-radius: 50%;
+  font: 15px/1 "UnifrakturMaguntia", serif;
+  font-style: normal;
+  color: rgb(255 225 205 / 0.85);
+  background: radial-gradient(circle at 35% 30%, #d65a4f, #8b1a1a 60%, #5c0f0f);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.45), inset 0 0 0 3px rgb(0 0 0 / 0.16);
+  transform: rotate(-12deg);
+}
+
+/* The grand total: gold on black, with a slow shimmer. */
+tbody tr[data-key="Summa Totalis"] { background: linear-gradient(#3a2410, #140c05); }
+tbody tr[data-key="Summa Totalis"] td {
+  padding-block: 20px;
+  border-top: 5px double var(--rubric);
+  background: none;
+  font: 1.25em/1.2 "UnifrakturMaguntia", serif;
+  color: #f2d27a;
+}
+tbody tr[data-key="Summa Totalis"] td[data-col="lucrum"],
+tbody tr[data-key="Summa Totalis"] td[data-col="sumptus"] {
+  background: linear-gradient(100deg, #b8862b 20%, #fff3c4 40%, #b8862b 60%) 0 0 / 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: aurum 5s linear infinite;
+}
+@keyframes aurum { to { background-position: -200% 0; } }

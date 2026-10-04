@@ -1,0 +1,1300 @@
+---
+@import url("fonts/fonts.css");
+
+/* Liber Transmutationum: the ledger of a society of adepts, 1683 to 1702.
+   Parchment, iron-gall ink, rubrication and gold leaf, from one style block.
+   Every effect hangs off what CSSV exposes: column names, key rows, sign
+   classes, empty cells and the order of rows. */
+
+table {
+  --cssv-key: substantia;
+  --paper: #f1e3bf;
+  --paper-deep: #e2cb93;
+  --ink: #2b1d0e;
+  --ink-faded: #6b5434;
+  --rubric: #9b1c1c;
+  --gold: #9a6f16;
+  --gold-hi: #f2d27a;
+  --verdigris: #2f6f62;
+  --rule: rgb(70 45 15 / 0.28);
+  --stripe: rgb(120 80 20 / 0.05);
+  --hatch: rgb(70 45 15 / 0.10);
+  --leaf-dark: #5e400a;
+  --leaf-light: #b07d16;
+  border-collapse: separate;
+  border-spacing: 3px 2px;
+  padding: 18px 22px 28px;
+  font: 15px/1.35 "IM Fell English", "Iowan Old Style", Palatino, Georgia, serif;
+  color: var(--ink);
+  border: 6px double var(--ink-faded);
+  border-radius: 3px;
+  background-color: var(--paper);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .2 0 0 0 0 .06 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(260px 170px at 14% 9%, rgb(120 70 10 / 0.16), transparent 70%),
+    radial-gradient(circle at 82% 61%, transparent 0 46px, rgb(110 60 10 / 0.14) 47px 52px, transparent 53px),
+    radial-gradient(ellipse 140% 100% at 50% 50%, transparent 62%, rgb(90 50 10 / 0.32)),
+    linear-gradient(var(--paper), var(--paper-deep));
+  background-size: 220px 220px, 1100px 1500px, 1100px 1500px, 100% 100%, 100% 100%;
+  box-shadow: inset 0 0 70px rgb(80 40 0 / 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* By candlelight. */
+  table {
+    --paper: #2b1e10;
+    --paper-deep: #160e06;
+    --ink: #ecd9b0;
+    --ink-faded: #b39a6b;
+    --rubric: #e46a55;
+    --gold: #e2b54a;
+    --verdigris: #74c7b1;
+    --rule: rgb(236 217 176 / 0.16);
+    --stripe: rgb(236 217 176 / 0.035);
+    --hatch: rgb(236 217 176 / 0.07);
+    --leaf-dark: #b8862b;
+    --leaf-light: #f6dc8a;
+  }
+}
+
+col[data-col="adeptus"] { width: 12em; }
+col[data-col="nota"] { width: 19em; }
+
+/* The header: blackletter in red ink, number columns written up the page. */
+thead th {
+  padding: 10px 9px 12px;
+  border-bottom: 3px double var(--ink);
+  font: 400 1.3em/1.1 "UnifrakturMaguntia", "Old English Text MT", serif;
+  color: var(--rubric);
+  text-align: center;
+  vertical-align: bottom;
+  text-shadow: 0 1px 0 rgb(255 240 200 / 0.5);
+  background: linear-gradient(transparent 55%, rgb(155 28 28 / 0.08));
+}
+thead th.number {
+  writing-mode: sideways-lr;
+  text-align: start;
+  height: 6.5em;
+  padding: 10px 6px;
+  font-size: 1.1em;
+}
+th[data-col="adeptus"]::before { content: "\2619\00a0"; color: var(--gold); }
+th[data-col="nota"]::after { content: "\00a0\2767"; color: var(--gold); }
+:lang(de) th[data-col="lucrum"]::after { content: " (Gewinn)"; font-size: 0.6em; }
+
+/* Body cells. */
+td {
+  padding: 5px 9px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: baseline;
+}
+td.number { font-variant-numeric: tabular-nums; }
+tbody tr:nth-child(even) td { background-color: var(--stripe); }
+tbody tr:hover td { box-shadow: inset 0 0 0 999px rgb(168 123 31 / 0.08); }
+
+/* Seven operations of the Great Work: a red double rule after every seventh line. */
+tbody tr:nth-child(7n) td {
+  padding-bottom: 10px;
+  border-bottom: 3px double rgb(155 28 28 / 0.5);
+}
+
+/* A gap in the record: hatched, like a damaged page. */
+td:empty {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 5px, var(--hatch) 5px 6px);
+}
+
+/* Line numbers in small roman numerals, restarting after each year's sum. */
+tbody { counter-reset: linea; }
+tbody tr { counter-increment: linea; }
+tbody tr[data-key^="Summa"] { counter-reset: linea; counter-increment: none; }
+
+td[data-col="folio"] {
+  --cssv-format: "minimumIntegerDigits: 4, useGrouping: false";
+  font-style: italic;
+  font-size: 0.85em;
+  letter-spacing: 0.06em;
+  color: var(--ink-faded);
+}
+td[data-col="folio"]:not(:empty)::before { content: "f.\2009"; }
+
+td[data-col="anno"] { --cssv-format: "useGrouping: false"; color: var(--ink-faded); }
+td[data-col="anno"]::before { content: "A\00b0\2009"; font-size: 0.7em; vertical-align: 0.3em; }
+
+td[data-col="dies"] { white-space: nowrap; }
+td[data-col="dies"]::before {
+  content: counter(linea, lower-roman) ".";
+  display: inline-block;
+  min-width: 3.4em;
+  font-size: 0.72em;
+  color: var(--rubric);
+}
+
+tbody tr[data-key^="Summa"] td[data-col="dies"]::before { content: none; }
+
+td[data-col="adeptus"]::first-letter {
+  font-family: "UnifrakturMaguntia", serif;
+  font-size: 1.3em;
+  color: var(--rubric);
+}
+
+/* One glyph per substance, set by name through the key column. */
+td[data-col="substantia"] { white-space: nowrap; }
+td[data-col="substantia"]::before {
+  display: inline-block;
+  width: 1.5em;
+  margin-right: 0.2em;
+  font: 1.2em/1 "Noto Sans Symbols", "Segoe UI Symbol", "DejaVu Sans", serif;
+  text-align: center;
+  color: var(--gold);
+  content: "\25CB";
+}
+tr[data-key="Mercurius"] td[data-col="substantia"]::before { content: "\263F"; color: #6c7a89; }
+tr[data-key="Sulphur"] td[data-col="substantia"]::before { content: "\1F70D"; color: #b8860b; }
+tr[data-key="Sal"] td[data-col="substantia"]::before { content: "\1F714"; color: #4b6584; }
+tr[data-key="Aurum"] td[data-col="substantia"]::before { content: "\2609"; color: var(--gold); text-shadow: 0 0 6px rgb(242 210 122 / 0.9); }
+tr[data-key="Argentum"] td[data-col="substantia"]::before { content: "\263D"; color: #8a96a3; }
+tr[data-key="Plumbum"] td[data-col="substantia"]::before { content: "\2644"; color: #55595e; }
+tr[data-key="Stannum"] td[data-col="substantia"]::before { content: "\2643"; color: #7d8a7a; }
+tr[data-key="Ferrum"] td[data-col="substantia"]::before { content: "\2642"; color: #9c4a1a; }
+tr[data-key="Cuprum"] td[data-col="substantia"]::before { content: "\2640"; color: var(--verdigris); }
+tr[data-key="Stibium"] td[data-col="substantia"]::before { content: "\2641"; color: #6b5b95; }
+tr[data-key="Arsenicum"] td[data-col="substantia"]::before { content: "\1F73A"; color: #3d7a2a; }
+tr[data-key="Vitriolum"] td[data-col="substantia"]::before { content: "\1F716"; color: #2e6fa3; }
+
+/* Gold is written in gold leaf, arsenic underlined in a poisonous green. */
+tr[data-key="Aurum"] td[data-col="substantia"] {
+  background: linear-gradient(100deg, var(--leaf-dark) 10%, var(--leaf-light) 40%, var(--leaf-dark) 60%, var(--leaf-light) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
+}
+tr[data-key="Arsenicum"] td[data-col="substantia"] {
+  text-decoration: underline wavy rgb(61 122 42 / 0.6);
+  text-underline-offset: 3px;
+}
+
+td[data-col="opus"] {
+  font-family: "IM Fell English SC", "IM Fell English", serif;
+  letter-spacing: 0.03em;
+  color: var(--verdigris);
+}
+
+td[data-col="unciae in"],
+td[data-col="unciae ex"] { --cssv-format: "minimumFractionDigits: 1, maximumFractionDigits: 1"; }
+td[data-col="unciae ex"]::after { content: "\00a0\2125"; font-size: 0.8em; color: var(--ink-faded); }
+
+/* Profit in gold, loss in red ink, nothing as an empty set. */
+td[data-col="lucrum"] {
+  --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2";
+  font-weight: bold;
+}
+td[data-col="lucrum"].positive { color: var(--gold); }
+td[data-col="lucrum"].positive::before { content: "\25B4\2009"; font-size: 0.8em; }
+td[data-col="lucrum"].negative { color: var(--rubric); }
+td[data-col="lucrum"].negative::before { content: "\25BE\2009"; font-size: 0.8em; }
+td[data-col="lucrum"].zero { color: var(--ink-faded); font-weight: normal; }
+td[data-col="lucrum"].zero::before { content: "\2205\2009"; }
+
+td[data-col="sumptus"] { --cssv-format: "maximumFractionDigits: 0"; }
+td[data-col="sumptus"]::after { content: "\2009s."; font-size: 0.8em; color: var(--ink-faded); }
+
+td[data-col="nota"] { font-style: italic; color: var(--ink-faded); }
+
+/* A failed work scorches its whole line. The scorch is on the row, under the
+   cells, so cells that paint their own background (gold leaf) keep it. */
+tbody tr:not([data-key^="Summa"]):has(td.negative[data-col="lucrum"]) {
+  background-image: linear-gradient(90deg, rgb(155 28 28 / 0.09), rgb(155 28 28 / 0.02) 60%, transparent);
+}
+tbody tr:not([data-key^="Summa"]):has(td.negative[data-col="lucrum"]) td[data-col="opus"]::after {
+  content: "\2009\2014\2009combustum";
+  font-family: "IM Fell English", serif;
+  font-style: italic;
+  font-size: 0.8em;
+  color: var(--rubric);
+}
+
+/* Each year closes with a gilded sum, sealed in red wax. */
+tbody tr[data-key="Summa Anni"] td {
+  padding-block: 12px 14px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 4px double var(--ink);
+  background: linear-gradient(rgb(168 123 31 / 0.22), rgb(168 123 31 / 0.06));
+  font-family: "IM Fell English SC", "IM Fell English", serif;
+}
+tbody tr[data-key="Summa Anni"] td[data-col="substantia"]::before { content: "\2720"; color: var(--rubric); }
+tbody tr[data-key="Summa Anni"] td[data-col="nota"]::after {
+  content: "R";
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: 10px;
+  vertical-align: middle;
+  border-radius: 50%;
+  font: 15px/1 "UnifrakturMaguntia", serif;
+  font-style: normal;
+  color: rgb(255 225 205 / 0.85);
+  background: radial-gradient(circle at 35% 30%, #d65a4f, #8b1a1a 60%, #5c0f0f);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.45), inset 0 0 0 3px rgb(0 0 0 / 0.16);
+  transform: rotate(-12deg);
+}
+
+/* The grand total: gold on black, with a slow shimmer. */
+tbody tr[data-key="Summa Totalis"] { background: linear-gradient(#3a2410, #140c05); }
+tbody tr[data-key="Summa Totalis"] td {
+  padding-block: 20px;
+  border-top: 5px double var(--rubric);
+  background: none;
+  font: 1.25em/1.2 "UnifrakturMaguntia", serif;
+  color: #f2d27a;
+}
+tbody tr[data-key="Summa Totalis"] td[data-col="lucrum"],
+tbody tr[data-key="Summa Totalis"] td[data-col="sumptus"] {
+  background: linear-gradient(100deg, #b8862b 20%, #fff3c4 40%, #b8862b 60%) 0 0 / 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: aurum 5s linear infinite;
+}
+@keyframes aurum { to { background-position: -200% 0; } }
+---
+folio,anno,dies,adeptus,substantia,opus,unciae in,unciae ex,lucrum,sumptus,nota
+1,1683,4 Ianuarius,Dr. Cornelius Haast,Vitriolum,Calcinatio,46.5,42.9,-4.32,2744,
+2,1683,5 Ianuarius,Yusuf al-Haddad,Arsenicum,Coniunctio,38.7,35.9,-1.68,3042,
+3,1683,25 Ianuarius,Sr. Perpetua Lom,Arsenicum,Solutio,28.9,28.9,0.00,2494,
+4,1683,29 Ianuarius,Yusuf al-Haddad,Mercurius,Coagulatio,29.9,33.0,9.30,1418,
+5,1683,11 Februarius,Ottoline Brae,Mercurius,Calcinatio,1.2,0.4,-2.40,2720,
+6,1683,13 Februarius,Tobias Wrenfield,Argentum,Separatio,10.6,7.9,-10.80,3137,
+7,1683,13 Februarius,Mag. Isolde Kettering,Argentum,Separatio,7.8,1.7,-24.40,1336,The Raven appeared at the third hour.
+8,1683,3 Martius,Héloïse Ducasse,Cuprum,Calcinatio,42.4,59.0,24.90,297,
+9,1683,16 Martius,Héloïse Ducasse,Cuprum,Solutio,4.0,4.9,1.35,1681,
+10,1683,20 Martius,Dame Agnes Morrow,Plumbum,Coagulatio,2.0,2.0,0.00,3028,
+11,1683,22 Martius,Yusuf al-Haddad,Arsenicum,Fermentatio,60.4,21.8,-23.16,3706,
+12,1683,8 Aprilis,Lorenz Stahl,Vitriolum,Distillatio,39.1,15.4,-28.44,3072,
+13,1683,18 Aprilis,Yusuf al-Haddad,Sal,Separatio,19.8,17.5,-1.38,2127,
+14,1683,7 Maius,Tobias Wrenfield,Stibium,Distillatio,55.8,62.6,17.00,2731,"Repeated thrice, thrice the same."
+15,1683,12 Maius,Sr. Perpetua Lom,Plumbum,Solutio,34.2,40.2,3.60,3375,
+16,1683,1 Iunius,Dame Agnes Morrow,Ferrum,Coagulatio,58.1,68.6,6.30,3696,
+17,1683,4 Iunius,Fr. Ambrosius Vell,Aurum,Fermentatio,29.5,33.5,36.00,3289,
+18,1683,5 Iunius,Tobias Wrenfield,Mercurius,Coniunctio,7.7,10.7,9.00,3635,
+19,1683,9 Iunius,Fr. Ambrosius Vell,Sal,Calcinatio,42.8,61.4,11.16,1998,
+20,1683,11 Iunius,Dr. Cornelius Haast,Mercurius,Solutio,31.1,10.1,-63.00,3766,
+21,1683,17 Iunius,Mag. Isolde Kettering,Stannum,Fermentatio,43.4,16.1,-16.38,2958,"Repeated thrice, thrice the same."
+22,1683,30 Iunius,Lorenz Stahl,Aurum,Coniunctio,6.3,2.1,-37.80,1765,
+23,1683,11 Iulius,Tobias Wrenfield,Aurum,Solutio,55.0,14.1,-368.10,265,
+24,1683,12 Iulius,Ottoline Brae,Arsenicum,Distillatio,14.0,16.1,1.26,2093,
+25,1683,16 Iulius,Dame Agnes Morrow,Mercurius,Separatio,19.3,6.0,-39.90,720,
+26,1683,17 Iulius,Ottoline Brae,Mercurius,Fermentatio,46.5,46.5,0.00,2445,"Repeated thrice, thrice the same."
+27,1683,17 Iulius,Héloïse Ducasse,Vitriolum,Solutio,13.4,7.1,-7.56,1453,
+28,1683,24 Iulius,Dr. Cornelius Haast,Cuprum,Calcinatio,30.0,36.6,9.90,3495,
+29,1683,24 Iulius,Sr. Perpetua Lom,Cuprum,Separatio,41.3,27.0,-21.45,944,
+30,1683,29 Iulius,Dr. Cornelius Haast,Sulphur,Solutio,59.8,81.9,13.26,1015,
+31,1683,25 Augustus,Mag. Isolde Kettering,Stibium,Separatio,23.3,27.7,11.00,2846,
+32,1683,29 Augustus,Fabrizio Neri,Arsenicum,Solutio,37.7,52.5,8.88,2599,
+33,1683,1 October,Sr. Perpetua Lom,Argentum,Fermentatio,17.8,9.8,-32.00,2964,
+34,1683,1 October,Héloïse Ducasse,Ferrum,Coniunctio,43.2,25.4,-10.68,2156,
+35,1683,7 October,Keziah Blackwood,Ferrum,Coniunctio,3.1,3.0,-0.06,363,Night of the comet.
+36,1683,9 October,Sr. Perpetua Lom,Arsenicum,Calcinatio,46.2,53.9,4.62,3712,Sealed with Hermes' seal until Lent.
+37,1683,15 October,Tobias Wrenfield,Arsenicum,Coniunctio,45.4,41.9,-2.10,2683,
+38,1683,17 October,Tobias Wrenfield,Mercurius,Distillatio,44.2,23.7,-61.50,1378,
+39,1683,24 October,Fr. Ambrosius Vell,Mercurius,Coniunctio,16.7,4.3,-37.20,894,
+40,1683,27 October,Ottoline Brae,Aurum,Fermentatio,38.4,6.7,-285.30,2561,"He calls it ""the green lion"" and will say no more."
+41,1683,30 October,Yusuf al-Haddad,Sulphur,Calcinatio,57.7,37.4,-12.18,1444,
+42,1683,6 November,Yusuf al-Haddad,Plumbum,Coniunctio,26.2,6.0,-12.12,3779,Night of the comet.
+43,1683,10 November,Dame Agnes Morrow,Aurum,Fermentatio,9.8,9.4,-3.60,3639,
+44,1683,11 November,Dr. Cornelius Haast,Ferrum,Calcinatio,9.2,7.6,-0.96,3308,
+45,1683,12 November,Lorenz Stahl,Stannum,Distillatio,22.5,17.9,-2.76,2955,
+46,1683,12 December,Lorenz Stahl,Argentum,Calcinatio,27.1,37.1,40.00,1643,
+47,1683,19 December,Dame Agnes Morrow,Mercurius,Fermentatio,17.5,21.3,11.40,2024,
+48,1683,30 December,Mag. Isolde Kettering,Aurum,Distillatio,35.9,20.9,-135.00,1470,"Repeated thrice, thrice the same."
+49,1683,31 December,Sr. Perpetua Lom,Plumbum,Separatio,37.8,45.6,4.68,3361,
+,1683,,,Summa Anni,,1479.2,1264.0,-1022.62,116224,"Probatum est, anno 1683."
+50,1684,4 Ianuarius,Dame Agnes Morrow,Arsenicum,Coniunctio,19.9,19.9,0.00,2549,"He calls it ""the green lion"" and will say no more."
+51,1684,2 Februarius,Mag. Isolde Kettering,Stannum,Fermentatio,3.8,2.3,-0.90,792,
+52,1684,8 Februarius,Keziah Blackwood,Sal,Calcinatio,7.3,10.5,1.92,1986,
+53,1684,23 Februarius,Ottoline Brae,Argentum,Distillatio,40.9,49.6,34.80,3508,Sold to the apothecary at Cheapside.
+54,1684,24 Februarius,Yusuf al-Haddad,Mercurius,Distillatio,2.2,2.4,0.60,1426,Witnessed by Sir R. and his clerk.
+55,1684,19 Martius,Sr. Perpetua Lom,Arsenicum,Solutio,15.6,8.0,-4.56,1574,"Repeated thrice, thrice the same."
+56,1684,28 Martius,Lorenz Stahl,Ferrum,Fermentatio,6.9,6.9,0.00,312,
+57,1684,31 Martius,Ottoline Brae,Arsenicum,Solutio,52.5,52.5,0.00,3311,"Cauda pavonis observed, all colours at once."
+58,1684,31 Martius,Lorenz Stahl,Ferrum,Coniunctio,59.5,79.6,12.06,3533,
+59,1684,3 Aprilis,Fr. Ambrosius Vell,Argentum,Distillatio,48.9,37.4,-46.00,98,
+60,1684,8 Aprilis,Ottoline Brae,Plumbum,Fermentatio,19.0,22.7,2.22,1762,"Repeated thrice, thrice the same."
+61,1684,9 Aprilis,Dr. Cornelius Haast,Plumbum,Solutio,3.9,5.3,0.84,2971,"Repeated thrice, thrice the same."
+62,1684,13 Aprilis,Héloïse Ducasse,Aurum,Coniunctio,23.4,25.9,22.50,2631,
+63,1684,9 Maius,Yusuf al-Haddad,Ferrum,Coniunctio,46.2,39.0,-4.32,2241,"Repeated thrice, thrice the same."
+64,1684,15 Maius,Sr. Perpetua Lom,Cuprum,Coniunctio,37.2,33.7,-5.25,1755,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+65,1684,5 Iunius,Ottoline Brae,Mercurius,Solutio,14.7,5.2,-28.50,179,
+66,1684,4 Iulius,Lorenz Stahl,Stannum,Coniunctio,45.7,63.0,10.38,533,
+67,1684,6 Iulius,Yusuf al-Haddad,Stibium,Separatio,18.8,12.2,-16.50,1282,
+68,1684,7 Iulius,Sr. Perpetua Lom,Stibium,Separatio,24.4,13.8,-26.50,3449,Fire too fierce. Lost the work.
+69,1684,8 Iulius,Fabrizio Neri,Vitriolum,Fermentatio,53.8,21.4,-38.88,605,
+70,1684,28 Iulius,Fr. Ambrosius Vell,Argentum,Separatio,18.0,17.0,-4.00,1507,
+71,1684,1 Augustus,Fr. Ambrosius Vell,Stannum,Coniunctio,25.7,6.4,-11.58,3220,Witnessed by Sir R. and his clerk.
+72,1684,1 Augustus,Lorenz Stahl,Stannum,Separatio,9.2,9.2,0.00,1407,
+73,1684,12 Augustus,Keziah Blackwood,Argentum,Separatio,15.2,15.2,0.00,3701,
+74,1684,13 Augustus,Lorenz Stahl,Sal,Separatio,60.3,25.6,-20.82,1030,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+75,1684,18 Augustus,Keziah Blackwood,Ferrum,Fermentatio,2.6,2.6,0.00,3427,
+76,1684,21 Augustus,Dr. Cornelius Haast,Aurum,Distillatio,43.9,36.5,-66.60,3198,
+77,1684,25 Augustus,Mag. Isolde Kettering,Cuprum,Fermentatio,43.7,36.1,-11.40,3380,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+78,1684,4 September,Keziah Blackwood,Stibium,Coniunctio,57.5,51.4,-15.25,2663,
+79,1684,19 September,Dame Agnes Morrow,Stibium,Solutio,49.2,7.6,-104.00,1473,The Raven appeared at the third hour.
+80,1684,23 September,Fabrizio Neri,Sulphur,Separatio,16.3,22.7,3.84,208,
+81,1684,3 October,Dr. Cornelius Haast,Mercurius,Fermentatio,30.0,30.0,0.00,1303,
+82,1684,17 October,Mag. Isolde Kettering,Cuprum,Solutio,44.7,30.4,-21.45,2968,
+83,1684,3 November,Mag. Isolde Kettering,Sulphur,Distillatio,11.3,13.8,1.50,3678,Sealed with Hermes' seal until Lent.
+84,1684,5 November,Héloïse Ducasse,Ferrum,Distillatio,14.2,18.0,2.28,3036,Sold to the apothecary at Cheapside.
+85,1684,22 November,Fabrizio Neri,Vitriolum,Coniunctio,18.3,18.3,0.00,2468,Sold to the apothecary at Cheapside.
+86,1684,29 November,Tobias Wrenfield,Arsenicum,Fermentatio,48.7,13.0,-21.42,1179,Vapours most noxious; windows opened.
+87,1684,2 December,Mag. Isolde Kettering,Argentum,Solutio,49.0,38.8,-40.80,1109,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+88,1684,4 December,Fabrizio Neri,Vitriolum,Distillatio,31.4,5.9,-30.60,2789,The Raven appeared at the third hour.
+89,1684,5 December,Sr. Perpetua Lom,Arsenicum,Coagulatio,53.2,27.2,-15.60,46,
+90,1684,10 December,Dame Agnes Morrow,Plumbum,Coagulatio,53.0,53.9,0.54,2462,
+91,1684,12 December,Yusuf al-Haddad,Mercurius,Solutio,18.7,18.0,-2.10,2746,
+92,1684,15 December,Héloïse Ducasse,Cuprum,Coagulatio,21.9,5.8,-24.15,1971,
+93,1684,15 December,Keziah Blackwood,Sulphur,Calcinatio,45.7,34.1,-6.96,548,
+94,1684,16 December,Fr. Ambrosius Vell,Stannum,Distillatio,13.0,11.7,-0.78,2441,
+95,1684,18 December,Tobias Wrenfield,Sal,Coniunctio,15.4,15.4,0.00,693,
+96,1684,19 December,Tobias Wrenfield,Vitriolum,Calcinatio,19.6,19.6,0.00,593,"He calls it ""the green lion"" and will say no more."
+97,1684,22 December,Ottoline Brae,Stannum,Coagulatio,2.8,1.7,-0.66,1916,
+98,1684,30 December,Keziah Blackwood,Aurum,Separatio,44.1,48.9,43.20,3481,
+,1684,,,Summa Anni,,1421.2,1146.1,-432.90,97138,"Probatum est, anno 1684."
+99,1685,3 Ianuarius,Sr. Perpetua Lom,Sal,Coagulatio,31.4,43.7,7.38,275,
+100,1685,16 Ianuarius,Héloïse Ducasse,Sal,Fermentatio,9.5,13.1,2.16,573,
+101,1685,6 Februarius,Yusuf al-Haddad,Sal,Distillatio,42.9,56.7,8.28,2649,Witnessed by Sir R. and his clerk.
+102,1685,10 Februarius,Dr. Cornelius Haast,Arsenicum,Coniunctio,32.5,15.2,-10.38,2228,"Cauda pavonis observed, all colours at once."
+103,1685,12 Februarius,Fr. Ambrosius Vell,Sulphur,Solutio,34.6,17.0,-10.56,3704,The Raven appeared at the third hour.
+104,1685,16 Februarius,Fr. Ambrosius Vell,Aurum,Calcinatio,57.2,59.6,21.60,2856,
+105,1685,17 Februarius,Keziah Blackwood,Argentum,Fermentatio,14.1,6.6,-30.00,1511,"Cauda pavonis observed, all colours at once."
+106,1685,23 Februarius,Fr. Ambrosius Vell,Argentum,Distillatio,32.6,33.5,3.60,854,
+107,1685,13 Martius,Mag. Isolde Kettering,Plumbum,Distillatio,18.3,4.8,-8.10,2570,
+108,1685,3 Aprilis,Sr. Perpetua Lom,Vitriolum,Separatio,17.0,21.2,5.04,2745,
+109,1685,4 Aprilis,Héloïse Ducasse,Mercurius,Coagulatio,13.2,14.3,3.30,614,
+110,1685,12 Aprilis,Yusuf al-Haddad,Arsenicum,Coniunctio,6.2,3.1,-1.86,994,
+111,1685,13 Aprilis,Mag. Isolde Kettering,Stannum,Fermentatio,6.8,3.3,-2.10,432,"Cauda pavonis observed, all colours at once."
+112,1685,18 Aprilis,Héloïse Ducasse,Aurum,Separatio,24.3,6.0,-164.70,3764,Sold to the apothecary at Cheapside.
+113,1685,23 Aprilis,Ottoline Brae,Stibium,Calcinatio,30.0,39.5,23.75,2816,
+114,1685,3 Maius,Fr. Ambrosius Vell,Vitriolum,Fermentatio,15.5,14.5,-1.20,1912,Witnessed by Sir R. and his clerk.
+115,1685,10 Maius,Keziah Blackwood,Plumbum,Distillatio,56.6,63.0,3.84,272,
+116,1685,11 Maius,Keziah Blackwood,Stibium,Coagulatio,33.3,28.7,-11.50,229,
+117,1685,18 Maius,Sr. Perpetua Lom,Argentum,Coniunctio,26.4,11.5,-59.60,715,
+118,1685,20 Maius,Fr. Ambrosius Vell,Ferrum,Coniunctio,36.3,34.4,-1.14,2327,Sealed with Hermes' seal until Lent.
+119,1685,23 Maius,Dr. Cornelius Haast,Aurum,Calcinatio,39.4,23.1,-146.70,1264,
+120,1685,5 Iunius,Fr. Ambrosius Vell,Sal,Coagulatio,50.8,46.3,-2.70,1607,
+121,1685,13 Iunius,Dr. Cornelius Haast,Vitriolum,Separatio,5.9,7.0,1.32,1459,
+122,1685,25 Iunius,Keziah Blackwood,Sal,Coniunctio,46.1,11.3,-20.88,765,Dissolved in aqua regia; much fuming.
+123,1685,29 Iunius,Sr. Perpetua Lom,Arsenicum,Coniunctio,7.9,7.9,0.00,3712,
+124,1685,23 Iulius,Mag. Isolde Kettering,Mercurius,Separatio,1.2,1.1,-0.30,3804,
+125,1685,24 Iulius,Lorenz Stahl,Stannum,Separatio,10.6,8.9,-1.02,1923,Sold to the apothecary at Cheapside.
+126,1685,29 Iulius,Dr. Cornelius Haast,Arsenicum,Calcinatio,36.2,50.6,8.64,2342,Dissolved in aqua regia; much fuming.
+127,1685,31 Iulius,Ottoline Brae,Arsenicum,Distillatio,2.1,2.6,0.30,1832,
+128,1685,7 Augustus,Fr. Ambrosius Vell,Stibium,Calcinatio,39.7,29.1,-26.50,2136,Dissolved in aqua regia; much fuming.
+129,1685,9 Augustus,Keziah Blackwood,Sulphur,Solutio,21.9,5.6,-9.78,3538,The Raven appeared at the third hour.
+130,1685,29 Augustus,Fr. Ambrosius Vell,Stibium,Calcinatio,32.6,14.5,-45.25,735,
+131,1685,30 Augustus,Tobias Wrenfield,Vitriolum,Solutio,40.6,53.2,15.12,141,
+132,1685,31 Augustus,Dr. Cornelius Haast,Stannum,Solutio,19.3,22.9,2.16,380,"Salt, sulphur, mercury: the tria prima, in that order."
+133,1685,3 September,Dr. Cornelius Haast,Argentum,Solutio,54.6,50.1,-18.00,547,Witnessed by Sir R. and his clerk.
+134,1685,6 September,Fr. Ambrosius Vell,Mercurius,Fermentatio,39.8,7.0,-98.40,113,
+135,1685,6 October,Keziah Blackwood,Plumbum,Calcinatio,52.3,14.1,-22.92,3682,
+136,1685,9 October,Mag. Isolde Kettering,Argentum,Coniunctio,15.3,7.2,-32.40,986,
+137,1685,14 October,Sr. Perpetua Lom,Plumbum,Fermentatio,40.1,37.1,-1.80,1485,Sealed with Hermes' seal until Lent.
+138,1685,2 November,Keziah Blackwood,Mercurius,Coagulatio,57.4,71.4,42.00,1650,
+139,1685,6 November,Ottoline Brae,Sal,Fermentatio,18.8,6.3,-7.50,1336,
+140,1685,9 November,Lorenz Stahl,Vitriolum,Solutio,6.8,2.5,-5.16,21,Sold to the apothecary at Cheapside.
+141,1685,25 November,Héloïse Ducasse,Cuprum,Coagulatio,4.7,1.6,-4.65,98,Night of the comet.
+142,1685,7 December,Fr. Ambrosius Vell,Sal,Coagulatio,3.3,3.8,0.30,508,
+143,1685,10 December,Mag. Isolde Kettering,Sulphur,Distillatio,14.4,18.6,2.52,2119,"Cauda pavonis observed, all colours at once."
+144,1685,21 December,Lorenz Stahl,Sulphur,Solutio,35.5,17.3,-10.92,3498,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+145,1685,23 December,Ottoline Brae,Mercurius,Fermentatio,49.7,67.3,52.80,2124,
+146,1685,25 December,Fabrizio Neri,Aurum,Fermentatio,10.8,1.9,-80.10,3365,"Repeated thrice, thrice the same."
+147,1685,29 December,Yusuf al-Haddad,Arsenicum,Distillatio,45.9,38.1,-4.68,1547,
+,1685,,,Summa Anni,,1342.4,1118.1,-636.69,82757,"Probatum est, anno 1685."
+148,1686,1 Ianuarius,Keziah Blackwood,Aurum,Fermentatio,52.9,72.7,178.20,1460,
+149,1686,2 Ianuarius,Yusuf al-Haddad,Sulphur,Solutio,50.3,17.4,-19.74,3722,
+150,1686,7 Ianuarius,Fabrizio Neri,Mercurius,Distillatio,14.0,15.3,3.90,900,
+151,1686,9 Ianuarius,Yusuf al-Haddad,Aurum,Separatio,3.2,1.4,-16.20,3541,
+152,1686,13 Ianuarius,Fr. Ambrosius Vell,Cuprum,Separatio,19.7,16.6,-4.65,1998,
+153,1686,17 Ianuarius,Fr. Ambrosius Vell,Cuprum,Separatio,20.5,6.1,-21.60,24,
+154,1686,31 Ianuarius,Mag. Isolde Kettering,Sulphur,Distillatio,32.5,33.0,0.30,3716,
+155,1686,3 Februarius,Mag. Isolde Kettering,Stannum,Fermentatio,14.7,7.8,-4.14,1890,"Salt, sulphur, mercury: the tria prima, in that order."
+156,1686,6 Februarius,Dr. Cornelius Haast,Stannum,Solutio,12.9,8.4,-2.70,1212,Witnessed by Sir R. and his clerk.
+157,1686,11 Februarius,Héloïse Ducasse,Arsenicum,Distillatio,55.5,11.2,-26.58,1058,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+158,1686,11 Februarius,Fabrizio Neri,Arsenicum,Coniunctio,4.2,3.2,-0.60,1014,
+159,1686,18 Februarius,Yusuf al-Haddad,Argentum,Coniunctio,18.0,16.7,-5.20,2252,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+160,1686,26 Februarius,Dr. Cornelius Haast,Arsenicum,Calcinatio,10.7,3.2,-4.50,2803,
+161,1686,5 Martius,Dr. Cornelius Haast,Argentum,Calcinatio,2.6,2.2,-1.60,2654,
+162,1686,9 Martius,Héloïse Ducasse,Sulphur,Coagulatio,27.1,11.2,-9.54,3703,
+163,1686,15 Martius,Yusuf al-Haddad,Arsenicum,Coniunctio,10.8,6.5,-2.58,1900,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+164,1686,15 Martius,Héloïse Ducasse,Plumbum,Distillatio,14.5,14.5,0.00,482,
+165,1686,16 Martius,Keziah Blackwood,Sal,Separatio,7.5,8.1,0.36,3226,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+166,1686,16 Martius,Fr. Ambrosius Vell,Stibium,Coniunctio,39.1,27.1,-30.00,1100,"Cauda pavonis observed, all colours at once."
+167,1686,6 Aprilis,Lorenz Stahl,Argentum,Separatio,24.3,33.5,36.80,604,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+168,1686,16 Aprilis,Sr. Perpetua Lom,Sulphur,Distillatio,14.5,9.3,-3.12,2386,
+169,1686,23 Maius,Yusuf al-Haddad,Sal,Calcinatio,23.4,23.0,-0.24,2530,
+170,1686,24 Maius,Yusuf al-Haddad,Ferrum,Fermentatio,50.6,61.9,6.78,2392,Sealed with Hermes' seal until Lent.
+171,1686,27 Maius,Dr. Cornelius Haast,Arsenicum,Solutio,12.1,4.7,-4.44,1823,"Vessel cracked, work recommenced."
+172,1686,2 Iunius,Fr. Ambrosius Vell,Aurum,Solutio,5.4,1.2,-37.80,215,
+173,1686,9 Iunius,Dr. Cornelius Haast,Sal,Distillatio,21.3,8.3,-7.80,1602,"Salt, sulphur, mercury: the tria prima, in that order."
+174,1686,18 Iunius,Sr. Perpetua Lom,Arsenicum,Fermentatio,50.7,14.7,-21.60,1150,The Raven appeared at the third hour.
+175,1686,18 Iunius,Fabrizio Neri,Ferrum,Fermentatio,6.9,2.6,-2.58,3809,"Salt, sulphur, mercury: the tria prima, in that order."
+176,1686,26 Iunius,Tobias Wrenfield,Aurum,Separatio,19.1,19.1,0.00,1302,Dissolved in aqua regia; much fuming.
+177,1686,12 Iulius,Sr. Perpetua Lom,Ferrum,Distillatio,47.6,18.8,-17.28,564,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+178,1686,13 Iulius,Tobias Wrenfield,Vitriolum,Fermentatio,53.2,28.4,-29.76,2500,"He calls it ""the green lion"" and will say no more."
+179,1686,30 Iulius,Mag. Isolde Kettering,Vitriolum,Coagulatio,5.5,1.1,-5.28,3311,
+180,1686,5 Augustus,Dame Agnes Morrow,Sulphur,Distillatio,56.2,76.5,12.18,1768,
+181,1686,13 Augustus,Sr. Perpetua Lom,Stibium,Separatio,23.4,28.6,13.00,2669,Vapours most noxious; windows opened.
+182,1686,23 Augustus,Fabrizio Neri,Sulphur,Calcinatio,25.0,9.3,-9.42,3268,
+183,1686,18 September,Dame Agnes Morrow,Arsenicum,Separatio,56.9,76.2,11.58,437,
+184,1686,22 September,Dr. Cornelius Haast,Sal,Distillatio,4.1,1.6,-1.50,3127,
+185,1686,30 September,Héloïse Ducasse,Stannum,Coniunctio,49.0,32.1,-10.14,2850,
+186,1686,3 October,Héloïse Ducasse,Aurum,Solutio,9.1,4.9,-37.80,2269,"Cauda pavonis observed, all colours at once."
+187,1686,15 October,Héloïse Ducasse,Argentum,Separatio,24.6,13.8,-43.20,3101,
+188,1686,13 November,Keziah Blackwood,Mercurius,Coniunctio,5.2,3.6,-4.80,2684,
+189,1686,14 November,Mag. Isolde Kettering,Sal,Coniunctio,20.3,24.7,2.64,1777,
+190,1686,16 November,Lorenz Stahl,Ferrum,Fermentatio,33.5,8.9,-14.76,2728,
+191,1686,22 November,Fabrizio Neri,Stannum,Calcinatio,15.3,9.3,-3.60,2896,
+192,1686,26 November,Fr. Ambrosius Vell,Argentum,Solutio,42.0,39.3,-10.80,2805,
+193,1686,12 December,Fr. Ambrosius Vell,Arsenicum,Distillatio,5.7,3.5,-1.32,959,"He calls it ""the green lion"" and will say no more."
+194,1686,14 December,Mag. Isolde Kettering,Plumbum,Distillatio,48.0,56.7,5.22,410,
+195,1686,27 December,Dr. Cornelius Haast,Sulphur,Calcinatio,9.2,8.1,-0.66,1257,Night of the comet.
+196,1686,30 December,Keziah Blackwood,Argentum,Solutio,32.8,30.1,-10.80,2622,
+,1686,,,Summa Anni,,1205.6,936.4,-157.37,100470,"Probatum est, anno 1686."
+197,1687,6 Ianuarius,Lorenz Stahl,Arsenicum,Coagulatio,57.0,18.0,-23.40,520,
+198,1687,11 Ianuarius,Tobias Wrenfield,Arsenicum,Separatio,56.1,36.9,-11.52,2844,Sold to the apothecary at Cheapside.
+199,1687,6 Februarius,Tobias Wrenfield,Stannum,Separatio,12.8,4.0,-5.28,3738,Sold to the apothecary at Cheapside.
+200,1687,18 Februarius,Tobias Wrenfield,Aurum,Coniunctio,14.1,18.3,37.80,2504,Fire too fierce. Lost the work.
+201,1687,21 Februarius,Lorenz Stahl,Arsenicum,Solutio,3.2,4.4,0.72,2965,
+202,1687,28 Februarius,Mag. Isolde Kettering,Vitriolum,Distillatio,30.6,41.1,12.60,3289,"Cauda pavonis observed, all colours at once."
+203,1687,3 Aprilis,Fr. Ambrosius Vell,Sal,Solutio,27.7,12.8,-8.94,3678,
+204,1687,4 Aprilis,Ottoline Brae,Arsenicum,Separatio,59.3,74.2,8.94,3255,
+205,1687,4 Aprilis,Dame Agnes Morrow,Ferrum,Solutio,57.3,73.7,9.84,110,
+206,1687,5 Aprilis,Tobias Wrenfield,Ferrum,Calcinatio,12.5,10.4,-1.26,2335,Dissolved in aqua regia; much fuming.
+207,1687,6 Aprilis,Dr. Cornelius Haast,Vitriolum,Fermentatio,45.7,28.9,-20.16,501,
+208,1687,8 Aprilis,Héloïse Ducasse,Mercurius,Calcinatio,23.8,6.8,-51.00,2282,
+209,1687,19 Aprilis,Keziah Blackwood,Vitriolum,Coniunctio,12.8,17.9,6.12,2732,
+210,1687,7 Maius,Keziah Blackwood,Cuprum,Solutio,20.6,13.8,-10.20,2966,Night of the comet.
+211,1687,15 Maius,Yusuf al-Haddad,Vitriolum,Coniunctio,9.8,8.2,-1.92,3696,
+212,1687,13 Iunius,Dr. Cornelius Haast,Arsenicum,Coniunctio,21.8,18.6,-1.92,963,
+213,1687,16 Iunius,Mag. Isolde Kettering,Cuprum,Calcinatio,30.8,6.5,-36.45,1274,
+214,1687,29 Iunius,Héloïse Ducasse,Aurum,Separatio,44.9,52.4,67.50,1992,
+215,1687,7 Iulius,Yusuf al-Haddad,Argentum,Coagulatio,50.3,50.3,0.00,3467,
+216,1687,8 Iulius,Fr. Ambrosius Vell,Vitriolum,Solutio,48.9,21.7,-32.64,2892,
+217,1687,9 Iulius,Fr. Ambrosius Vell,Mercurius,Distillatio,40.4,46.4,18.00,1017,"Salt, sulphur, mercury: the tria prima, in that order."
+218,1687,9 Iulius,Fr. Ambrosius Vell,Stannum,Coagulatio,39.5,43.8,2.58,2859,
+219,1687,10 Iulius,Ottoline Brae,Cuprum,Calcinatio,39.6,44.8,7.80,571,
+220,1687,20 Iulius,Tobias Wrenfield,Argentum,Calcinatio,3.9,0.6,-13.20,2703,Fire too fierce. Lost the work.
+221,1687,27 Iulius,Yusuf al-Haddad,Stannum,Coniunctio,50.5,50.5,0.00,2523,Vapours most noxious; windows opened.
+222,1687,5 Augustus,Yusuf al-Haddad,Argentum,Calcinatio,40.7,29.0,-46.80,762,
+223,1687,8 Augustus,Ottoline Brae,Argentum,Fermentatio,8.8,9.0,0.80,1453,
+224,1687,12 Augustus,Héloïse Ducasse,Stibium,Coagulatio,7.3,10.2,7.25,3394,
+225,1687,4 September,Tobias Wrenfield,Stannum,Calcinatio,11.0,12.2,0.72,1317,
+226,1687,16 September,Lorenz Stahl,Cuprum,Distillatio,27.1,9.2,-26.85,1520,
+227,1687,22 September,Fabrizio Neri,Vitriolum,Separatio,20.8,12.8,-9.60,849,"He calls it ""the green lion"" and will say no more."
+228,1687,23 September,Keziah Blackwood,Sal,Distillatio,27.4,20.8,-3.96,3193,"He calls it ""the green lion"" and will say no more."
+229,1687,30 September,Héloïse Ducasse,Aurum,Distillatio,29.5,29.5,0.00,3526,Sealed with Hermes' seal until Lent.
+230,1687,2 October,Keziah Blackwood,Argentum,Calcinatio,4.1,3.1,-4.00,870,
+231,1687,4 October,Yusuf al-Haddad,Sal,Fermentatio,58.2,10.6,-28.56,583,
+232,1687,5 October,Lorenz Stahl,Stannum,Separatio,15.8,3.6,-7.32,326,Vapours most noxious; windows opened.
+233,1687,11 October,Sr. Perpetua Lom,Stannum,Solutio,6.9,7.2,0.18,1978,
+234,1687,14 October,Mag. Isolde Kettering,Argentum,Distillatio,41.0,32.7,-33.20,3359,
+235,1687,16 October,Ottoline Brae,Stibium,Calcinatio,15.9,13.7,-5.50,361,
+236,1687,20 October,Ottoline Brae,Ferrum,Coagulatio,46.1,32.9,-7.92,2846,
+237,1687,22 October,Yusuf al-Haddad,Arsenicum,Distillatio,39.6,19.4,-12.12,1185,Dissolved in aqua regia; much fuming.
+238,1687,4 November,Keziah Blackwood,Argentum,Distillatio,26.6,28.0,5.60,3544,
+239,1687,6 November,Héloïse Ducasse,Aurum,Fermentatio,35.2,27.8,-66.60,505,
+240,1687,11 November,Keziah Blackwood,Arsenicum,Separatio,27.7,7.1,-12.36,2584,
+241,1687,18 November,Sr. Perpetua Lom,Arsenicum,Separatio,10.1,6.7,-2.04,2950,The Raven appeared at the third hour.
+242,1687,21 November,Dr. Cornelius Haast,Aurum,Coniunctio,24.4,3.7,-186.30,2658,"Salt, sulphur, mercury: the tria prima, in that order."
+243,1687,29 November,Dr. Cornelius Haast,Stannum,Coniunctio,55.4,21.1,-20.58,2341,
+244,1687,8 December,Héloïse Ducasse,Ferrum,Fermentatio,60.0,26.8,-19.92,571,"Vessel cracked, work recommenced."
+245,1687,18 December,Tobias Wrenfield,Ferrum,Distillatio,44.3,8.0,-21.78,2766,
+,1687,,,Summa Anni,,1497.8,1090.1,-546.85,103117,"Probatum est, anno 1687."
+246,1688,21 Ianuarius,Lorenz Stahl,Cuprum,Coniunctio,9.2,8.6,-0.90,690,
+247,1688,25 Ianuarius,Fr. Ambrosius Vell,Arsenicum,Separatio,10.9,11.3,0.24,1391,Sealed with Hermes' seal until Lent.
+248,1688,1 Februarius,Fr. Ambrosius Vell,Arsenicum,Separatio,8.8,3.7,-3.06,427,
+249,1688,5 Februarius,Fabrizio Neri,Mercurius,Distillatio,6.4,6.1,-0.90,25,
+250,1688,8 Februarius,Fabrizio Neri,Aurum,Coniunctio,52.9,10.1,-385.20,660,Witnessed by Sir R. and his clerk.
+251,1688,8 Februarius,Lorenz Stahl,Sulphur,Coagulatio,14.5,8.6,-3.54,1736,Vapours most noxious; windows opened.
+252,1688,17 Februarius,Dr. Cornelius Haast,Aurum,Coniunctio,25.6,21.1,-40.50,2046,"Repeated thrice, thrice the same."
+253,1688,20 Februarius,Héloïse Ducasse,Plumbum,Distillatio,57.6,35.7,-13.14,97,
+254,1688,27 Februarius,Dr. Cornelius Haast,Arsenicum,Solutio,57.4,60.9,2.10,258,Fire too fierce. Lost the work.
+255,1688,28 Februarius,Mag. Isolde Kettering,Sulphur,Fermentatio,36.8,12.2,-14.76,2586,The Raven appeared at the third hour.
+256,1688,29 Februarius,Fabrizio Neri,Vitriolum,Separatio,59.6,78.1,22.20,2714,"Vessel cracked, work recommenced."
+257,1688,7 Martius,Fr. Ambrosius Vell,Ferrum,Distillatio,53.0,8.1,-26.94,2666,
+258,1688,13 Martius,Dame Agnes Morrow,Sal,Distillatio,9.4,2.2,-4.32,604,Sealed with Hermes' seal until Lent.
+259,1688,18 Martius,Keziah Blackwood,Arsenicum,Fermentatio,27.1,39.0,7.14,3126,The Raven appeared at the third hour.
+260,1688,5 Aprilis,Mag. Isolde Kettering,Stannum,Coagulatio,11.1,11.6,0.30,3386,
+261,1688,6 Aprilis,Mag. Isolde Kettering,Aurum,Coagulatio,39.7,23.0,-150.30,2147,"He calls it ""the green lion"" and will say no more."
+262,1688,10 Aprilis,Fabrizio Neri,Mercurius,Fermentatio,59.2,25.4,-101.40,3525,"Salt, sulphur, mercury: the tria prima, in that order."
+263,1688,17 Maius,Lorenz Stahl,Sulphur,Separatio,16.6,20.4,2.28,156,
+264,1688,20 Maius,Lorenz Stahl,Mercurius,Solutio,15.3,11.9,-10.20,2539,Fire too fierce. Lost the work.
+265,1688,2 Iunius,Fabrizio Neri,Sulphur,Coagulatio,38.6,39.1,0.30,1388,
+266,1688,3 Iunius,Fr. Ambrosius Vell,Cuprum,Distillatio,41.1,56.9,23.70,3436,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+267,1688,7 Iunius,Dr. Cornelius Haast,Mercurius,Distillatio,38.9,8.6,-90.90,3415,Vapours most noxious; windows opened.
+268,1688,15 Iunius,Ottoline Brae,Argentum,Separatio,56.1,74.4,73.20,267,"Vessel cracked, work recommenced."
+269,1688,27 Iunius,Dr. Cornelius Haast,Vitriolum,Coniunctio,29.0,7.4,-25.92,2921,"He calls it ""the green lion"" and will say no more."
+270,1688,12 Iulius,Lorenz Stahl,Argentum,Solutio,21.8,9.7,-48.40,2037,Sealed with Hermes' seal until Lent.
+271,1688,15 Iulius,Lorenz Stahl,Aurum,Calcinatio,22.0,8.3,-123.30,120,"Salt, sulphur, mercury: the tria prima, in that order."
+272,1688,27 Iulius,Ottoline Brae,Plumbum,Solutio,24.6,28.5,2.34,776,"He calls it ""the green lion"" and will say no more."
+273,1688,30 Iulius,Dr. Cornelius Haast,Plumbum,Calcinatio,54.8,39.8,-9.00,1722,Dissolved in aqua regia; much fuming.
+274,1688,9 Augustus,Yusuf al-Haddad,Vitriolum,Coniunctio,9.8,4.1,-6.84,2024,
+275,1688,29 Augustus,Yusuf al-Haddad,Ferrum,Coniunctio,16.7,17.9,0.72,1105,
+276,1688,31 Augustus,Mag. Isolde Kettering,Mercurius,Distillatio,50.1,29.0,-63.30,2392,
+277,1688,21 September,Fr. Ambrosius Vell,Argentum,Calcinatio,59.1,58.1,-4.00,2629,
+278,1688,23 September,Fr. Ambrosius Vell,Argentum,Separatio,33.9,33.9,0.00,2745,
+279,1688,26 September,Keziah Blackwood,Vitriolum,Coagulatio,33.9,37.0,3.72,614,Dissolved in aqua regia; much fuming.
+280,1688,29 September,Ottoline Brae,Arsenicum,Calcinatio,30.2,40.2,6.00,3745,"He calls it ""the green lion"" and will say no more."
+281,1688,18 October,Lorenz Stahl,Sulphur,Calcinatio,57.4,49.8,-4.56,2280,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+282,1688,19 October,Mag. Isolde Kettering,Sulphur,Solutio,13.0,5.6,-4.44,97,"He calls it ""the green lion"" and will say no more."
+283,1688,31 October,Ottoline Brae,Sal,Coagulatio,60.2,60.2,0.00,3143,
+284,1688,17 November,Yusuf al-Haddad,Stannum,Distillatio,56.0,56.0,0.00,3588,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+285,1688,23 November,Fabrizio Neri,Sulphur,Distillatio,56.5,56.5,0.00,463,The Raven appeared at the third hour.
+286,1688,25 November,Yusuf al-Haddad,Cuprum,Coagulatio,43.0,35.6,-11.10,1007,
+287,1688,26 November,Fabrizio Neri,Aurum,Fermentatio,4.4,4.2,-1.80,1161,"He calls it ""the green lion"" and will say no more."
+288,1688,30 November,Lorenz Stahl,Cuprum,Solutio,9.2,7.8,-2.10,626,
+289,1688,1 December,Sr. Perpetua Lom,Aurum,Coagulatio,41.1,18.7,-201.60,3557,
+290,1688,5 December,Héloïse Ducasse,Argentum,Fermentatio,7.8,2.7,-20.40,254,
+291,1688,9 December,Yusuf al-Haddad,Vitriolum,Fermentatio,42.3,17.8,-29.40,1087,"Salt, sulphur, mercury: the tria prima, in that order."
+292,1688,15 December,Lorenz Stahl,Argentum,Calcinatio,44.1,40.6,-14.00,3376,
+293,1688,18 December,Yusuf al-Haddad,Mercurius,Solutio,46.7,67.6,62.70,501,
+294,1688,23 December,Mag. Isolde Kettering,Mercurius,Calcinatio,11.3,11.1,-0.60,835,
+,1688,,,Summa Anni,,1624.7,1325.1,-1209.88,84090,"Probatum est, anno 1688."
+295,1689,2 Ianuarius,Fabrizio Neri,Plumbum,Coniunctio,14.7,5.0,-5.82,16,
+296,1689,11 Februarius,Dr. Cornelius Haast,Stibium,Solutio,27.9,14.2,-34.25,983,"He calls it ""the green lion"" and will say no more."
+297,1689,15 Februarius,Tobias Wrenfield,Ferrum,Coagulatio,16.0,19.7,2.22,281,
+298,1689,19 Februarius,Sr. Perpetua Lom,Argentum,Coniunctio,46.0,58.5,50.00,225,
+299,1689,22 Februarius,Sr. Perpetua Lom,Arsenicum,Calcinatio,4.4,3.8,-0.36,3301,
+300,1689,27 Februarius,Dame Agnes Morrow,Stannum,Fermentatio,2.1,2.5,0.24,1016,
+301,1689,14 Martius,Ottoline Brae,Arsenicum,Distillatio,54.5,37.0,-10.50,1138,The Raven appeared at the third hour.
+302,1689,15 Martius,Keziah Blackwood,Ferrum,Coniunctio,2.7,2.5,-0.12,168,Dissolved in aqua regia; much fuming.
+303,1689,17 Martius,Mag. Isolde Kettering,Mercurius,Coniunctio,59.3,76.4,51.30,303,
+304,1689,18 Martius,Sr. Perpetua Lom,Aurum,Solutio,2.7,1.4,-11.70,2539,
+305,1689,24 Martius,Tobias Wrenfield,Sal,Distillatio,5.5,3.7,-1.08,858,Dissolved in aqua regia; much fuming.
+306,1689,28 Martius,Dame Agnes Morrow,Ferrum,Fermentatio,27.6,11.0,-9.96,2133,
+307,1689,4 Aprilis,Fabrizio Neri,Aurum,Solutio,46.4,52.7,56.70,2542,"Cauda pavonis observed, all colours at once."
+308,1689,11 Aprilis,Lorenz Stahl,Plumbum,Separatio,17.1,8.8,-4.98,3693,
+309,1689,5 Maius,Héloïse Ducasse,Vitriolum,Solutio,3.7,3.7,0.00,3176,
+310,1689,10 Maius,Fr. Ambrosius Vell,Plumbum,Distillatio,8.3,8.8,0.30,2584,"Repeated thrice, thrice the same."
+311,1689,4 Iunius,Héloïse Ducasse,Cuprum,Coniunctio,25.0,8.5,-24.75,2346,Sold to the apothecary at Cheapside.
+312,1689,6 Iunius,Lorenz Stahl,Sulphur,Distillatio,8.5,9.2,0.42,1008,
+313,1689,7 Iunius,Yusuf al-Haddad,Mercurius,Distillatio,4.4,5.6,3.60,807,
+314,1689,8 Iunius,Héloïse Ducasse,Vitriolum,Fermentatio,0.6,0.5,-0.12,1311,
+315,1689,10 Iunius,Fr. Ambrosius Vell,Stannum,Separatio,12.0,5.2,-4.08,1991,"Repeated thrice, thrice the same."
+316,1689,12 Iunius,Ottoline Brae,Argentum,Solutio,59.9,85.2,101.20,2808,
+317,1689,14 Iunius,Mag. Isolde Kettering,Stibium,Coniunctio,18.7,18.2,-1.25,3728,
+318,1689,19 Iunius,Ottoline Brae,Aurum,Coniunctio,16.2,15.2,-9.00,1285,Sold to the apothecary at Cheapside.
+319,1689,24 Iunius,Sr. Perpetua Lom,Stibium,Separatio,32.5,32.5,0.00,2373,The Raven appeared at the third hour.
+320,1689,25 Iulius,Fr. Ambrosius Vell,Vitriolum,Solutio,45.5,28.8,-20.04,3587,
+321,1689,30 Iulius,Yusuf al-Haddad,Stannum,Coagulatio,4.7,1.9,-1.68,105,Sold to the apothecary at Cheapside.
+322,1689,3 Augustus,Héloïse Ducasse,Cuprum,Coagulatio,48.2,17.8,-45.60,1159,The Raven appeared at the third hour.
+323,1689,14 Augustus,Dr. Cornelius Haast,Ferrum,Separatio,34.3,24.3,-6.00,459,
+324,1689,21 Augustus,Lorenz Stahl,Sulphur,Coagulatio,33.3,28.8,-2.70,2192,Night of the comet.
+325,1689,5 September,Lorenz Stahl,Arsenicum,Calcinatio,43.6,42.6,-0.60,155,
+326,1689,15 September,Lorenz Stahl,Sulphur,Coniunctio,59.2,53.0,-3.72,3192,
+327,1689,27 September,Dr. Cornelius Haast,Arsenicum,Distillatio,59.4,69.2,5.88,1632,"Vessel cracked, work recommenced."
+328,1689,30 September,Héloïse Ducasse,Ferrum,Coniunctio,23.4,23.9,0.30,2462,
+329,1689,2 October,Fr. Ambrosius Vell,Cuprum,Distillatio,26.6,28.2,2.40,3228,
+330,1689,12 October,Héloïse Ducasse,Mercurius,Distillatio,33.7,28.1,-16.80,2957,
+331,1689,20 October,Tobias Wrenfield,Plumbum,Solutio,58.7,72.9,8.52,143,"Salt, sulphur, mercury: the tria prima, in that order."
+332,1689,25 October,Fr. Ambrosius Vell,Ferrum,Calcinatio,42.6,23.3,-11.58,2856,
+333,1689,30 October,Héloïse Ducasse,Cuprum,Separatio,28.2,39.8,17.40,1344,
+334,1689,31 October,Héloïse Ducasse,Stibium,Calcinatio,27.1,23.6,-8.75,2697,
+335,1689,5 November,Tobias Wrenfield,Vitriolum,Coagulatio,42.3,18.2,-28.92,2644,The Raven appeared at the third hour.
+336,1689,7 November,Tobias Wrenfield,Stibium,Solutio,28.5,25.8,-6.75,3203,"Salt, sulphur, mercury: the tria prima, in that order."
+337,1689,11 November,Lorenz Stahl,Sal,Calcinatio,10.4,13.6,1.92,3609,
+338,1689,22 November,Héloïse Ducasse,Ferrum,Calcinatio,18.8,18.8,0.00,802,"He calls it ""the green lion"" and will say no more."
+339,1689,24 November,Lorenz Stahl,Mercurius,Solutio,28.0,4.9,-69.30,3138,
+340,1689,30 November,Sr. Perpetua Lom,Vitriolum,Distillatio,15.3,7.7,-9.12,1131,
+341,1689,8 December,Tobias Wrenfield,Ferrum,Coagulatio,34.2,13.2,-12.60,1199,Dissolved in aqua regia; much fuming.
+342,1689,15 December,Keziah Blackwood,Vitriolum,Distillatio,28.3,16.1,-14.64,2021,
+343,1689,20 December,Fr. Ambrosius Vell,Ferrum,Calcinatio,14.5,3.7,-6.48,1764,
+,1689,,,Summa Anni,,1305.5,1118.0,-80.85,90292,"Probatum est, anno 1689."
+344,1690,11 Ianuarius,Dr. Cornelius Haast,Plumbum,Solutio,24.3,26.0,1.02,599,
+345,1690,15 Ianuarius,Mag. Isolde Kettering,Stibium,Separatio,52.8,51.3,-3.75,821,"He calls it ""the green lion"" and will say no more."
+346,1690,17 Ianuarius,Lorenz Stahl,Aurum,Coniunctio,33.9,29.1,-43.20,2796,"Cauda pavonis observed, all colours at once."
+347,1690,18 Ianuarius,Sr. Perpetua Lom,Ferrum,Coagulatio,30.9,9.7,-12.72,2637,Witnessed by Sir R. and his clerk.
+348,1690,23 Ianuarius,Dame Agnes Morrow,Aurum,Calcinatio,3.1,1.9,-10.80,3761,
+349,1690,23 Ianuarius,Yusuf al-Haddad,Aurum,Coniunctio,15.1,11.0,-36.90,356,Witnessed by Sir R. and his clerk.
+350,1690,23 Ianuarius,Tobias Wrenfield,Sulphur,Distillatio,20.4,8.8,-6.96,3409,
+351,1690,29 Ianuarius,Mag. Isolde Kettering,Mercurius,Separatio,24.7,32.4,23.10,1439,
+352,1690,5 Februarius,Fabrizio Neri,Sal,Fermentatio,13.3,3.7,-5.76,777,
+353,1690,18 Februarius,Héloïse Ducasse,Stannum,Fermentatio,53.7,53.7,0.00,1156,
+354,1690,23 Februarius,Keziah Blackwood,Arsenicum,Coagulatio,27.9,4.3,-14.16,1868,Night of the comet.
+355,1690,28 Februarius,Dame Agnes Morrow,Aurum,Solutio,58.7,58.7,0.00,2471,
+356,1690,21 Martius,Yusuf al-Haddad,Mercurius,Solutio,46.4,24.7,-65.10,2162,
+357,1690,28 Martius,Fr. Ambrosius Vell,Aurum,Fermentatio,21.0,27.7,60.30,2333,Night of the comet.
+358,1690,6 Maius,Fabrizio Neri,Ferrum,Separatio,48.7,58.0,5.58,1605,
+359,1690,7 Maius,Yusuf al-Haddad,Ferrum,Calcinatio,28.0,28.0,0.00,621,
+360,1690,17 Maius,Héloïse Ducasse,Sulphur,Coniunctio,4.8,5.1,0.18,1992,
+361,1690,22 Maius,Tobias Wrenfield,Sal,Coniunctio,10.4,4.6,-3.48,3392,
+362,1690,23 Maius,Dr. Cornelius Haast,Cuprum,Coagulatio,29.1,25.0,-6.15,2077,
+363,1690,25 Maius,Dr. Cornelius Haast,Argentum,Coagulatio,54.4,43.5,-43.60,455,
+364,1690,5 Iunius,Sr. Perpetua Lom,Arsenicum,Calcinatio,1.2,1.5,0.18,2669,
+365,1690,13 Iunius,Dame Agnes Morrow,Sal,Coagulatio,24.2,5.6,-11.16,858,The Raven appeared at the third hour.
+366,1690,13 Iunius,Keziah Blackwood,Aurum,Fermentatio,43.4,46.0,23.40,2783,
+367,1690,15 Iunius,Fabrizio Neri,Vitriolum,Solutio,11.5,5.7,-6.96,3158,Fire too fierce. Lost the work.
+368,1690,21 Iunius,Héloïse Ducasse,Plumbum,Coagulatio,3.5,3.5,0.00,1410,Sealed with Hermes' seal until Lent.
+369,1690,4 Iulius,Dame Agnes Morrow,Cuprum,Solutio,33.8,45.2,17.10,3548,
+370,1690,9 Iulius,Dame Agnes Morrow,Sal,Coniunctio,5.0,6.2,0.72,2136,
+371,1690,11 Iulius,Keziah Blackwood,Sulphur,Separatio,7.7,6.3,-0.84,2699,
+372,1690,16 Iulius,Dr. Cornelius Haast,Stannum,Calcinatio,41.2,17.5,-14.22,877,
+373,1690,8 Augustus,Keziah Blackwood,Sal,Coagulatio,29.7,19.0,-6.42,1420,Dissolved in aqua regia; much fuming.
+374,1690,8 Augustus,Keziah Blackwood,Sulphur,Calcinatio,56.6,77.1,12.30,613,"He calls it ""the green lion"" and will say no more."
+375,1690,20 Augustus,Keziah Blackwood,Vitriolum,Calcinatio,16.0,12.4,-4.32,3808,
+376,1690,23 Augustus,Yusuf al-Haddad,Plumbum,Coniunctio,40.4,16.2,-14.52,2297,Fire too fierce. Lost the work.
+377,1690,5 September,Keziah Blackwood,Cuprum,Calcinatio,56.6,38.3,-27.45,2542,
+378,1690,12 September,Dame Agnes Morrow,Argentum,Solutio,46.7,57.3,42.40,1643,
+379,1690,26 September,Dr. Cornelius Haast,Cuprum,Fermentatio,35.4,44.4,13.50,751,
+380,1690,29 September,Lorenz Stahl,Sulphur,Coniunctio,17.1,13.5,-2.16,1321,
+381,1690,18 October,Dr. Cornelius Haast,Mercurius,Calcinatio,11.2,11.2,0.00,3199,
+382,1690,24 October,Fr. Ambrosius Vell,Ferrum,Coniunctio,35.7,41.7,3.60,3563,Sealed with Hermes' seal until Lent.
+383,1690,6 November,Yusuf al-Haddad,Cuprum,Distillatio,57.3,33.7,-35.40,703,Vapours most noxious; windows opened.
+384,1690,6 November,Lorenz Stahl,Cuprum,Separatio,2.0,2.0,0.00,3309,
+385,1690,14 November,Keziah Blackwood,Vitriolum,Separatio,5.5,6.0,0.60,3509,Night of the comet.
+386,1690,27 November,Keziah Blackwood,Arsenicum,Solutio,53.1,64.2,6.66,3627,The Raven appeared at the third hour.
+387,1690,28 November,Fabrizio Neri,Argentum,Distillatio,5.9,7.0,4.40,1893,
+388,1690,3 December,Keziah Blackwood,Cuprum,Separatio,58.4,36.6,-32.70,3475,
+389,1690,13 December,Mag. Isolde Kettering,Argentum,Separatio,57.7,34.0,-94.80,400,
+390,1690,13 December,Keziah Blackwood,Ferrum,Separatio,46.2,48.8,1.56,683,
+391,1690,18 December,Sr. Perpetua Lom,Sal,Solutio,3.1,3.6,0.30,3217,"Vessel cracked, work recommenced."
+392,1690,25 December,Fr. Ambrosius Vell,Stannum,Coagulatio,24.2,29.6,3.24,67,
+,1690,,,Summa Anni,,1431.9,1241.3,-283.39,98905,"Probatum est, anno 1690."
+393,1691,1 Ianuarius,Tobias Wrenfield,Argentum,Separatio,5.7,0.9,-19.20,2676,
+394,1691,2 Ianuarius,Ottoline Brae,Ferrum,Calcinatio,29.6,39.1,5.70,2852,Dissolved in aqua regia; much fuming.
+395,1691,10 Ianuarius,Mag. Isolde Kettering,Ferrum,Coniunctio,25.2,32.0,4.08,318,Night of the comet.
+396,1691,15 Ianuarius,Ottoline Brae,Sulphur,Coniunctio,27.8,39.5,7.02,2306,Vapours most noxious; windows opened.
+397,1691,19 Ianuarius,Fabrizio Neri,Sulphur,Separatio,49.6,38.2,-6.84,1488,
+398,1691,25 Ianuarius,Fr. Ambrosius Vell,Argentum,Coagulatio,50.9,49.0,-7.60,2235,
+399,1691,27 Ianuarius,Héloïse Ducasse,Arsenicum,Calcinatio,32.8,14.5,-10.98,2389,
+400,1691,16 Februarius,Dr. Cornelius Haast,Ferrum,Separatio,51.3,52.2,0.54,2145,
+401,1691,20 Februarius,Fabrizio Neri,Ferrum,Fermentatio,32.3,19.2,-7.86,408,
+402,1691,2 Martius,Sr. Perpetua Lom,Mercurius,Distillatio,56.0,43.0,-39.00,789,
+403,1691,4 Martius,Lorenz Stahl,Vitriolum,Coagulatio,5.4,5.4,0.00,2424,
+404,1691,5 Martius,Dame Agnes Morrow,Argentum,Distillatio,6.8,5.5,-5.20,3315,
+405,1691,19 Martius,Dame Agnes Morrow,Mercurius,Distillatio,45.1,56.8,35.10,120,
+406,1691,26 Martius,Fr. Ambrosius Vell,Stibium,Fermentatio,7.3,7.3,0.00,209,Vapours most noxious; windows opened.
+407,1691,29 Martius,Tobias Wrenfield,Mercurius,Separatio,40.1,40.1,0.00,162,
+408,1691,2 Aprilis,Fabrizio Neri,Stannum,Solutio,25.2,22.6,-1.56,2547,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+409,1691,22 Aprilis,Sr. Perpetua Lom,Aurum,Calcinatio,34.7,9.7,-225.00,2681,Sold to the apothecary at Cheapside.
+410,1691,29 Aprilis,Keziah Blackwood,Arsenicum,Coagulatio,20.9,5.0,-9.54,530,
+411,1691,3 Maius,Fabrizio Neri,Argentum,Separatio,4.4,6.0,6.40,687,
+412,1691,7 Maius,Héloïse Ducasse,Mercurius,Coniunctio,39.0,28.7,-30.90,1981,Sold to the apothecary at Cheapside.
+413,1691,30 Maius,Fabrizio Neri,Aurum,Distillatio,32.9,33.3,3.60,239,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+414,1691,10 Iunius,Keziah Blackwood,Ferrum,Coniunctio,18.7,20.0,0.78,1821,Sealed with Hermes' seal until Lent.
+415,1691,14 Iunius,Dr. Cornelius Haast,Sal,Calcinatio,6.0,1.0,-3.00,3374,Sealed with Hermes' seal until Lent.
+416,1691,17 Iunius,Yusuf al-Haddad,Stannum,Calcinatio,60.4,30.7,-17.82,3539,
+417,1691,22 Iunius,Fabrizio Neri,Aurum,Coniunctio,39.5,41.6,18.90,1876,"Cauda pavonis observed, all colours at once."
+418,1691,27 Iunius,Héloïse Ducasse,Mercurius,Solutio,52.7,61.6,26.70,1868,Dissolved in aqua regia; much fuming.
+419,1691,6 Iulius,Dr. Cornelius Haast,Cuprum,Calcinatio,24.2,18.4,-8.70,2917,Night of the comet.
+420,1691,6 Iulius,Yusuf al-Haddad,Argentum,Separatio,41.8,18.4,-93.60,2082,
+421,1691,6 Iulius,Dr. Cornelius Haast,Stibium,Separatio,39.5,34.7,-12.00,281,
+422,1691,15 Iulius,Yusuf al-Haddad,Mercurius,Solutio,44.8,61.1,48.90,3603,
+423,1691,18 Iulius,Yusuf al-Haddad,Mercurius,Coniunctio,43.5,32.8,-32.10,2292,
+424,1691,4 Augustus,Dr. Cornelius Haast,Mercurius,Distillatio,59.0,77.6,55.80,2330,"Vessel cracked, work recommenced."
+425,1691,22 Augustus,Tobias Wrenfield,Vitriolum,Distillatio,28.7,14.9,-16.56,3802,
+426,1691,25 Augustus,Dr. Cornelius Haast,Vitriolum,Distillatio,49.1,49.1,0.00,2361,Fire too fierce. Lost the work.
+427,1691,3 September,Fabrizio Neri,Sulphur,Solutio,48.4,70.0,12.96,3549,Witnessed by Sir R. and his clerk.
+428,1691,3 September,Dame Agnes Morrow,Stannum,Distillatio,17.7,2.9,-8.88,2449,
+429,1691,7 September,Sr. Perpetua Lom,Argentum,Separatio,21.3,22.1,3.20,3377,
+430,1691,19 September,Fr. Ambrosius Vell,Stibium,Fermentatio,50.9,36.6,-35.75,2256,
+431,1691,28 September,Tobias Wrenfield,Argentum,Separatio,54.9,17.7,-148.80,1367,
+432,1691,3 October,Mag. Isolde Kettering,Cuprum,Coagulatio,36.7,36.7,0.00,3361,
+433,1691,3 October,Yusuf al-Haddad,Aurum,Solutio,1.0,1.3,2.70,1428,
+434,1691,4 October,Fr. Ambrosius Vell,Argentum,Coagulatio,25.5,3.9,-86.40,3740,Sold to the apothecary at Cheapside.
+435,1691,4 October,Tobias Wrenfield,Sulphur,Distillatio,32.4,9.4,-13.80,2934,
+436,1691,13 October,Keziah Blackwood,Ferrum,Solutio,14.0,19.4,3.24,2669,Witnessed by Sir R. and his clerk.
+437,1691,21 November,Keziah Blackwood,Sal,Solutio,35.5,45.1,5.76,2439,
+438,1691,1 December,Lorenz Stahl,Stibium,Separatio,59.8,27.3,-81.25,1242,Fire too fierce. Lost the work.
+439,1691,18 December,Fabrizio Neri,Argentum,Fermentatio,33.3,14.0,-77.20,1294,Sold to the apothecary at Cheapside.
+440,1691,23 December,Tobias Wrenfield,Aurum,Coagulatio,2.4,0.7,-15.30,171,
+441,1691,27 December,Sr. Perpetua Lom,Vitriolum,Distillatio,56.6,17.1,-47.40,467,
+,1691,,,Summa Anni,,1621.3,1334.1,-820.86,97390,"Probatum est, anno 1691."
+442,1692,6 Ianuarius,Sr. Perpetua Lom,Stibium,Distillatio,46.7,33.0,-34.25,3402,
+443,1692,14 Ianuarius,Keziah Blackwood,Plumbum,Fermentatio,54.2,49.6,-2.76,3458,
+444,1692,16 Ianuarius,Mag. Isolde Kettering,Sal,Coniunctio,37.9,33.0,-2.94,2301,
+445,1692,31 Ianuarius,Tobias Wrenfield,Vitriolum,Distillatio,37.2,26.1,-13.32,2883,"Salt, sulphur, mercury: the tria prima, in that order."
+446,1692,1 Februarius,Tobias Wrenfield,Arsenicum,Coagulatio,1.8,1.4,-0.24,144,Sold to the apothecary at Cheapside.
+447,1692,9 Februarius,Héloïse Ducasse,Stibium,Calcinatio,16.6,22.7,15.25,3682,
+448,1692,4 Martius,Lorenz Stahl,Sal,Fermentatio,9.9,9.9,0.00,2800,
+449,1692,13 Martius,Fr. Ambrosius Vell,Stannum,Calcinatio,55.8,48.5,-4.38,84,Sealed with Hermes' seal until Lent.
+450,1692,19 Martius,Keziah Blackwood,Stannum,Separatio,37.0,36.2,-0.48,3037,
+451,1692,21 Martius,Yusuf al-Haddad,Stannum,Fermentatio,20.3,5.1,-9.12,784,
+452,1692,22 Martius,Dame Agnes Morrow,Plumbum,Calcinatio,48.8,45.9,-1.74,730,
+453,1692,12 Aprilis,Dr. Cornelius Haast,Stannum,Distillatio,37.4,49.1,7.02,2843,
+454,1692,12 Aprilis,Dame Agnes Morrow,Cuprum,Separatio,18.0,3.1,-22.35,3565,
+455,1692,18 Aprilis,Fabrizio Neri,Aurum,Calcinatio,41.8,22.9,-170.10,1039,Witnessed by Sir R. and his clerk.
+456,1692,20 Aprilis,Dr. Cornelius Haast,Plumbum,Fermentatio,49.2,23.3,-15.54,2028,
+457,1692,30 Aprilis,Fabrizio Neri,Sulphur,Calcinatio,18.7,12.0,-4.02,3483,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+458,1692,8 Maius,Héloïse Ducasse,Aurum,Solutio,39.9,55.6,141.30,2210,
+459,1692,17 Maius,Fr. Ambrosius Vell,Sal,Solutio,18.1,18.9,0.48,945,
+460,1692,18 Maius,Mag. Isolde Kettering,Vitriolum,Calcinatio,54.0,24.2,-35.76,1536,
+461,1692,20 Maius,Yusuf al-Haddad,Plumbum,Coagulatio,43.3,36.7,-3.96,1587,"Repeated thrice, thrice the same."
+462,1692,26 Maius,Dame Agnes Morrow,Stannum,Separatio,8.3,3.6,-2.82,1868,
+463,1692,3 Iunius,Fr. Ambrosius Vell,Mercurius,Fermentatio,46.5,30.2,-48.90,1157,
+464,1692,20 Iunius,Héloïse Ducasse,Aurum,Fermentatio,20.7,26.5,52.20,1481,The Raven appeared at the third hour.
+465,1692,21 Iunius,Yusuf al-Haddad,Vitriolum,Coniunctio,45.7,38.1,-9.12,2663,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+466,1692,4 Iulius,Dame Agnes Morrow,Stannum,Fermentatio,10.8,4.6,-3.72,3176,
+467,1692,7 Iulius,Fr. Ambrosius Vell,Stannum,Coagulatio,47.5,42.0,-3.30,1513,
+468,1692,8 Iulius,Ottoline Brae,Ferrum,Calcinatio,59.9,59.9,0.00,2622,
+469,1692,13 Iulius,Fr. Ambrosius Vell,Plumbum,Separatio,3.2,3.2,0.00,1614,
+470,1692,13 Iulius,Fabrizio Neri,Sulphur,Solutio,51.3,58.8,4.50,43,Witnessed by Sir R. and his clerk.
+471,1692,14 Iulius,Mag. Isolde Kettering,Sal,Fermentatio,10.1,13.4,1.98,1451,Fire too fierce. Lost the work.
+472,1692,15 Iulius,Lorenz Stahl,Aurum,Coagulatio,49.5,39.1,-93.60,3045,
+473,1692,24 Iulius,Mag. Isolde Kettering,Vitriolum,Coagulatio,20.4,14.6,-6.96,1387,
+474,1692,28 Iulius,Mag. Isolde Kettering,Stannum,Calcinatio,3.8,3.0,-0.48,2875,Witnessed by Sir R. and his clerk.
+475,1692,4 Augustus,Lorenz Stahl,Aurum,Fermentatio,3.1,3.1,0.00,201,Sold to the apothecary at Cheapside.
+476,1692,5 Augustus,Dr. Cornelius Haast,Plumbum,Distillatio,18.4,22.1,2.22,2121,"Salt, sulphur, mercury: the tria prima, in that order."
+477,1692,12 Augustus,Dr. Cornelius Haast,Stibium,Distillatio,17.7,17.7,0.00,1073,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+478,1692,20 Augustus,Ottoline Brae,Sal,Coagulatio,22.3,12.5,-5.88,2546,
+479,1692,21 Augustus,Mag. Isolde Kettering,Sal,Solutio,19.6,3.0,-9.96,461,
+480,1692,23 Augustus,Keziah Blackwood,Arsenicum,Separatio,40.1,54.9,8.88,2047,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+481,1692,28 Augustus,Fabrizio Neri,Sulphur,Distillatio,19.1,18.2,-0.54,2302,
+482,1692,28 Augustus,Ottoline Brae,Vitriolum,Fermentatio,17.7,22.4,5.64,2316,
+483,1692,9 September,Tobias Wrenfield,Mercurius,Separatio,21.7,14.2,-22.50,3478,
+484,1692,23 September,Lorenz Stahl,Arsenicum,Fermentatio,15.8,11.3,-2.70,3276,Night of the comet.
+485,1692,29 September,Lorenz Stahl,Vitriolum,Calcinatio,57.0,54.3,-3.24,1719,
+486,1692,17 October,Dr. Cornelius Haast,Mercurius,Distillatio,45.4,49.5,12.30,3538,
+487,1692,17 November,Lorenz Stahl,Argentum,Calcinatio,32.8,13.5,-77.20,1264,Sealed with Hermes' seal until Lent.
+488,1692,21 November,Dr. Cornelius Haast,Ferrum,Coniunctio,48.2,63.3,9.06,3756,Night of the comet.
+489,1692,3 December,Ottoline Brae,Cuprum,Distillatio,56.1,69.7,20.40,959,
+490,1692,6 December,Keziah Blackwood,Stibium,Distillatio,30.0,26.8,-8.00,1348,
+,1692,,,Summa Anni,,1529.3,1350.7,-338.65,99841,"Probatum est, anno 1692."
+491,1693,1 Ianuarius,Héloïse Ducasse,Ferrum,Fermentatio,11.4,3.1,-4.98,1096,Fire too fierce. Lost the work.
+492,1693,4 Ianuarius,Ottoline Brae,Stannum,Coniunctio,58.0,40.4,-10.56,770,
+493,1693,12 Ianuarius,Ottoline Brae,Argentum,Coniunctio,18.1,24.2,24.40,1369,Night of the comet.
+494,1693,16 Ianuarius,Yusuf al-Haddad,Aurum,Separatio,30.9,16.1,-133.20,3044,Sold to the apothecary at Cheapside.
+495,1693,1 Februarius,Mag. Isolde Kettering,Argentum,Coagulatio,10.2,10.2,0.00,2357,The Raven appeared at the third hour.
+496,1693,22 Februarius,Héloïse Ducasse,Vitriolum,Solutio,16.7,7.4,-11.16,3757,
+497,1693,23 Februarius,Héloïse Ducasse,Mercurius,Calcinatio,25.2,31.3,18.30,2470,
+498,1693,28 Februarius,Dr. Cornelius Haast,Mercurius,Coagulatio,45.4,32.6,-38.40,2186,
+499,1693,1 Martius,Dame Agnes Morrow,Aurum,Coniunctio,54.6,74.2,176.40,362,
+500,1693,2 Martius,Fr. Ambrosius Vell,Stannum,Solutio,58.2,77.1,11.34,188,
+501,1693,11 Martius,Mag. Isolde Kettering,Stannum,Solutio,13.4,7.1,-3.78,702,
+502,1693,15 Martius,Mag. Isolde Kettering,Arsenicum,Separatio,7.2,10.0,1.68,1816,"Salt, sulphur, mercury: the tria prima, in that order."
+503,1693,21 Martius,Keziah Blackwood,Plumbum,Calcinatio,18.5,5.1,-8.04,1769,Sold to the apothecary at Cheapside.
+504,1693,28 Martius,Mag. Isolde Kettering,Plumbum,Solutio,30.9,21.3,-5.76,3227,
+505,1693,31 Martius,Keziah Blackwood,Argentum,Fermentatio,10.1,12.4,9.20,2599,
+506,1693,1 Aprilis,Tobias Wrenfield,Arsenicum,Coagulatio,9.9,4.0,-3.54,1777,
+507,1693,15 Aprilis,Fabrizio Neri,Stannum,Coniunctio,20.7,11.9,-5.28,3594,
+508,1693,19 Aprilis,Mag. Isolde Kettering,Stibium,Distillatio,47.3,40.3,-17.50,1551,Vapours most noxious; windows opened.
+509,1693,21 Aprilis,Fabrizio Neri,Stannum,Coagulatio,17.5,10.7,-4.08,3008,
+510,1693,24 Aprilis,Ottoline Brae,Aurum,Separatio,30.0,11.2,-169.20,3211,
+511,1693,16 Maius,Yusuf al-Haddad,Vitriolum,Solutio,0.8,0.9,0.12,2629,
+512,1693,18 Maius,Fr. Ambrosius Vell,Stibium,Calcinatio,2.8,3.5,1.75,3345,
+513,1693,20 Maius,Ottoline Brae,Plumbum,Fermentatio,26.6,36.6,6.00,1376,Sealed with Hermes' seal until Lent.
+514,1693,23 Maius,Dame Agnes Morrow,Argentum,Coniunctio,6.1,7.1,4.00,3245,
+515,1693,10 Iunius,Mag. Isolde Kettering,Ferrum,Fermentatio,36.3,26.6,-5.82,374,
+516,1693,11 Iunius,Mag. Isolde Kettering,Mercurius,Coniunctio,20.8,15.1,-17.10,1573,
+517,1693,14 Iunius,Dame Agnes Morrow,Mercurius,Coniunctio,38.2,44.3,18.30,2345,"He calls it ""the green lion"" and will say no more."
+518,1693,3 Iulius,Sr. Perpetua Lom,Stibium,Coagulatio,39.9,11.4,-71.25,407,
+519,1693,27 Iulius,Héloïse Ducasse,Plumbum,Solutio,44.7,13.5,-18.72,403,
+520,1693,8 Augustus,Mag. Isolde Kettering,Stibium,Calcinatio,30.5,19.6,-27.25,3390,
+521,1693,8 Augustus,Héloïse Ducasse,Vitriolum,Fermentatio,20.1,27.6,9.00,451,
+522,1693,26 Augustus,Tobias Wrenfield,Sulphur,Fermentatio,13.0,14.1,0.66,2383,"Vessel cracked, work recommenced."
+523,1693,28 Augustus,Fr. Ambrosius Vell,Mercurius,Separatio,45.6,19.7,-77.70,2294,
+524,1693,31 Augustus,Fabrizio Neri,Sal,Fermentatio,34.3,47.4,7.86,252,Sealed with Hermes' seal until Lent.
+525,1693,23 September,Lorenz Stahl,Ferrum,Calcinatio,24.3,20.1,-2.52,1262,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+526,1693,26 September,Yusuf al-Haddad,Arsenicum,Fermentatio,42.7,47.0,2.58,266,
+527,1693,3 October,Ottoline Brae,Mercurius,Coniunctio,4.4,5.0,1.80,2022,"Cauda pavonis observed, all colours at once."
+528,1693,21 October,Mag. Isolde Kettering,Argentum,Coniunctio,8.3,8.8,2.00,2554,Vapours most noxious; windows opened.
+529,1693,26 October,Lorenz Stahl,Aurum,Fermentatio,25.6,36.9,101.70,2784,
+530,1693,26 October,Mag. Isolde Kettering,Arsenicum,Fermentatio,53.4,33.8,-11.76,3334,Sealed with Hermes' seal until Lent.
+531,1693,1 November,Mag. Isolde Kettering,Vitriolum,Calcinatio,52.8,8.9,-52.68,3039,Witnessed by Sir R. and his clerk.
+532,1693,7 November,Fabrizio Neri,Aurum,Calcinatio,50.5,69.5,171.00,533,
+533,1693,8 November,Sr. Perpetua Lom,Vitriolum,Solutio,34.8,34.4,-0.48,2698,
+534,1693,8 November,Dame Agnes Morrow,Stibium,Calcinatio,58.8,43.2,-39.00,699,Night of the comet.
+535,1693,9 November,Tobias Wrenfield,Aurum,Coagulatio,4.1,2.1,-18.00,2189,
+536,1693,21 November,Tobias Wrenfield,Stibium,Solutio,33.6,33.6,0.00,3318,
+537,1693,9 December,Fr. Ambrosius Vell,Aurum,Separatio,42.2,8.3,-305.10,214,"Cauda pavonis observed, all colours at once."
+538,1693,22 December,Yusuf al-Haddad,Vitriolum,Separatio,11.4,8.7,-3.24,2029,Dissolved in aqua regia; much fuming.
+539,1693,30 December,Tobias Wrenfield,Sal,Solutio,47.9,41.8,-3.66,2481,
+,1693,,,Summa Anni,,1388.7,1140.1,-501.67,94742,"Probatum est, anno 1693."
+540,1694,3 Ianuarius,Fabrizio Neri,Argentum,Separatio,25.8,24.6,-4.80,3614,
+541,1694,3 Ianuarius,Fr. Ambrosius Vell,Sulphur,Coniunctio,53.6,23.0,-18.36,321,
+542,1694,8 Ianuarius,Sr. Perpetua Lom,Mercurius,Fermentatio,46.9,49.0,6.30,3021,
+543,1694,11 Ianuarius,Héloïse Ducasse,Sulphur,Coniunctio,14.9,3.5,-6.84,18,
+544,1694,20 Ianuarius,Héloïse Ducasse,Arsenicum,Distillatio,39.3,40.0,0.42,1565,
+545,1694,21 Ianuarius,Mag. Isolde Kettering,Argentum,Solutio,22.7,30.6,31.60,3204,
+546,1694,22 Ianuarius,Dame Agnes Morrow,Ferrum,Coagulatio,59.9,55.1,-2.88,1724,Night of the comet.
+547,1694,25 Ianuarius,Dame Agnes Morrow,Argentum,Distillatio,6.0,2.4,-14.40,1832,Vapours most noxious; windows opened.
+548,1694,28 Ianuarius,Héloïse Ducasse,Argentum,Solutio,2.8,2.0,-3.20,243,
+549,1694,8 Februarius,Yusuf al-Haddad,Arsenicum,Distillatio,44.4,47.0,1.56,3478,Dissolved in aqua regia; much fuming.
+550,1694,20 Februarius,Tobias Wrenfield,Argentum,Coniunctio,42.2,19.0,-92.80,3656,
+551,1694,2 Martius,Dame Agnes Morrow,Vitriolum,Distillatio,29.2,21.8,-8.88,2259,Night of the comet.
+552,1694,30 Martius,Dr. Cornelius Haast,Vitriolum,Coniunctio,55.9,68.7,15.36,1917,"Vessel cracked, work recommenced."
+553,1694,31 Martius,Keziah Blackwood,Sulphur,Separatio,7.1,5.5,-0.96,292,Witnessed by Sir R. and his clerk.
+554,1694,5 Aprilis,Mag. Isolde Kettering,Mercurius,Separatio,19.3,18.8,-1.50,3078,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+555,1694,6 Aprilis,Héloïse Ducasse,Sal,Separatio,55.1,70.8,9.42,2578,
+556,1694,24 Aprilis,Dr. Cornelius Haast,Sal,Coagulatio,48.8,17.0,-19.08,3101,
+557,1694,25 Aprilis,Tobias Wrenfield,Aurum,Solutio,2.3,1.0,-11.70,496,
+558,1694,28 Aprilis,Mag. Isolde Kettering,Cuprum,Distillatio,8.6,4.9,-5.55,1783,
+559,1694,5 Maius,Dame Agnes Morrow,Plumbum,Coniunctio,1.6,1.4,-0.12,417,
+560,1694,23 Maius,Héloïse Ducasse,Vitriolum,Coagulatio,12.0,12.3,0.36,2129,
+561,1694,26 Maius,Dame Agnes Morrow,Sal,Calcinatio,13.3,7.5,-3.48,1873,
+562,1694,29 Maius,Ottoline Brae,Argentum,Separatio,60.1,34.2,-103.60,1842,
+563,1694,30 Maius,Dame Agnes Morrow,Plumbum,Separatio,51.1,71.6,12.30,1962,Vapours most noxious; windows opened.
+564,1694,18 Iunius,Mag. Isolde Kettering,Vitriolum,Separatio,5.7,3.8,-2.28,837,
+565,1694,20 Iunius,Mag. Isolde Kettering,Cuprum,Distillatio,6.1,6.3,0.30,1378,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+566,1694,20 Iunius,Fabrizio Neri,Cuprum,Calcinatio,32.4,22.1,-15.45,149,Sealed with Hermes' seal until Lent.
+567,1694,25 Iunius,Tobias Wrenfield,Sulphur,Distillatio,1.2,1.5,0.18,153,
+568,1694,30 Iunius,Fr. Ambrosius Vell,Sal,Coniunctio,3.5,1.0,-1.50,3123,
+569,1694,11 Iulius,Ottoline Brae,Aurum,Coagulatio,37.8,38.0,1.80,548,
+570,1694,12 Iulius,Fr. Ambrosius Vell,Stannum,Coniunctio,38.5,38.5,0.00,3093,
+571,1694,26 Iulius,Dr. Cornelius Haast,Cuprum,Calcinatio,34.7,20.4,-21.45,2575,
+572,1694,3 Augustus,Tobias Wrenfield,Stibium,Distillatio,52.4,61.7,23.25,1821,Fire too fierce. Lost the work.
+573,1694,9 Augustus,Tobias Wrenfield,Stannum,Separatio,51.4,47.9,-2.10,2981,"Vessel cracked, work recommenced."
+574,1694,14 Augustus,Fabrizio Neri,Arsenicum,Coniunctio,17.5,24.4,4.14,2717,
+575,1694,16 Augustus,Ottoline Brae,Vitriolum,Fermentatio,56.5,59.5,3.60,2966,
+576,1694,27 Augustus,Keziah Blackwood,Stannum,Distillatio,14.3,11.6,-1.62,1291,
+577,1694,8 September,Keziah Blackwood,Sulphur,Coniunctio,30.2,8.6,-12.96,3248,
+578,1694,9 September,Yusuf al-Haddad,Sal,Coagulatio,29.5,8.3,-12.72,384,
+579,1694,4 October,Héloïse Ducasse,Ferrum,Coagulatio,50.7,42.7,-4.80,1345,
+580,1694,9 October,Sr. Perpetua Lom,Aurum,Fermentatio,10.5,7.6,-26.10,611,
+581,1694,13 October,Héloïse Ducasse,Arsenicum,Coagulatio,50.0,31.3,-11.22,2775,"Repeated thrice, thrice the same."
+582,1694,17 November,Dame Agnes Morrow,Mercurius,Distillatio,50.1,30.7,-58.20,508,
+583,1694,23 November,Sr. Perpetua Lom,Stibium,Solutio,18.8,8.5,-25.75,106,Witnessed by Sir R. and his clerk.
+584,1694,25 November,Fabrizio Neri,Cuprum,Fermentatio,16.8,20.9,6.15,1392,
+585,1694,3 December,Ottoline Brae,Argentum,Distillatio,1.4,0.9,-2.00,1769,"He calls it ""the green lion"" and will say no more."
+586,1694,15 December,Dame Agnes Morrow,Argentum,Solutio,17.0,10.2,-27.20,1076,
+587,1694,15 December,Dame Agnes Morrow,Vitriolum,Separatio,8.9,5.0,-4.68,385,
+588,1694,24 December,Dame Agnes Morrow,Aurum,Fermentatio,53.4,49.0,-39.60,1895,
+,1694,,,Summa Anni,,1412.2,1192.1,-451.04,85529,"Probatum est, anno 1694."
+589,1695,16 Ianuarius,Yusuf al-Haddad,Sal,Solutio,41.2,51.0,5.88,1637,Sold to the apothecary at Cheapside.
+590,1695,28 Ianuarius,Ottoline Brae,Mercurius,Separatio,30.1,41.7,34.80,238,
+591,1695,29 Ianuarius,Fabrizio Neri,Plumbum,Fermentatio,9.6,9.8,0.12,676,Witnessed by Sir R. and his clerk.
+592,1695,12 Februarius,Mag. Isolde Kettering,Argentum,Solutio,29.5,41.6,48.40,186,Sealed with Hermes' seal until Lent.
+593,1695,14 Februarius,Tobias Wrenfield,Arsenicum,Separatio,2.9,1.2,-1.02,2394,
+594,1695,21 Februarius,Ottoline Brae,Cuprum,Separatio,9.0,4.9,-6.15,2086,
+595,1695,3 Martius,Keziah Blackwood,Mercurius,Calcinatio,28.5,35.4,20.70,519,
+596,1695,3 Martius,Dame Agnes Morrow,Cuprum,Coagulatio,57.8,70.8,19.50,2014,
+597,1695,8 Martius,Fr. Ambrosius Vell,Cuprum,Separatio,15.7,11.0,-7.05,2587,
+598,1695,10 Martius,Fabrizio Neri,Aurum,Coniunctio,55.2,61.5,56.70,820,
+599,1695,20 Martius,Keziah Blackwood,Ferrum,Calcinatio,22.8,8.0,-8.88,664,
+600,1695,31 Martius,Fr. Ambrosius Vell,Stibium,Coagulatio,5.1,6.0,2.25,1723,
+601,1695,24 Aprilis,Dr. Cornelius Haast,Plumbum,Separatio,20.8,4.9,-9.54,2063,
+602,1695,1 Maius,Héloïse Ducasse,Sal,Coagulatio,38.1,41.3,1.92,3272,
+603,1695,7 Maius,Tobias Wrenfield,Cuprum,Solutio,36.4,37.2,1.20,2142,"Salt, sulphur, mercury: the tria prima, in that order."
+604,1695,11 Maius,Lorenz Stahl,Ferrum,Calcinatio,47.3,16.2,-18.66,1548,
+605,1695,13 Maius,Sr. Perpetua Lom,Ferrum,Separatio,59.3,59.3,0.00,483,
+606,1695,22 Maius,Héloïse Ducasse,Stibium,Coniunctio,43.7,37.6,-15.25,1636,
+607,1695,31 Maius,Ottoline Brae,Argentum,Distillatio,54.2,10.6,-174.40,2288,
+608,1695,1 Iunius,Dr. Cornelius Haast,Sal,Fermentatio,28.2,10.8,-10.44,1841,
+609,1695,6 Iunius,Héloïse Ducasse,Arsenicum,Distillatio,46.3,39.9,-3.84,817,
+610,1695,6 Iunius,Yusuf al-Haddad,Plumbum,Solutio,21.2,8.4,-7.68,894,Dissolved in aqua regia; much fuming.
+611,1695,9 Iunius,Tobias Wrenfield,Aurum,Solutio,5.9,7.2,11.70,1213,Dissolved in aqua regia; much fuming.
+612,1695,26 Iunius,Héloïse Ducasse,Stannum,Solutio,54.6,46.4,-4.92,2771,
+613,1695,10 Iulius,Tobias Wrenfield,Aurum,Coniunctio,46.5,46.5,0.00,3597,
+614,1695,11 Iulius,Keziah Blackwood,Vitriolum,Coniunctio,57.1,47.7,-11.28,1433,
+615,1695,16 Iulius,Fabrizio Neri,Sulphur,Distillatio,58.8,58.9,0.06,1311,
+616,1695,19 Iulius,Dr. Cornelius Haast,Sal,Coagulatio,17.9,19.0,0.66,968,
+617,1695,20 Iulius,Ottoline Brae,Mercurius,Solutio,54.4,37.4,-51.00,2778,Sealed with Hermes' seal until Lent.
+618,1695,22 Iulius,Ottoline Brae,Stannum,Coniunctio,7.0,4.4,-1.56,501,"Repeated thrice, thrice the same."
+619,1695,28 Iulius,Fabrizio Neri,Sal,Fermentatio,46.4,64.3,10.74,711,
+620,1695,29 Iulius,Fabrizio Neri,Ferrum,Solutio,22.8,5.7,-10.26,1347,"Cauda pavonis observed, all colours at once."
+621,1695,25 Augustus,Tobias Wrenfield,Sulphur,Calcinatio,23.9,14.8,-5.46,1985,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+622,1695,26 Augustus,Mag. Isolde Kettering,Stibium,Distillatio,36.5,17.8,-46.75,2855,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+623,1695,3 September,Dr. Cornelius Haast,Stibium,Coniunctio,15.5,14.7,-2.00,1238,
+624,1695,8 September,Keziah Blackwood,Argentum,Coagulatio,45.6,55.1,38.00,1845,
+625,1695,9 September,Fr. Ambrosius Vell,Stannum,Separatio,31.2,27.9,-1.98,1044,"He calls it ""the green lion"" and will say no more."
+626,1695,17 September,Ottoline Brae,Aurum,Distillatio,25.4,28.0,23.40,1109,
+627,1695,3 October,Fabrizio Neri,Mercurius,Calcinatio,44.0,27.3,-50.10,1386,Sealed with Hermes' seal until Lent.
+628,1695,3 October,Dame Agnes Morrow,Plumbum,Calcinatio,41.9,16.6,-15.18,2116,
+629,1695,25 October,Sr. Perpetua Lom,Cuprum,Fermentatio,35.5,31.0,-6.75,2500,Sealed with Hermes' seal until Lent.
+630,1695,12 November,Héloïse Ducasse,Arsenicum,Coagulatio,44.6,20.4,-14.52,145,"Vessel cracked, work recommenced."
+631,1695,17 November,Tobias Wrenfield,Sulphur,Distillatio,11.0,13.2,1.32,570,
+632,1695,23 November,Héloïse Ducasse,Stannum,Separatio,36.3,27.8,-5.10,845,
+633,1695,2 December,Ottoline Brae,Plumbum,Coagulatio,59.6,34.6,-15.00,674,
+634,1695,6 December,Mag. Isolde Kettering,Mercurius,Coniunctio,34.3,32.4,-5.70,1064,
+635,1695,9 December,Mag. Isolde Kettering,Ferrum,Separatio,55.9,44.5,-6.84,3271,
+636,1695,21 December,Sr. Perpetua Lom,Aurum,Distillatio,32.0,42.6,95.40,433,The Raven appeared at the third hour.
+637,1695,31 December,Dr. Cornelius Haast,Aurum,Coagulatio,36.9,12.8,-216.90,1048,
+,1695,,,Summa Anni,,1684.4,1408.1,-361.46,73286,"Probatum est, anno 1695."
+638,1696,1 Ianuarius,Héloïse Ducasse,Vitriolum,Fermentatio,25.3,23.0,-2.76,3654,"Cauda pavonis observed, all colours at once."
+639,1696,8 Ianuarius,Yusuf al-Haddad,Stannum,Coniunctio,52.7,47.2,-3.30,1611,Vapours most noxious; windows opened.
+640,1696,17 Ianuarius,Héloïse Ducasse,Vitriolum,Distillatio,60.2,53.2,-8.40,3643,
+641,1696,17 Ianuarius,Sr. Perpetua Lom,Vitriolum,Coagulatio,5.0,2.1,-3.48,73,
+642,1696,23 Ianuarius,Lorenz Stahl,Ferrum,Solutio,10.3,4.7,-3.36,2215,
+643,1696,2 Februarius,Héloïse Ducasse,Plumbum,Calcinatio,23.4,25.6,1.32,2324,
+644,1696,4 Februarius,Keziah Blackwood,Vitriolum,Calcinatio,15.4,10.2,-6.24,1006,
+645,1696,7 Februarius,Lorenz Stahl,Stannum,Solutio,39.2,8.4,-18.48,2247,
+646,1696,8 Februarius,Héloïse Ducasse,Arsenicum,Calcinatio,34.2,26.9,-4.38,50,Sealed with Hermes' seal until Lent.
+647,1696,10 Februarius,Dame Agnes Morrow,Vitriolum,Distillatio,13.5,7.3,-7.44,1907,
+648,1696,20 Februarius,Mag. Isolde Kettering,Mercurius,Solutio,41.5,58.3,50.40,1737,
+649,1696,20 Februarius,Dame Agnes Morrow,Aurum,Separatio,39.7,55.9,145.80,2873,Vapours most noxious; windows opened.
+650,1696,20 Februarius,Sr. Perpetua Lom,Plumbum,Coniunctio,55.6,9.0,-27.96,1592,Fire too fierce. Lost the work.
+651,1696,27 Februarius,Mag. Isolde Kettering,Sal,Fermentatio,9.4,8.2,-0.72,1382,
+652,1696,27 Martius,Dr. Cornelius Haast,Cuprum,Distillatio,31.1,10.6,-30.75,2528,"Vessel cracked, work recommenced."
+653,1696,4 Aprilis,Dr. Cornelius Haast,Sal,Coniunctio,41.7,21.4,-12.18,2679,
+654,1696,8 Aprilis,Yusuf al-Haddad,Vitriolum,Solutio,17.2,18.2,1.20,138,Sold to the apothecary at Cheapside.
+655,1696,18 Aprilis,Lorenz Stahl,Aurum,Solutio,48.0,7.6,-363.60,3185,Vapours most noxious; windows opened.
+656,1696,19 Aprilis,Yusuf al-Haddad,Stibium,Calcinatio,26.9,31.0,10.25,3339,
+657,1696,19 Aprilis,Dame Agnes Morrow,Aurum,Separatio,9.6,9.0,-5.40,706,
+658,1696,2 Maius,Fr. Ambrosius Vell,Cuprum,Solutio,2.4,0.5,-2.85,1181,
+659,1696,10 Maius,Ottoline Brae,Arsenicum,Calcinatio,23.5,18.2,-3.18,3588,Sealed with Hermes' seal until Lent.
+660,1696,11 Maius,Keziah Blackwood,Stibium,Separatio,48.3,44.9,-8.50,3145,
+661,1696,2 Iunius,Fabrizio Neri,Mercurius,Solutio,42.1,38.3,-11.40,1598,
+662,1696,8 Iunius,Sr. Perpetua Lom,Arsenicum,Solutio,13.0,18.2,3.12,3789,
+663,1696,11 Iulius,Mag. Isolde Kettering,Plumbum,Coniunctio,25.5,16.6,-5.34,1080,
+664,1696,12 Iulius,Tobias Wrenfield,Mercurius,Distillatio,28.3,28.3,0.00,3372,
+665,1696,15 Iulius,Lorenz Stahl,Vitriolum,Calcinatio,13.1,12.3,-0.96,988,Night of the comet.
+666,1696,16 Iulius,Lorenz Stahl,Sulphur,Fermentatio,43.8,32.4,-6.84,1871,
+667,1696,14 Augustus,Héloïse Ducasse,Vitriolum,Coagulatio,4.2,1.2,-3.60,2229,
+668,1696,19 Augustus,Fr. Ambrosius Vell,Arsenicum,Coniunctio,31.8,44.0,7.32,913,The Raven appeared at the third hour.
+669,1696,4 September,Mag. Isolde Kettering,Sulphur,Fermentatio,43.4,32.8,-6.36,1258,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+670,1696,4 September,Lorenz Stahl,Plumbum,Coagulatio,33.4,12.2,-12.72,849,
+671,1696,8 September,Lorenz Stahl,Cuprum,Solutio,24.4,24.4,0.00,1615,
+672,1696,21 September,Héloïse Ducasse,Sulphur,Separatio,19.0,5.4,-8.16,3357,
+673,1696,21 September,Ottoline Brae,Argentum,Coniunctio,0.8,0.8,0.00,2655,The Raven appeared at the third hour.
+674,1696,24 September,Yusuf al-Haddad,Aurum,Coniunctio,21.9,23.4,13.50,1985,
+675,1696,5 October,Fr. Ambrosius Vell,Arsenicum,Coagulatio,2.2,2.3,0.06,740,Night of the comet.
+676,1696,11 October,Dame Agnes Morrow,Ferrum,Calcinatio,16.3,4.9,-6.84,27,"He calls it ""the green lion"" and will say no more."
+677,1696,12 October,Fabrizio Neri,Vitriolum,Coniunctio,26.4,26.1,-0.36,2404,
+678,1696,14 October,Sr. Perpetua Lom,Plumbum,Distillatio,13.3,5.0,-4.98,1507,
+679,1696,18 October,Keziah Blackwood,Sal,Coagulatio,59.9,62.2,1.38,419,"Vessel cracked, work recommenced."
+680,1696,20 October,Dame Agnes Morrow,Arsenicum,Fermentatio,1.9,1.7,-0.12,3688,
+681,1696,30 October,Tobias Wrenfield,Arsenicum,Fermentatio,34.8,40.4,3.36,2869,"Vessel cracked, work recommenced."
+682,1696,14 November,Fr. Ambrosius Vell,Aurum,Solutio,29.3,30.0,6.30,2821,Dissolved in aqua regia; much fuming.
+683,1696,1 December,Keziah Blackwood,Plumbum,Distillatio,13.4,5.2,-4.92,459,Night of the comet.
+684,1696,9 December,Lorenz Stahl,Argentum,Solutio,42.3,50.1,31.20,186,Fire too fierce. Lost the work.
+685,1696,22 December,Dame Agnes Morrow,Ferrum,Coniunctio,11.4,4.1,-4.38,180,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+686,1696,27 December,Keziah Blackwood,Plumbum,Coniunctio,41.5,54.5,7.80,1837,
+,1696,,,Summa Anni,,1311.5,1078.2,-306.95,91499,"Probatum est, anno 1696."
+687,1697,3 Februarius,Mag. Isolde Kettering,Plumbum,Coagulatio,22.2,21.0,-0.72,1821,Dissolved in aqua regia; much fuming.
+688,1697,11 Februarius,Keziah Blackwood,Argentum,Coniunctio,9.8,7.5,-9.20,2868,
+689,1697,13 Februarius,Ottoline Brae,Mercurius,Separatio,28.4,30.1,5.10,1054,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+690,1697,3 Martius,Dame Agnes Morrow,Plumbum,Solutio,19.4,23.2,2.28,1621,
+691,1697,7 Martius,Lorenz Stahl,Arsenicum,Distillatio,26.9,34.3,4.44,1861,"Cauda pavonis observed, all colours at once."
+692,1697,13 Martius,Dr. Cornelius Haast,Plumbum,Calcinatio,5.6,5.8,0.12,1695,Sold to the apothecary at Cheapside.
+693,1697,26 Martius,Sr. Perpetua Lom,Sulphur,Calcinatio,9.1,7.9,-0.72,3636,
+694,1697,30 Martius,Sr. Perpetua Lom,Mercurius,Fermentatio,41.6,46.8,15.60,995,Witnessed by Sir R. and his clerk.
+695,1697,2 Aprilis,Dr. Cornelius Haast,Mercurius,Coniunctio,5.1,1.9,-9.60,776,Night of the comet.
+696,1697,2 Aprilis,Fabrizio Neri,Sal,Solutio,18.1,19.1,0.60,318,
+697,1697,23 Aprilis,Yusuf al-Haddad,Argentum,Fermentatio,25.7,25.7,0.00,725,
+698,1697,2 Maius,Sr. Perpetua Lom,Mercurius,Distillatio,9.5,8.8,-2.10,1173,
+699,1697,8 Maius,Ottoline Brae,Mercurius,Coagulatio,4.4,2.1,-6.90,2344,
+700,1697,22 Maius,Yusuf al-Haddad,Cuprum,Coagulatio,45.2,60.7,23.25,3138,
+701,1697,24 Maius,Dr. Cornelius Haast,Arsenicum,Distillatio,32.1,21.8,-6.18,1849,Dissolved in aqua regia; much fuming.
+702,1697,26 Maius,Dame Agnes Morrow,Aurum,Calcinatio,60.0,68.6,77.40,2375,
+703,1697,13 Iunius,Mag. Isolde Kettering,Plumbum,Fermentatio,36.6,44.8,4.92,2814,
+704,1697,15 Iunius,Fabrizio Neri,Vitriolum,Fermentatio,35.5,28.0,-9.00,1924,Sealed with Hermes' seal until Lent.
+705,1697,27 Iunius,Ottoline Brae,Aurum,Coagulatio,10.0,9.6,-3.60,3715,
+706,1697,3 Iulius,Fr. Ambrosius Vell,Sulphur,Distillatio,41.9,17.2,-14.82,896,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+707,1697,18 Iulius,Sr. Perpetua Lom,Plumbum,Fermentatio,10.6,4.7,-3.54,3224,
+708,1697,23 Iulius,Fr. Ambrosius Vell,Cuprum,Calcinatio,43.8,18.9,-37.35,33,
+709,1697,4 Augustus,Sr. Perpetua Lom,Mercurius,Fermentatio,11.7,5.8,-17.70,1959,
+710,1697,9 Augustus,Lorenz Stahl,Sulphur,Coagulatio,58.0,71.4,8.04,1653,
+711,1697,16 Augustus,Dame Agnes Morrow,Cuprum,Solutio,40.9,43.3,3.60,2429,
+712,1697,19 Augustus,Dr. Cornelius Haast,Cuprum,Solutio,33.6,36.1,3.75,716,
+713,1697,22 Augustus,Tobias Wrenfield,Sulphur,Calcinatio,55.7,10.4,-27.18,3760,Sealed with Hermes' seal until Lent.
+714,1697,23 Augustus,Mag. Isolde Kettering,Aurum,Separatio,9.4,4.5,-44.10,3125,
+715,1697,27 Augustus,Sr. Perpetua Lom,Stannum,Solutio,6.5,8.1,0.96,3019,"Salt, sulphur, mercury: the tria prima, in that order."
+716,1697,29 Augustus,Sr. Perpetua Lom,Argentum,Fermentatio,21.3,11.9,-37.60,170,
+717,1697,1 September,Sr. Perpetua Lom,Sulphur,Coagulatio,3.7,0.8,-1.74,2646,
+718,1697,1 September,Héloïse Ducasse,Cuprum,Coagulatio,6.3,5.9,-0.60,3426,
+719,1697,6 September,Héloïse Ducasse,Sulphur,Fermentatio,54.7,53.5,-0.72,2993,
+720,1697,6 September,Dr. Cornelius Haast,Mercurius,Fermentatio,26.2,19.5,-20.10,574,
+721,1697,20 September,Héloïse Ducasse,Stibium,Fermentatio,4.8,3.3,-3.75,2441,Witnessed by Sir R. and his clerk.
+722,1697,1 October,Lorenz Stahl,Vitriolum,Separatio,5.6,2.5,-3.72,394,
+723,1697,2 October,Dame Agnes Morrow,Aurum,Coagulatio,44.3,54.0,87.30,1797,"Cauda pavonis observed, all colours at once."
+724,1697,12 October,Héloïse Ducasse,Sulphur,Fermentatio,31.2,37.2,3.60,3797,
+725,1697,29 October,Tobias Wrenfield,Ferrum,Distillatio,2.4,3.1,0.42,515,
+726,1697,1 November,Lorenz Stahl,Argentum,Calcinatio,28.0,34.3,25.20,1056,Vapours most noxious; windows opened.
+727,1697,6 November,Ottoline Brae,Sulphur,Coniunctio,6.7,9.5,1.68,3600,
+728,1697,7 November,Sr. Perpetua Lom,Ferrum,Coagulatio,24.7,31.1,3.84,3001,
+729,1697,8 November,Fabrizio Neri,Arsenicum,Fermentatio,25.5,26.8,0.78,684,"Cauda pavonis observed, all colours at once."
+730,1697,14 November,Keziah Blackwood,Cuprum,Coagulatio,34.5,21.9,-18.90,3223,Sold to the apothecary at Cheapside.
+731,1697,24 November,Sr. Perpetua Lom,Stannum,Fermentatio,1.4,0.7,-0.42,940,Night of the comet.
+732,1697,5 December,Héloïse Ducasse,Sulphur,Coagulatio,4.6,5.1,0.30,1932,
+733,1697,9 December,Yusuf al-Haddad,Stannum,Calcinatio,9.4,13.3,2.34,1656,
+734,1697,15 December,Sr. Perpetua Lom,Plumbum,Fermentatio,31.7,24.0,-4.62,1989,
+735,1697,31 December,Ottoline Brae,Cuprum,Coniunctio,59.9,29.3,-45.90,969,
+,1697,,,Summa Anni,,1184.2,1075.8,-55.26,95319,"Probatum est, anno 1697."
+736,1698,1 Ianuarius,Dame Agnes Morrow,Aurum,Solutio,2.1,3.0,8.10,1384,"Cauda pavonis observed, all colours at once."
+737,1698,3 Ianuarius,Dame Agnes Morrow,Arsenicum,Coniunctio,34.3,27.8,-3.90,2834,
+738,1698,11 Ianuarius,Héloïse Ducasse,Argentum,Coniunctio,9.4,11.7,9.20,1444,
+739,1698,17 Ianuarius,Tobias Wrenfield,Sal,Distillatio,43.6,50.0,3.84,1298,
+740,1698,18 Ianuarius,Yusuf al-Haddad,Vitriolum,Calcinatio,45.9,17.7,-33.84,567,Night of the comet.
+741,1698,20 Ianuarius,Keziah Blackwood,Arsenicum,Distillatio,14.7,20.8,3.66,3103,
+742,1698,5 Februarius,Héloïse Ducasse,Sal,Coagulatio,59.4,59.4,0.00,2463,
+743,1698,6 Februarius,Keziah Blackwood,Sal,Coagulatio,14.9,14.9,0.00,1258,
+744,1698,8 Februarius,Dr. Cornelius Haast,Aurum,Coagulatio,22.4,6.8,-140.40,1079,Witnessed by Sir R. and his clerk.
+745,1698,8 Februarius,Dr. Cornelius Haast,Stibium,Coagulatio,46.3,34.8,-28.75,3466,"Vessel cracked, work recommenced."
+746,1698,8 Februarius,Fr. Ambrosius Vell,Stannum,Solutio,18.9,3.9,-9.00,123,
+747,1698,9 Februarius,Sr. Perpetua Lom,Plumbum,Distillatio,23.4,12.3,-6.66,3708,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+748,1698,23 Februarius,Héloïse Ducasse,Sulphur,Solutio,30.5,22.3,-4.92,3020,
+749,1698,28 Februarius,Dr. Cornelius Haast,Sal,Calcinatio,44.2,62.3,10.86,1993,
+750,1698,2 Martius,Sr. Perpetua Lom,Sulphur,Distillatio,42.0,30.9,-6.66,2682,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+751,1698,4 Martius,Ottoline Brae,Arsenicum,Separatio,5.7,3.3,-1.44,852,Sealed with Hermes' seal until Lent.
+752,1698,10 Martius,Tobias Wrenfield,Argentum,Solutio,4.1,5.7,6.40,704,"Salt, sulphur, mercury: the tria prima, in that order."
+753,1698,16 Martius,Mag. Isolde Kettering,Sal,Distillatio,25.8,22.1,-2.22,2719,
+754,1698,26 Martius,Dame Agnes Morrow,Aurum,Distillatio,26.9,4.3,-203.40,3012,Vapours most noxious; windows opened.
+755,1698,17 Aprilis,Fr. Ambrosius Vell,Plumbum,Distillatio,1.7,2.5,0.48,1916,Sold to the apothecary at Cheapside.
+756,1698,9 Maius,Yusuf al-Haddad,Stannum,Solutio,38.8,10.4,-17.04,2463,
+757,1698,12 Maius,Keziah Blackwood,Stibium,Calcinatio,11.5,14.3,7.00,755,
+758,1698,16 Maius,Mag. Isolde Kettering,Stannum,Coniunctio,55.4,38.8,-9.96,1472,Sold to the apothecary at Cheapside.
+759,1698,19 Maius,Lorenz Stahl,Plumbum,Separatio,45.5,33.4,-7.26,387,Sealed with Hermes' seal until Lent.
+760,1698,9 Iunius,Keziah Blackwood,Vitriolum,Solutio,37.0,37.6,0.72,452,Sold to the apothecary at Cheapside.
+761,1698,12 Iunius,Héloïse Ducasse,Argentum,Distillatio,47.4,15.3,-128.40,2540,The Raven appeared at the third hour.
+762,1698,5 Iulius,Mag. Isolde Kettering,Sal,Coniunctio,60.1,48.6,-6.90,1986,Fire too fierce. Lost the work.
+763,1698,22 Iulius,Lorenz Stahl,Mercurius,Fermentatio,21.9,21.9,0.00,737,
+764,1698,3 Augustus,Yusuf al-Haddad,Plumbum,Solutio,34.9,8.3,-15.96,1717,"Vessel cracked, work recommenced."
+765,1698,4 Augustus,Dame Agnes Morrow,Plumbum,Distillatio,48.8,38.1,-6.42,175,
+766,1698,4 Augustus,Sr. Perpetua Lom,Sulphur,Distillatio,32.4,43.1,6.42,268,The Raven appeared at the third hour.
+767,1698,13 Augustus,Ottoline Brae,Aurum,Calcinatio,14.9,18.6,33.30,1119,"Repeated thrice, thrice the same."
+768,1698,20 Augustus,Héloïse Ducasse,Mercurius,Calcinatio,57.8,9.3,-145.50,3372,
+769,1698,25 Augustus,Héloïse Ducasse,Cuprum,Calcinatio,46.9,26.3,-30.90,2295,Witnessed by Sir R. and his clerk.
+770,1698,1 September,Ottoline Brae,Stibium,Calcinatio,36.2,39.5,8.25,2923,
+771,1698,14 September,Ottoline Brae,Plumbum,Coniunctio,14.0,14.0,0.00,2376,
+772,1698,21 September,Mag. Isolde Kettering,Sal,Calcinatio,27.4,26.5,-0.54,175,"Cauda pavonis observed, all colours at once."
+773,1698,6 October,Keziah Blackwood,Cuprum,Calcinatio,38.4,54.4,24.00,687,
+774,1698,9 October,Héloïse Ducasse,Stibium,Calcinatio,4.1,2.2,-4.75,509,Dissolved in aqua regia; much fuming.
+775,1698,10 October,Dr. Cornelius Haast,Arsenicum,Calcinatio,24.8,30.7,3.54,1022,
+776,1698,19 October,Tobias Wrenfield,Vitriolum,Calcinatio,19.4,3.7,-18.84,2750,Fire too fierce. Lost the work.
+777,1698,25 October,Héloïse Ducasse,Ferrum,Separatio,5.2,5.2,0.00,3548,
+778,1698,11 November,Fr. Ambrosius Vell,Arsenicum,Separatio,39.0,33.3,-3.42,2172,
+779,1698,12 November,Dame Agnes Morrow,Cuprum,Coniunctio,28.6,5.2,-35.10,151,
+780,1698,15 November,Tobias Wrenfield,Argentum,Solutio,25.4,32.4,28.00,3172,
+781,1698,22 November,Keziah Blackwood,Vitriolum,Solutio,20.2,3.6,-19.92,1810,
+782,1698,22 November,Dame Agnes Morrow,Stannum,Coagulatio,39.0,23.6,-9.24,337,Sealed with Hermes' seal until Lent.
+783,1698,22 November,Yusuf al-Haddad,Stannum,Coagulatio,45.2,30.2,-9.00,2691,
+784,1698,22 December,Mag. Isolde Kettering,Mercurius,Coagulatio,8.5,1.7,-20.40,1043,Fire too fierce. Lost the work.
+,1698,,,Summa Anni,,1444.9,1086.7,-776.97,84729,"Probatum est, anno 1698."
+785,1699,2 Ianuarius,Tobias Wrenfield,Vitriolum,Coagulatio,41.0,8.7,-38.76,2367,Fire too fierce. Lost the work.
+786,1699,13 Ianuarius,Fabrizio Neri,Ferrum,Coagulatio,59.3,46.2,-7.86,2752,
+787,1699,14 Ianuarius,Fabrizio Neri,Argentum,Solutio,34.4,24.7,-38.80,1097,
+788,1699,21 Ianuarius,Fr. Ambrosius Vell,Sulphur,Coniunctio,51.6,46.4,-3.12,818,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+789,1699,21 Ianuarius,Ottoline Brae,Arsenicum,Coagulatio,17.9,17.9,0.00,2750,Witnessed by Sir R. and his clerk.
+790,1699,26 Ianuarius,Dame Agnes Morrow,Mercurius,Distillatio,43.9,58.6,44.10,1518,Dissolved in aqua regia; much fuming.
+791,1699,27 Ianuarius,Ottoline Brae,Sulphur,Solutio,8.3,7.7,-0.36,1269,
+792,1699,30 Ianuarius,Tobias Wrenfield,Argentum,Coniunctio,55.2,71.3,64.40,1178,
+793,1699,8 Februarius,Mag. Isolde Kettering,Plumbum,Coagulatio,57.7,47.2,-6.30,1952,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+794,1699,19 Februarius,Yusuf al-Haddad,Argentum,Fermentatio,55.4,64.4,36.00,2192,
+795,1699,25 Februarius,Héloïse Ducasse,Stannum,Coniunctio,9.7,5.3,-2.64,1383,Witnessed by Sir R. and his clerk.
+796,1699,2 Martius,Héloïse Ducasse,Plumbum,Solutio,47.4,16.0,-18.84,146,"Vessel cracked, work recommenced."
+797,1699,24 Martius,Tobias Wrenfield,Sulphur,Distillatio,5.9,1.6,-2.58,3378,Night of the comet.
+798,1699,7 Aprilis,Tobias Wrenfield,Sal,Coniunctio,1.2,1.0,-0.12,1347,
+799,1699,9 Aprilis,Dr. Cornelius Haast,Mercurius,Coniunctio,54.6,50.5,-12.30,180,
+800,1699,27 Aprilis,Héloïse Ducasse,Ferrum,Fermentatio,17.1,5.2,-7.14,1079,Night of the comet.
+801,1699,30 Aprilis,Dame Agnes Morrow,Ferrum,Coniunctio,54.7,32.7,-13.20,3660,"Repeated thrice, thrice the same."
+802,1699,1 Maius,Dame Agnes Morrow,Ferrum,Solutio,39.7,26.5,-7.92,3227,
+803,1699,12 Maius,Héloïse Ducasse,Stannum,Calcinatio,53.5,74.5,12.60,1774,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+804,1699,19 Maius,Yusuf al-Haddad,Arsenicum,Calcinatio,2.4,2.3,-0.06,1280,
+805,1699,24 Maius,Mag. Isolde Kettering,Argentum,Distillatio,34.3,13.3,-84.00,1278,
+806,1699,4 Iunius,Tobias Wrenfield,Sal,Distillatio,38.1,46.4,4.98,3181,Vapours most noxious; windows opened.
+807,1699,5 Iunius,Fabrizio Neri,Ferrum,Separatio,5.2,3.0,-1.32,3006,"He calls it ""the green lion"" and will say no more."
+808,1699,20 Iunius,Dr. Cornelius Haast,Ferrum,Distillatio,41.0,7.6,-20.04,2130,
+809,1699,21 Iunius,Keziah Blackwood,Plumbum,Coagulatio,14.5,5.6,-5.34,1086,
+810,1699,22 Iunius,Mag. Isolde Kettering,Stibium,Coagulatio,12.4,10.9,-3.75,2801,"Salt, sulphur, mercury: the tria prima, in that order."
+811,1699,8 Iulius,Héloïse Ducasse,Plumbum,Solutio,28.7,28.7,0.00,2146,The Raven appeared at the third hour.
+812,1699,15 Iulius,Dr. Cornelius Haast,Ferrum,Separatio,7.8,9.2,0.84,2958,
+813,1699,27 Iulius,Sr. Perpetua Lom,Plumbum,Calcinatio,43.1,42.8,-0.18,33,
+814,1699,15 Augustus,Fabrizio Neri,Aurum,Coniunctio,40.1,40.3,1.80,2296,
+815,1699,19 Augustus,Dr. Cornelius Haast,Vitriolum,Fermentatio,41.5,30.7,-12.96,1500,
+816,1699,30 Augustus,Tobias Wrenfield,Vitriolum,Distillatio,48.5,21.9,-31.92,2812,
+817,1699,3 September,Sr. Perpetua Lom,Sal,Coagulatio,32.5,38.5,3.60,3000,Fire too fierce. Lost the work.
+818,1699,4 September,Yusuf al-Haddad,Sulphur,Distillatio,4.8,0.8,-2.40,976,
+819,1699,7 September,Keziah Blackwood,Ferrum,Calcinatio,30.6,12.3,-10.98,1141,
+820,1699,9 September,Yusuf al-Haddad,Stibium,Separatio,36.2,36.0,-0.50,2074,
+821,1699,10 September,Dame Agnes Morrow,Mercurius,Separatio,8.2,9.0,2.40,2949,
+822,1699,13 September,Fr. Ambrosius Vell,Vitriolum,Separatio,10.1,6.5,-4.32,2739,"Vessel cracked, work recommenced."
+823,1699,21 September,Fabrizio Neri,Sulphur,Solutio,5.6,7.0,0.84,1981,
+824,1699,27 September,Mag. Isolde Kettering,Stannum,Fermentatio,42.3,21.8,-12.30,1311,
+825,1699,6 October,Dame Agnes Morrow,Stannum,Calcinatio,20.3,14.9,-3.24,1561,"Repeated thrice, thrice the same."
+826,1699,9 November,Keziah Blackwood,Arsenicum,Coagulatio,33.6,20.1,-8.10,892,
+827,1699,22 November,Lorenz Stahl,Vitriolum,Separatio,45.9,64.7,22.56,2069,Sealed with Hermes' seal until Lent.
+828,1699,22 November,Dame Agnes Morrow,Vitriolum,Coagulatio,46.7,11.3,-42.48,3669,
+829,1699,24 November,Fabrizio Neri,Sal,Coniunctio,47.9,52.7,2.88,3642,
+830,1699,13 December,Dame Agnes Morrow,Stannum,Solutio,51.1,26.0,-15.06,242,Night of the comet.
+831,1699,16 December,Fabrizio Neri,Sulphur,Separatio,8.4,2.3,-3.66,3422,
+832,1699,25 December,Fabrizio Neri,Stibium,Solutio,58.7,71.1,31.00,3769,
+833,1699,27 December,Keziah Blackwood,Plumbum,Separatio,43.4,53.1,5.82,2617,
+,1699,,,Summa Anni,,1592.4,1317.2,-188.73,98628,"Probatum est, anno 1699."
+834,1700,17 Ianuarius,Tobias Wrenfield,Aurum,Coagulatio,59.3,32.0,-245.70,1252,
+835,1700,26 Ianuarius,Mag. Isolde Kettering,Aurum,Fermentatio,26.1,36.6,94.50,3255,Night of the comet.
+836,1700,3 Februarius,Ottoline Brae,Mercurius,Calcinatio,31.8,8.0,-71.40,1062,
+837,1700,6 Februarius,Héloïse Ducasse,Vitriolum,Separatio,41.2,41.2,0.00,712,
+838,1700,23 Februarius,Sr. Perpetua Lom,Sal,Separatio,35.9,13.3,-13.56,1309,
+839,1700,6 Martius,Sr. Perpetua Lom,Vitriolum,Coniunctio,32.8,28.3,-5.40,812,
+840,1700,23 Martius,Yusuf al-Haddad,Arsenicum,Separatio,2.1,0.7,-0.84,2393,
+841,1700,24 Martius,Ottoline Brae,Arsenicum,Fermentatio,3.0,3.5,0.30,3663,
+842,1700,1 Aprilis,Yusuf al-Haddad,Stannum,Coniunctio,59.2,59.2,0.00,3243,
+843,1700,9 Aprilis,Yusuf al-Haddad,Argentum,Coniunctio,13.9,7.6,-25.20,1036,
+844,1700,17 Aprilis,Keziah Blackwood,Aurum,Solutio,52.7,52.3,-3.60,736,Sealed with Hermes' seal until Lent.
+845,1700,23 Aprilis,Fabrizio Neri,Sal,Coagulatio,34.9,31.5,-2.04,152,The Raven appeared at the third hour.
+846,1700,30 Aprilis,Dr. Cornelius Haast,Argentum,Separatio,13.5,6.7,-27.20,1650,
+847,1700,1 Maius,Dr. Cornelius Haast,Arsenicum,Coagulatio,34.2,7.2,-16.20,3521,Sold to the apothecary at Cheapside.
+848,1700,18 Maius,Fabrizio Neri,Sulphur,Calcinatio,28.3,14.4,-8.34,37,
+849,1700,20 Maius,Keziah Blackwood,Sal,Calcinatio,60.1,85.6,15.30,3080,Vapours most noxious; windows opened.
+850,1700,24 Maius,Sr. Perpetua Lom,Argentum,Coniunctio,52.5,10.7,-167.20,1010,Witnessed by Sir R. and his clerk.
+851,1700,10 Iunius,Lorenz Stahl,Aurum,Fermentatio,0.7,0.8,0.90,562,"Salt, sulphur, mercury: the tria prima, in that order."
+852,1700,12 Iunius,Keziah Blackwood,Plumbum,Fermentatio,18.3,18.3,0.00,3556,"Cauda pavonis observed, all colours at once."
+853,1700,14 Iunius,Lorenz Stahl,Ferrum,Fermentatio,28.1,16.2,-7.14,843,"Salt, sulphur, mercury: the tria prima, in that order."
+854,1700,16 Iunius,Fr. Ambrosius Vell,Aurum,Separatio,24.8,6.1,-168.30,1290,
+855,1700,17 Iunius,Fabrizio Neri,Sulphur,Distillatio,40.6,19.2,-12.84,1111,"Vessel cracked, work recommenced."
+856,1700,20 Iunius,Fabrizio Neri,Sal,Coagulatio,20.9,29.1,4.92,3755,"Salt, sulphur, mercury: the tria prima, in that order."
+857,1700,21 Iunius,Lorenz Stahl,Ferrum,Separatio,27.9,17.8,-6.06,3690,
+858,1700,23 Iunius,Ottoline Brae,Mercurius,Solutio,57.2,22.2,-105.00,182,
+859,1700,4 Iulius,Lorenz Stahl,Plumbum,Coagulatio,22.1,31.0,5.34,3096,
+860,1700,19 Iulius,Sr. Perpetua Lom,Ferrum,Coniunctio,22.9,22.6,-0.18,2396,"Vessel cracked, work recommenced."
+861,1700,22 Iulius,Tobias Wrenfield,Plumbum,Solutio,24.0,4.9,-11.46,494,
+862,1700,24 Iulius,Mag. Isolde Kettering,Sal,Coagulatio,25.5,16.3,-5.52,1353,Vapours most noxious; windows opened.
+863,1700,30 Iulius,Mag. Isolde Kettering,Aurum,Coniunctio,32.4,31.9,-4.50,1667,
+864,1700,1 Augustus,Yusuf al-Haddad,Vitriolum,Coagulatio,43.3,62.7,23.28,27,
+865,1700,5 Augustus,Tobias Wrenfield,Mercurius,Coagulatio,28.7,23.5,-15.60,2709,
+866,1700,6 Augustus,Ottoline Brae,Vitriolum,Calcinatio,37.3,12.8,-29.40,465,
+867,1700,10 Augustus,Dame Agnes Morrow,Vitriolum,Distillatio,6.9,8.1,1.44,3374,
+868,1700,18 Augustus,Tobias Wrenfield,Argentum,Coniunctio,54.8,32.9,-87.60,2158,
+869,1700,26 Augustus,Fabrizio Neri,Plumbum,Solutio,20.9,10.3,-6.36,463,Witnessed by Sir R. and his clerk.
+870,1700,29 Augustus,Lorenz Stahl,Ferrum,Separatio,41.5,24.5,-10.20,2451,The Raven appeared at the third hour.
+871,1700,2 September,Héloïse Ducasse,Stibium,Separatio,52.3,63.2,27.25,2961,
+872,1700,30 September,Lorenz Stahl,Argentum,Coniunctio,54.2,44.8,-37.60,3371,
+873,1700,5 October,Sr. Perpetua Lom,Stannum,Solutio,19.1,24.1,3.00,2960,Night of the comet.
+874,1700,9 October,Ottoline Brae,Cuprum,Fermentatio,20.5,28.7,12.30,2579,
+875,1700,10 October,Sr. Perpetua Lom,Sulphur,Separatio,40.4,53.9,8.10,2996,
+876,1700,12 October,Lorenz Stahl,Plumbum,Coagulatio,22.1,20.2,-1.14,2921,The Raven appeared at the third hour.
+877,1700,19 October,Sr. Perpetua Lom,Arsenicum,Solutio,39.9,22.0,-10.74,2328,"Salt, sulphur, mercury: the tria prima, in that order."
+878,1700,30 October,Mag. Isolde Kettering,Aurum,Coagulatio,8.5,3.1,-48.60,3535,Fire too fierce. Lost the work.
+879,1700,24 November,Lorenz Stahl,Cuprum,Fermentatio,17.1,17.1,0.00,3145,"Vessel cracked, work recommenced."
+880,1700,12 December,Héloïse Ducasse,Vitriolum,Separatio,59.2,13.3,-55.08,3036,
+881,1700,20 December,Tobias Wrenfield,Plumbum,Fermentatio,44.7,44.7,0.00,2098,
+882,1700,20 December,Tobias Wrenfield,Arsenicum,Coniunctio,59.4,14.3,-27.06,954,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+,1700,,,Summa Anni,,1597.7,1199.4,-1040.43,97449,"Probatum est, anno 1700."
+883,1701,4 Ianuarius,Yusuf al-Haddad,Aurum,Fermentatio,49.0,49.0,0.00,3265,Fire too fierce. Lost the work.
+884,1701,20 Ianuarius,Fabrizio Neri,Sulphur,Fermentatio,13.1,2.9,-6.12,2262,
+885,1701,21 Ianuarius,Héloïse Ducasse,Stibium,Coagulatio,52.9,9.7,-108.00,3023,"Salt, sulphur, mercury: the tria prima, in that order."
+886,1701,22 Ianuarius,Keziah Blackwood,Stannum,Coagulatio,31.3,12.5,-11.28,3290,Witnessed by Sir R. and his clerk.
+887,1701,26 Ianuarius,Dame Agnes Morrow,Cuprum,Separatio,19.6,21.5,2.85,2952,
+888,1701,9 Februarius,Fr. Ambrosius Vell,Vitriolum,Distillatio,46.3,41.5,-5.76,3698,"Repeated thrice, thrice the same."
+889,1701,19 Februarius,Fr. Ambrosius Vell,Ferrum,Fermentatio,33.9,5.6,-16.98,3410,
+890,1701,20 Februarius,Ottoline Brae,Plumbum,Distillatio,13.5,18.7,3.12,2102,
+891,1701,20 Februarius,Tobias Wrenfield,Sal,Coagulatio,20.0,19.9,-0.06,3483,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+892,1701,22 Februarius,Lorenz Stahl,Sulphur,Fermentatio,31.1,23.5,-4.56,2030,"Repeated thrice, thrice the same."
+893,1701,9 Martius,Lorenz Stahl,Aurum,Separatio,50.9,25.4,-229.50,826,Witnessed by Sir R. and his clerk.
+894,1701,13 Martius,Dr. Cornelius Haast,Vitriolum,Coniunctio,49.0,25.8,-27.84,1870,"He calls it ""the green lion"" and will say no more."
+895,1701,8 Aprilis,Tobias Wrenfield,Plumbum,Distillatio,15.9,11.8,-2.46,1874,Sealed with Hermes' seal until Lent.
+896,1701,22 Maius,Sr. Perpetua Lom,Mercurius,Fermentatio,59.7,59.7,0.00,2078,
+897,1701,25 Maius,Fr. Ambrosius Vell,Aurum,Calcinatio,54.3,52.5,-16.20,3458,
+898,1701,25 Maius,Dr. Cornelius Haast,Stibium,Solutio,43.1,15.2,-69.75,1711,Fire too fierce. Lost the work.
+899,1701,27 Maius,Fr. Ambrosius Vell,Aurum,Separatio,1.7,2.1,3.60,1129,
+900,1701,28 Maius,Fr. Ambrosius Vell,Sulphur,Separatio,27.7,38.7,6.60,3803,
+901,1701,8 Iunius,Dame Agnes Morrow,Stannum,Coniunctio,29.3,12.8,-9.90,3046,
+902,1701,22 Iunius,Sr. Perpetua Lom,Aurum,Separatio,26.0,28.4,21.60,1238,
+903,1701,8 Iulius,Fabrizio Neri,Ferrum,Coagulatio,16.0,20.3,2.58,2893,
+904,1701,12 Iulius,Mag. Isolde Kettering,Stannum,Separatio,5.4,3.7,-1.02,2015,
+905,1701,12 Iulius,Héloïse Ducasse,Arsenicum,Separatio,32.6,6.8,-15.48,980,
+906,1701,13 Iulius,Fabrizio Neri,Vitriolum,Distillatio,58.6,40.6,-21.60,2169,
+907,1701,17 Iulius,Héloïse Ducasse,Arsenicum,Solutio,24.7,8.3,-9.84,1859,
+908,1701,18 Iulius,Fabrizio Neri,Stibium,Coagulatio,36.5,49.0,31.25,165,
+909,1701,23 Iulius,Yusuf al-Haddad,Plumbum,Separatio,7.2,8.5,0.78,2106,
+910,1701,1 Augustus,Mag. Isolde Kettering,Plumbum,Coagulatio,45.0,35.1,-5.94,86,
+911,1701,5 Augustus,Sr. Perpetua Lom,Aurum,Calcinatio,5.5,5.1,-3.60,3650,
+912,1701,27 Augustus,Tobias Wrenfield,Argentum,Calcinatio,56.0,44.6,-45.60,54,"Vessel cracked, work recommenced."
+913,1701,4 September,Lorenz Stahl,Mercurius,Distillatio,18.4,11.1,-21.90,2038,
+914,1701,8 September,Ottoline Brae,Plumbum,Distillatio,36.2,13.6,-13.56,545,
+915,1701,16 September,Sr. Perpetua Lom,Plumbum,Calcinatio,22.9,30.7,4.68,3463,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+916,1701,21 September,Yusuf al-Haddad,Stannum,Fermentatio,13.4,3.7,-5.82,3048,Dissolved in aqua regia; much fuming.
+917,1701,28 September,Mag. Isolde Kettering,Stibium,Fermentatio,26.6,4.2,-56.00,1690,Vapours most noxious; windows opened.
+918,1701,5 October,Yusuf al-Haddad,Sal,Separatio,35.8,35.9,0.06,132,
+919,1701,6 October,Mag. Isolde Kettering,Arsenicum,Solutio,41.7,50.8,5.46,1909,Sealed with Hermes' seal until Lent.
+920,1701,8 October,Fabrizio Neri,Cuprum,Separatio,45.9,65.5,29.40,3199,
+921,1701,18 October,Fabrizio Neri,Sulphur,Separatio,55.2,39.2,-9.60,905,
+922,1701,28 October,Lorenz Stahl,Sal,Solutio,49.3,37.5,-7.08,902,
+923,1701,29 October,Dr. Cornelius Haast,Stannum,Coagulatio,38.0,50.3,7.38,250,
+924,1701,2 November,Dr. Cornelius Haast,Sulphur,Fermentatio,55.2,25.8,-17.64,1186,The Raven appeared at the third hour.
+925,1701,3 November,Lorenz Stahl,Plumbum,Coagulatio,51.4,16.6,-20.88,3158,
+926,1701,1 December,Lorenz Stahl,Vitriolum,Distillatio,28.8,18.7,-12.12,2294,
+927,1701,2 December,Keziah Blackwood,Arsenicum,Calcinatio,24.8,5.5,-11.58,3381,"Vessel cracked, work recommenced."
+928,1701,11 December,Dr. Cornelius Haast,Stibium,Distillatio,5.0,5.3,0.75,2817,Dissolved in aqua regia; much fuming.
+929,1701,19 December,Tobias Wrenfield,Plumbum,Separatio,45.7,49.5,2.28,1081,"He calls it ""the green lion"" and will say no more."
+930,1701,19 December,Fabrizio Neri,Stannum,Coniunctio,23.9,6.1,-10.68,826,Vapours most noxious; windows opened.
+931,1701,29 December,Dame Agnes Morrow,Sulphur,Coagulatio,36.4,38.5,1.26,2934,
+,1701,,,Summa Anni,,1610.4,1207.7,-674.70,102283,"Probatum est, anno 1701."
+932,1702,6 Ianuarius,Dame Agnes Morrow,Ferrum,Separatio,19.3,11.0,-4.98,2170,
+933,1702,7 Ianuarius,Sr. Perpetua Lom,Stibium,Coniunctio,11.9,4.9,-17.50,2901,
+934,1702,9 Ianuarius,Lorenz Stahl,Aurum,Fermentatio,27.5,25.3,-19.80,2618,
+935,1702,12 Ianuarius,Fr. Ambrosius Vell,Ferrum,Calcinatio,59.3,23.2,-21.66,3316,Sold to the apothecary at Cheapside.
+936,1702,15 Ianuarius,Mag. Isolde Kettering,Plumbum,Fermentatio,3.3,2.4,-0.54,936,
+937,1702,17 Ianuarius,Fr. Ambrosius Vell,Arsenicum,Coagulatio,18.2,17.3,-0.54,3028,
+938,1702,18 Ianuarius,Sr. Perpetua Lom,Argentum,Coniunctio,33.8,7.6,-104.80,2725,Vapours most noxious; windows opened.
+939,1702,20 Ianuarius,Mag. Isolde Kettering,Mercurius,Solutio,24.3,18.0,-18.90,2928,Fire too fierce. Lost the work.
+940,1702,4 Februarius,Yusuf al-Haddad,Sulphur,Coagulatio,59.3,58.0,-0.78,874,Fire too fierce. Lost the work.
+941,1702,4 Februarius,Ottoline Brae,Cuprum,Fermentatio,50.9,41.5,-14.10,2442,
+942,1702,13 Februarius,Fabrizio Neri,Stibium,Solutio,51.8,47.1,-11.75,1901,
+943,1702,18 Februarius,Mag. Isolde Kettering,Aurum,Distillatio,32.0,34.1,18.90,302,Vapours most noxious; windows opened.
+944,1702,24 Februarius,Fr. Ambrosius Vell,Stannum,Coagulatio,31.9,38.9,4.20,3319,
+945,1702,26 Februarius,Ottoline Brae,Mercurius,Calcinatio,49.8,21.2,-85.80,1210,
+946,1702,2 Martius,Yusuf al-Haddad,Argentum,Solutio,39.1,35.7,-13.60,1714,
+947,1702,7 Martius,Fabrizio Neri,Cuprum,Solutio,20.8,25.8,7.50,3698,
+948,1702,8 Martius,Héloïse Ducasse,Cuprum,Fermentatio,23.1,28.9,8.70,3305,"Salt, sulphur, mercury: the tria prima, in that order."
+949,1702,8 Martius,Ottoline Brae,Vitriolum,Coagulatio,42.5,33.2,-11.16,1728,
+950,1702,9 Martius,Lorenz Stahl,Arsenicum,Coniunctio,53.8,42.4,-6.84,1326,"He calls it ""the green lion"" and will say no more."
+951,1702,5 Aprilis,Mag. Isolde Kettering,Arsenicum,Separatio,18.3,18.7,0.24,2031,
+952,1702,23 Aprilis,Fr. Ambrosius Vell,Mercurius,Fermentatio,13.8,16.7,8.70,857,
+953,1702,7 Maius,Keziah Blackwood,Arsenicum,Calcinatio,54.7,54.7,0.00,3042,
+954,1702,21 Maius,Fr. Ambrosius Vell,Arsenicum,Fermentatio,54.3,31.3,-13.80,691,
+955,1702,22 Maius,Lorenz Stahl,Ferrum,Calcinatio,6.6,2.8,-2.28,1307,
+956,1702,3 Iunius,Fr. Ambrosius Vell,Sal,Solutio,29.2,29.2,0.00,1914,
+957,1702,18 Iunius,Tobias Wrenfield,Cuprum,Coniunctio,3.9,3.6,-0.45,3093,Sealed with Hermes' seal until Lent.
+958,1702,20 Iunius,Yusuf al-Haddad,Stibium,Distillatio,27.6,28.6,2.50,3775,Dissolved in aqua regia; much fuming.
+959,1702,3 Iulius,Tobias Wrenfield,Stannum,Calcinatio,6.9,6.9,0.00,1628,
+960,1702,5 Iulius,Fr. Ambrosius Vell,Cuprum,Coagulatio,18.4,18.4,0.00,2158,
+961,1702,11 Iulius,Sr. Perpetua Lom,Sulphur,Calcinatio,6.3,5.9,-0.24,606,"Residue kept in the blue jar.
+Do not open before Michaelmas."
+962,1702,3 Augustus,Mag. Isolde Kettering,Sal,Coagulatio,18.5,9.1,-5.64,3025,Witnessed by Sir R. and his clerk.
+963,1702,8 Augustus,Ottoline Brae,Arsenicum,Coniunctio,47.2,67.0,11.88,2188,
+964,1702,9 Augustus,Ottoline Brae,Vitriolum,Distillatio,23.6,27.0,4.08,2722,
+965,1702,7 September,Yusuf al-Haddad,Cuprum,Solutio,14.5,8.4,-9.15,2204,
+966,1702,29 September,Ottoline Brae,Stibium,Calcinatio,21.5,26.1,11.50,2088,
+967,1702,4 October,Mag. Isolde Kettering,Sal,Separatio,54.6,30.9,-14.22,1723,
+968,1702,6 October,Mag. Isolde Kettering,Stannum,Calcinatio,4.2,1.4,-1.68,1324,
+969,1702,25 October,Héloïse Ducasse,Stannum,Separatio,11.6,4.9,-4.02,734,
+970,1702,1 November,Héloïse Ducasse,Plumbum,Separatio,35.4,26.8,-5.16,1338,"Repeated thrice, thrice the same."
+971,1702,7 November,Fabrizio Neri,Sal,Solutio,40.5,36.0,-2.70,887,"Cauda pavonis observed, all colours at once."
+972,1702,11 November,Sr. Perpetua Lom,Stibium,Fermentatio,4.5,0.9,-9.00,3171,"Repeated thrice, thrice the same."
+973,1702,3 December,Fr. Ambrosius Vell,Sulphur,Fermentatio,56.7,46.6,-6.06,1370,
+974,1702,6 December,Héloïse Ducasse,Arsenicum,Distillatio,48.1,56.3,4.92,3649,
+975,1702,18 December,Dr. Cornelius Haast,Mercurius,Coniunctio,10.1,14.4,12.90,484,Sold to the apothecary at Cheapside.
+976,1702,19 December,Lorenz Stahl,Arsenicum,Calcinatio,44.6,42.1,-1.50,1674,"He calls it ""the green lion"" and will say no more."
+977,1702,23 December,Fabrizio Neri,Stibium,Solutio,15.7,11.1,-11.50,947,Fire too fierce. Lost the work.
+978,1702,25 December,Héloïse Ducasse,Vitriolum,Solutio,36.7,24.2,-15.00,2823,Sealed with Hermes' seal until Lent.
+979,1702,27 December,Tobias Wrenfield,Vitriolum,Coniunctio,23.3,31.8,10.20,2256,
+,1702,,,Summa Anni,,1403.9,1198.3,-328.93,98150,"Probatum est, anno 1702."
+,,,,Summa Totalis,,29089.2,23827.5,-10216.20,1891838,Finis.
