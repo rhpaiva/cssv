@@ -14,11 +14,11 @@
 // The second shadow root keeps paint containment out of reach of the author
 // stylesheet: it can match its own :host (.frame) but never .clip.
 //
-// When a new render keeps the shown table's columns and row count, and its
-// style block differs only in rules that need no loading, the shown table is
-// updated in place instead of rebuilt: changed cells, changed rules (through
-// the CSSOM), then keys and formats again. The result is the table a full
-// render would build.
+// When a new render keeps the shown table's columns, and its style block
+// differs only in rules that need no loading, the shown table is updated in
+// place instead of rebuilt: changed rules (through the CSSOM), changed cells,
+// added and removed rows, then keys and formats again. The result is the
+// table a full render would build.
 
 import {
   parse, inlineText, DEFAULT_CSS, rewriteCssUrls, parseCssvValue, parseFormat, formatNumber,
@@ -49,14 +49,27 @@ function settled(style) {
   });
 }
 
+function el(tag, attrs = {}, text = '') {
+  const node = document.createElement(tag);
+  for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, value);
+  if (text !== '') node.textContent = text; // 7.4: always text, never HTML
+  return node;
+}
+
+// 8.3 step 2: a body row, with numbers in their default display.
+function buildRow(row, columns, locale) {
+  const tr = el('tr', { 'data-row': String(row.number) });
+  row.fields.forEach((field, c) => {
+    const { type, sign } = row.types[c];
+    const attrs = { 'data-col': columns[c] };
+    if (type === 'number') attrs.class = `number ${sign}`;
+    tr.append(el('td', attrs, display(field, type, locale)));
+  });
+  return tr;
+}
+
 // 8.3 step 2: the table model with numbers in their default display.
 function buildTable(model, locale) {
-  const el = (tag, attrs = {}, text = '') => {
-    const node = document.createElement(tag);
-    for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, value);
-    if (text !== '') node.textContent = text; // 7.4: always text, never HTML
-    return node;
-  };
   const table = el('table', { part: 'table' });
   const colgroup = el('colgroup');
   const headRow = el('tr', { 'data-row': '1' });
@@ -67,16 +80,7 @@ function buildTable(model, locale) {
   const thead = el('thead');
   thead.append(headRow);
   const tbody = el('tbody');
-  for (const row of model.rows) {
-    const tr = el('tr', { 'data-row': String(row.number) });
-    row.fields.forEach((field, c) => {
-      const { type, sign } = row.types[c];
-      const attrs = { 'data-col': model.columns[c] };
-      if (type === 'number') attrs.class = `number ${sign}`;
-      tr.append(el('td', attrs, display(field, type, locale)));
-    });
-    tbody.append(tr);
-  }
+  for (const row of model.rows) tbody.append(buildRow(row, model.columns, locale));
   table.append(colgroup, thead, tbody);
   return table;
 }
@@ -320,14 +324,14 @@ export class CssvTable extends Base {
 
   // Brings the shown table in line with `model` without rebuilding it, when
   // that gives the table a full render would build. Changes nothing and
-  // returns false when it can't: no table, other columns or row count, or a
-  // style block whose change needs loading.
+  // returns false when it can't: no table, other columns, or a style block
+  // whose change needs loading.
   #patch(model, locale, base) {
     const shown = this.#shown;
     const table = this.table;
     if (!shown || !table) return false;
     const old = shown.model;
-    if (old.rows.length !== model.rows.length || old.columns.length !== model.columns.length) return false;
+    if (old.columns.length !== model.columns.length) return false;
     if (old.columns.some((name, c) => name !== model.columns[c])) return false; // names are on every cell
     const css = model.style === null ? '' : rewriteCssUrls(model.style, base);
     if (css !== shown.css) {
@@ -339,19 +343,44 @@ export class CssvTable extends Base {
         return false; // the full render replaces the stylesheet anyway
       }
     }
-    const body = table.tBodies[0].rows;
-    model.rows.forEach((row, i) => {
+    // Rows that match at the start and at the end stay as they are. Between
+    // them, rows are changed cell by cell, and the remainder is added or
+    // removed: one inserted row becomes one new <tr>.
+    const tbody = table.tBodies[0];
+    const rows = tbody.rows;
+    const n = old.rows.length;
+    const m = model.rows.length;
+    const same = (a, b) => a.fields.every((field, c) => field === b.fields[c]);
+    let top = 0;
+    while (top < n && top < m && same(old.rows[top], model.rows[top])) top++;
+    let bottom = 0;
+    while (bottom < n - top && bottom < m - top && same(old.rows[n - 1 - bottom], model.rows[m - 1 - bottom])) bottom++;
+    const end = Math.min(n, m) - bottom; // rows in [top, end) are in both, changed
+    for (let i = top; i < end; i++) {
       const before = old.rows[i].fields;
-      row.fields.forEach((field, c) => {
+      model.rows[i].fields.forEach((field, c) => {
         if (field === before[c]) return;
-        const td = body[i].cells[c];
-        const { type, sign } = row.types[c];
+        const td = rows[i].cells[c];
+        const { type, sign } = model.rows[i].types[c];
         if (type === 'number') td.className = `number ${sign}`;
         else td.removeAttribute('class');
         td.textContent = display(field, type, locale); // 7.4; formats follow below
         this.#formats.delete(td);
       });
-    });
+    }
+    for (let i = n; i > m; i--) rows[end].remove();
+    if (m > n) {
+      const added = document.createDocumentFragment();
+      for (let i = end; i < end + m - n; i++) added.append(buildRow(model.rows[i], model.columns, locale));
+      tbody.insertBefore(added, rows[end] ?? null);
+    }
+    if (m !== n) {
+      // 5.3: the rows after the change move, and their record numbers with them.
+      for (let i = end; i < m; i++) {
+        const number = String(i + 2);
+        if (rows[i].getAttribute('data-row') !== number) rows[i].setAttribute('data-row', number);
+      }
+    }
     const head = table.tHead.rows[0].cells;
     model.numberColumns.forEach((number, c) => {
       if (number === old.numberColumns[c]) return;

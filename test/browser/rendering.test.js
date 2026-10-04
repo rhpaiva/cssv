@@ -361,9 +361,24 @@ Total,1154.5,9`;
     assert.deepEqual(result, { same: false, color: 'rgb(0, 128, 0)' });
   });
 
-  it('renders in full when the rows or columns change', async () => {
+  it('adds and removes rows in place', async () => {
     const page = await ctx.open(inline(BASE));
-    const texts = [`${BASE}\nExtra,1,2`, BASE.replace('item,amount,code', 'item,amount,code,note')];
+    const [head, body] = [BASE.slice(0, BASE.indexOf('Rent')), BASE.slice(BASE.indexOf('Rent')).split('\n')];
+    const texts = [
+      head + [body[0], 'Deposit,-500,4', ...body.slice(1)].join('\n'), // inserted in the middle: the rows after it are renumbered
+      head + [body[0], ...body.slice(1)].join('\n'), // and removed again
+      head + [...body, 'Fee,12.5,10', 'Tip,0,11'].join('\n'), // appended
+      head + ['Opening,0,1', ...body].join('\n'), // prepended
+      head + ['Page,2,1', 'Two,-3,2'].join('\n'), // a different, shorter page
+      head.trimEnd(), // no body rows
+      BASE, // and back
+    ];
+    assert.deepEqual(await updates(page, texts), texts.map(() => patched));
+  });
+
+  it('renders in full when the columns change', async () => {
+    const page = await ctx.open(inline(BASE));
+    const texts = [BASE.replace('item,amount,code', 'item,amount,code,note'), BASE.replace('item,amount,code', 'item,total,code')];
     const full = { ...patched, same: false };
     assert.deepEqual(await updates(page, texts), [full, full]);
   });

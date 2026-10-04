@@ -103,9 +103,9 @@ await document.querySelector('#orders').update(await res.text());
 
 ### Updating in place
 
-If a new text has the same columns and number of rows, and its style block changes only in rules that need nothing loaded, the element doesn't build a new table. It changes the cells that differ in the table on screen, replaces the changed style rules, then applies `--cssv-key` and `--cssv-format` again. The result is the table a full render would build, and `table` stays the same element. This suits editing values or styles, and live data such as a dashboard's numbers. It applies to every render, including a change of `src`, `key` or `lang`. Adding or removing rows or columns, or changing an `@import`, renders in full.
+If a new text has the same columns, and its style block changes only in rules that need nothing loaded, the element doesn't build a new table. It replaces the changed style rules and changes the table on screen: rows that match at the start and at the end stay as they are, rows between them are changed cell by cell, and the rest are added or removed, so inserting one row adds one `<tr>`. Then it applies `--cssv-key` and `--cssv-format` again. The result is the table a full render would build, and `table` stays the same element. This suits editing values, rows or styles, live data such as a dashboard's numbers, and pages of results. It applies to every render, including a change of `src`, `key` or `lang`. Changing the columns or an `@import` renders in full.
 
-With 1,000 records and a heavy stylesheet, a one-cell change takes about a tenth as long as a full render until painted, and with 10,000 records about a twentieth. The rest is the browser laying the table out again, since one cell can change the column widths.
+With 1,000 records and a heavy stylesheet, a one-cell change takes about a tenth as long as a full render until painted, and with 10,000 records about a twentieth. Inserting or deleting a row takes from a third to a sixth as long: rows below it move, so selectors that depend on position, such as `:nth-child()`, apply to them again. The rest is the browser laying the table out again, since one cell can change the column widths.
 
 The page can style the table with `cssv-table::part(table)`. Wide tables overflow the element; add `cssv-table { overflow-x: auto; }` to scroll them instead.
 
@@ -180,3 +180,4 @@ curl --create-dirs -o ~/.claude/skills/cssv/SKILL.md https://cssv.dev/skills/css
 ### Known deviations
 
 - **§4.5.** In the inner shadow root the author stylesheet can also match `:host` (the inner frame element) and the two `<style>` elements, not only the table model. Neither can affect the page or escape containment.
+- **§8.3 step 4, when updating in place.** `--cssv-key` is read while the rows still carry their previous `data-key`s. A stylesheet whose `--cssv-key` depends on `data-key`, for example through `table:has(tr[data-key="Total"])`, can therefore pick a different key column than a full render would. Removing every `data-key` before the read would restyle all rows on every update.
