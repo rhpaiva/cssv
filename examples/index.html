@@ -298,8 +298,6 @@
     .grid > .example:has(> .source:not([hidden])) > .stage { grid-row: 2; }
     .grid > .example > .source { grid-row: 3; }
     .grid > .example.wide { grid-column: 1 / -1; }
-    .grid.trio { --card-min: 440px; }
-    .grid.trio .example > header > div { flex-basis: 160px; }
     section > h2 { margin: 56px 0 6px; font-size: 1.5rem; letter-spacing: -0.015em; }
     section > p { margin: 0 0 8px; color: var(--muted); max-width: 70ch; }
 
@@ -597,31 +595,6 @@ The date picker uses each locale's first day of the week.",tomas
           </cssv-table>
         </div>
       </article>
-      </div>
-    </section>
-
-    <section>
-      <h2>Same data, three ways</h2>
-      <p><code>budget.cssv</code> and <code>budget-print.cssv</code> have identical CSV and different style blocks; <code>budget.cssv</code> imports a shared <code>brand.css</code>. The third card is <code>budget.cssv</code> again, inside an element with <code>lang="de-DE"</code>, which the locale buttons above don't change.</p>
-      <div class="grid trio">
-        <article class="example">
-          <header>
-            <div><h3>budget.cssv</h3></div>
-          </header>
-          <div class="stage"><cssv-table src="budget.cssv"></cssv-table></div>
-        </article>
-        <article class="example">
-          <header>
-            <div><h3>budget-print.cssv</h3></div>
-          </header>
-          <div class="stage"><cssv-table src="budget-print.cssv"></cssv-table></div>
-        </article>
-        <article class="example">
-          <header>
-            <div><h3>budget.cssv <span class="file">lang="de-DE"</span></h3></div>
-          </header>
-          <div class="stage" lang="de-DE"><cssv-table src="budget.cssv"></cssv-table></div>
-        </article>
       </div>
     </section>
 
