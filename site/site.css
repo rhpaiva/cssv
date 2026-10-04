@@ -77,6 +77,7 @@ a {
   text-decoration-color: var(--link-line);
   text-decoration-thickness: 2px;
   text-underline-offset: 0.18em;
+  transition: text-decoration-color 0.15s, color 0.15s;
 }
 a:hover { text-decoration-color: currentColor; }
 code, kbd, pre { font-family: var(--mono); }
@@ -154,8 +155,10 @@ h3.sub { margin: 56px 0 16px; font-size: 1.3rem; }
   font-weight: 600;
   text-decoration: none;
   box-shadow: var(--shadow);
+  transition: border-color 0.15s, opacity 0.15s, transform 0.15s;
 }
 .button:hover { border-color: var(--muted); }
+.button:active { transform: translateY(1px); }
 .button.primary { border-color: var(--text); background: var(--text); color: var(--surface); }
 .button.primary:hover { opacity: 0.9; }
 .snippet {
@@ -232,6 +235,7 @@ h3.sub { margin: 56px 0 16px; font-size: 1.3rem; }
   color: var(--muted);
   cursor: pointer;
   font: 500 13px/1 var(--sans);
+  transition: background-color 0.15s, color 0.15s;
 }
 #locale-picker label { font-family: var(--mono); font-size: 12.5px; }
 .seg label:hover { color: var(--text); }
@@ -247,6 +251,7 @@ h3.sub { margin: 56px 0 16px; font-size: 1.3rem; }
   color: var(--muted);
   cursor: pointer;
   font: 600 14px/1 var(--sans);
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
 }
 .tabs button:hover { color: var(--text); }
 .tabs button[aria-selected="true"] { border-color: var(--border); background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
@@ -413,6 +418,7 @@ figure.dogfood figcaption > span { flex: 1 1 360px; }
   color: var(--text);
   cursor: pointer;
   font: 600 13px/1 var(--sans);
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 .source-toggle:hover { border-color: var(--muted); }
 .source-toggle[aria-expanded="true"] { background: var(--text); border-color: var(--text); color: var(--surface); }
@@ -512,10 +518,11 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
   color: var(--code-text);
   cursor: pointer;
   font: 12px/1.4 var(--mono);
+  transition: background-color 0.15s, opacity 0.15s;
 }
 .copy:hover { background: rgb(255 255 255 / 0.06); }
 .code-wrap { position: relative; }
-.code-wrap .copy { position: absolute; top: 10px; right: 10px; opacity: 0; transition: opacity 0.15s; background: var(--code-bar); }
+.code-wrap .copy { position: absolute; top: 10px; right: 10px; opacity: 0; background: var(--code-bar); }
 .code-wrap:hover .copy, .code-wrap .copy:focus-visible { opacity: 1; }
 @media (hover: none) { .code-wrap .copy { opacity: 1; } }
 
@@ -715,12 +722,16 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
 .toc summary { padding: 4px 0 10px; color: var(--muted); cursor: pointer; font: 600 12px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
 .toc ol { margin: 0; padding: 0; list-style: none; }
 .toc ol ol { margin: 2px 0 6px; padding-inline-start: 12px; border-inline-start: 1px solid var(--border); }
-.toc a { display: block; padding: 3px 8px; border-radius: 6px; color: var(--muted); text-decoration: none; }
+.toc a { display: block; padding: 3px 8px; border-radius: 6px; color: var(--muted); text-decoration: none; transition: background-color 0.15s, color 0.15s; }
 .toc a:hover { background: var(--bg-alt); color: var(--text); }
 .toc ol ol a { font-size: 13px; }
 
 .doc { max-width: 80ch; min-width: 0; font-size: 16px; line-height: 1.7; }
-.doc-loading { color: var(--muted); }
+/* The document is fetched and rendered after the page shows. The loading
+   note appears only if that takes a moment, and the document and its
+   contents fade in when they arrive. */
+.doc-loading { color: var(--muted); animation: fade-in 0.3s 0.6s both; }
+.doc:not(.legal, :has(> .doc-loading)), #toc:not(:empty) { animation: fade-in 0.3s ease-out; }
 .doc h1 { margin: 0 0 8px; font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.1; }
 .doc h2 { max-width: none; margin: 56px 0 12px; padding-top: 8px; font-size: 1.6rem; }
 .doc h3 { margin: 32px 0 8px; font-size: 1.15rem; }
@@ -763,6 +774,7 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 .doc-switch a:hover { color: var(--text); }
 .doc-switch a[aria-current="page"] { border-color: var(--text); background: var(--text); color: var(--surface); }
@@ -799,3 +811,33 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
 .skill-card pre.code { max-height: 640px; white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 960px) { .skill-card { margin-top: 0; } .skill-card pre.code { max-height: 420px; } }
 .tokens { margin-top: 24px; }
+
+/* Motion ---------------------------------------------------------------
+   The transitions between pages are in nav.css. Here, a tab panel fades in
+   when shown, FAQ answers and the contents open and close smoothly (where
+   ::details-content and interpolate-size exist), and cards rise into place as they scroll into
+   view (where scroll-driven animations exist). */
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; translate: 0 24px; } }
+[role="tabpanel"]:not([hidden]) { animation: fade-in 0.2s ease-out; }
+@supports selector(::details-content) and (interpolate-size: allow-keywords) {
+  :is(.faq, .toc) details { interpolate-size: allow-keywords; }
+  :is(.faq, .toc) details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), content-visibility 0.25s allow-discrete;
+  }
+  :is(.faq, .toc) details[open]::details-content { block-size: auto; }
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    :is(.goals, .hooks, .spec-cards, .faq) > * {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 160px;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.faq, .toc) details::details-content { transition: none; }
+}

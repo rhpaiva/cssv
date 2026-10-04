@@ -1,6 +1,7 @@
-/* The site header, shared by the pages in site/, site/editor/index.html and
-   examples/index.html. It uses each page's --bg, --border, --text and
-   --muted tokens and its .wrap width. */
+/* The site header and the transitions between pages, shared by the pages in
+   site/, site/editor/index.html and examples/index.html (the one stylesheet
+   they all load). It uses each page's --bg, --border, --text and --muted
+   tokens and its .wrap width. */
 :root { --nav-height: 60px; }
 .nav {
   position: sticky;
@@ -33,6 +34,8 @@
 }
 .nav nav::-webkit-scrollbar { display: none; }
 .nav nav a {
+  position: relative;
+  isolation: isolate;
   flex: none;
   padding: 6px 10px;
   border-radius: 8px;
@@ -41,10 +44,20 @@
   font-weight: 500;
   line-height: 1.6;
   text-decoration: none;
+  transition: background-color 0.15s, color 0.15s;
 }
-.nav nav a:hover, .nav nav a[aria-current="page"] {
+.nav nav a:hover, .nav nav a[aria-current="page"] { color: var(--text); }
+.nav nav a:not([aria-current="page"]):hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+/* The current page's pill is a layer of its own, so that a page transition
+   slides it from the old page's link to the new one's. */
+.nav nav a[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
   background: color-mix(in srgb, var(--text) 6%, transparent);
-  color: var(--text);
+  view-transition-name: nav-current;
 }
 .nav nav a.gh { display: inline-flex; align-items: center; padding-inline: 8px; }
 .nav .gh svg { display: block; width: 19px; height: 19px; fill: currentColor; }
@@ -63,3 +76,23 @@
   .nav nav a { padding: 6px 4px; font-size: 13px; }
   .nav nav a.gh { display: none; }
 }
+
+/* Page transitions ------------------------------------------------------
+   Following a link within the site fades the old page out, then the new
+   page in, rising a few pixels into place. The header doesn't take part: its bar, the
+   brand and the links are named, so they stay where they are, or slide
+   where the layout moves them (the editor's header spans the window). */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+.nav { view-transition-name: nav; }
+.brand { view-transition-name: nav-brand; }
+.nav nav { view-transition-name: nav-links; }
+::view-transition-group(*) {
+  animation-duration: 0.32s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-old(root) { animation: 0.12s ease-in both page-out; }
+::view-transition-new(root) { animation: 0.26s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both page-in; }
+@keyframes page-out { to { opacity: 0; } }
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } }
