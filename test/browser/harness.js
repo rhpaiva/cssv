@@ -10,6 +10,15 @@ import { chromium } from 'playwright';
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const TYPES = { '.js': 'text/javascript', '.css': 'text/css', '.html': 'text/html', '.cssv': 'text/plain; charset=utf-8', '.csv': 'text/csv', '.png': 'image/png' };
 
+/**
+ * Chromium for the tests, the benchmark and the tools: the browser at
+ * CHROME_PATH when it is set, otherwise the one `npx playwright install` adds.
+ */
+export function launchChromium() {
+  const executablePath = process.env.CHROME_PATH;
+  return chromium.launch(executablePath ? { executablePath } : {});
+}
+
 export function startServer() {
   const files = new Map();
   const requests = [];
@@ -68,7 +77,7 @@ export function setup() {
   const ctx = {};
   before(async () => {
     ctx.server = await startServer();
-    ctx.browser = await chromium.launch();
+    ctx.browser = await launchChromium();
     // Opens a page with `body`, waits for every <cssv-table> to finish
     // rendering (unless wait is false) and collects cssv-error events and
     // uncaught page errors.

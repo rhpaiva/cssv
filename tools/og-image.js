@@ -7,8 +7,7 @@
 // colors, dots and highlighter. Only the sans-serif font is pinned: the site's
 // system-ui is DejaVu Sans on many Linux machines, which is too wide here.
 import { readFileSync } from 'node:fs';
-import { chromium } from 'playwright';
-import { startServer } from '../test/browser/harness.js';
+import { launchChromium, startServer } from '../test/browser/harness.js';
 
 const OUT = new URL('../site/og.png', import.meta.url);
 const WIDTH = 1200; // 1.91:1, the ratio LinkedIn, Facebook and X crop to
@@ -46,7 +45,7 @@ const CARD = `
 </div>`;
 
 const server = await startServer();
-const browser = await chromium.launch();
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } });
 await page.emulateMedia({ colorScheme: 'light' });
 // The page sits in site/, so site.css resolves as on the website.

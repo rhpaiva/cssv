@@ -13,9 +13,8 @@
 // <img> on GitHub and npm. With reduced motion it shows scene STILL.
 import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
-import { chromium } from 'playwright';
 import { DEFAULT_CSS } from '../src/core.js';
-import { startServer } from '../test/browser/harness.js';
+import { launchChromium, startServer } from '../test/browser/harness.js';
 
 const OUT = new URL('../site/demo.svg', import.meta.url);
 const BASE = new URL('../site/', import.meta.url); // the story's file sits next to departures.cssv
@@ -70,7 +69,7 @@ SCENES.forEach((scene) => { stateOf(scene); if (scene.edit) stateOf(scene, true)
 
 // --- Read everything from the real renderer and the website ------------------
 const server = await startServer();
-const browser = await chromium.launch();
+const browser = await launchChromium();
 const page = await browser.newPage();
 await page.emulateMedia({ colorScheme: 'light' });
 // The page sits in site/, so the story's relative @import finds split-flap.css.

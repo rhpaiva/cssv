@@ -126,6 +126,7 @@ const html = toHtml(model, { locale: 'de-DE', key: 'id' }); // the §8.3 step 2 
 npm install
 npx playwright install chromium   # once, for the browser tests
 npm test                          # unit + browser
+CHROME_PATH=/path/to/chrome npm test   # with a Chrome or Chromium you already have, instead of the install
 npm run test:unit                 # no browser needed
 npm run test:browser
 ```

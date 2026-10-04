@@ -1,8 +1,7 @@
 // Measures the processor (Node) and the <cssv-table> renderer (headless
 // Chromium) on generated tables. Run with: npm run bench [-- 100 500 5000]
 import { parse, toHtml } from '../src/core.js';
-import { chromium } from 'playwright';
-import { startServer } from '../test/browser/harness.js';
+import { launchChromium, startServer } from '../test/browser/harness.js';
 
 const SIZES = process.argv.slice(2).map(Number).filter(Boolean);
 if (!SIZES.length) SIZES.push(100, 500, 5000);
@@ -62,7 +61,7 @@ for (const n of SIZES) {
 
 // --- Chromium: the renderer --------------------------------------------------
 const server = await startServer();
-const browser = await chromium.launch();
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await page.goto(server.page('<main id="host"></main>'));
 await page.waitForFunction(() => customElements.get('cssv-table'));
