@@ -1,4 +1,4 @@
-/* The site header, shared by site/index.html, site/spec.html and
+/* The site header, shared by the pages in site/, site/editor/index.html and
    examples/index.html. It uses each page's --bg, --border, --text and
    --muted tokens and its .wrap width. */
 :root { --nav-height: 60px; }
@@ -49,10 +49,12 @@
 .nav nav a.gh { display: inline-flex; align-items: center; padding-inline: 8px; }
 .nav .gh svg { display: block; width: 19px; height: 19px; fill: currentColor; }
 /* Narrower, "How it works" and "AI" go (both are one scroll away on the
-   home page); on phones the name goes too, and below 360px the GitHub icon,
-   which the home page's footer repeats. */
+   home page); on phones the name and "Editor" go too (the editor needs a
+   keyboard and a wider screen), and below 360px the GitHub icon, which the
+   home page's footer repeats. */
 @media (max-width: 860px) { .nav .wide-only { display: none; } }
 @media (max-width: 640px) {
+  .nav .phone-hidden { display: none; }
   .nav-inner { gap: 12px; }
   .brand span { display: none; }
   .nav nav a { padding: 6px 6px; font-size: 13.5px; }
