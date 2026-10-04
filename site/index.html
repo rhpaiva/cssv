@@ -111,8 +111,70 @@
       </div>
     </section>
 
+    <!-- Examples --------------------------------------------------------- -->
+    <section class="section" id="examples">
+      <div class="wrap">
+        <p class="eyebrow">Examples</p>
+        <h2>Same format, very different tables.</h2>
+        <p class="lede">Each of these is one <code>.cssv</code> file rendered by the same element. The page adds no styles to them: the element tiles, arrows, letterhead and crests all come from the file's own style block.</p>
+
+        <div class="tabs example-tabs" role="tablist" aria-label="Examples">
+          <button role="tab" aria-selected="true" aria-controls="ex-elements" id="tab-elements">Periodic table</button>
+          <button role="tab" aria-selected="false" aria-controls="ex-markets" id="tab-markets" tabindex="-1">Market close</button>
+          <button role="tab" aria-selected="false" aria-controls="ex-invoice" id="tab-invoice" tabindex="-1">Invoice</button>
+          <button role="tab" aria-selected="false" aria-controls="ex-league" id="tab-league" tabindex="-1">League table</button>
+        </div>
+
+        <div class="example card" id="ex-elements" role="tabpanel" aria-labelledby="tab-elements">
+          <header>
+            <div>
+              <h3>A periodic table from row order <span class="file">elements.cssv</span></h3>
+              <p>118 records in atomic-number order. The style block makes <code>tbody</code> an 18-column grid, so <code>tr:nth-child(26)</code> is iron: most elements flow into place, and five rules move the rest. <code>--cssv-key: category</code> names every row by its category, and each category sets one color.</p>
+            </div>
+            <ul class="chips"><li>tbody { display: grid }</li><li>:nth-child ranges</li><li>--cssv-key</li><li>@container</li></ul>
+          </header>
+          <div class="stage"><cssv-table src="../examples/elements.cssv"></cssv-table></div>
+        </div>
+
+        <div class="example card" id="ex-markets" role="tabpanel" aria-labelledby="tab-markets" hidden>
+          <header>
+            <div>
+              <h3>A trading terminal from sign classes <span class="file">markets.cssv</span></h3>
+              <p>Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>. That drives the arrows, the colors, the pill tints and the row highlights, and no value is repeated in the CSS.</p>
+            </div>
+            <ul class="chips"><li>sign classes</li><li>tr:has(.negative)</li><li>--cssv-format per column</li><li>@keyframes</li></ul>
+          </header>
+          <div class="stage"><cssv-table src="../examples/markets.cssv"></cssv-table></div>
+        </div>
+
+        <div class="example card" id="ex-invoice" role="tabpanel" aria-labelledby="tab-invoice" hidden>
+          <header>
+            <div>
+              <h3>An invoice on paper <span class="file">invoice.cssv</span></h3>
+              <p>SKUs like <code>0042</code> stay text because of the leading zero. Quoted fields span two lines and <code>::first-line</code> bolds the title. Summary rows have no SKU, so <code>tr:not([data-key])</code> selects them.</p>
+            </div>
+            <ul class="chips"><li>text IDs</li><li>multi-line fields</li><li>:lang(de)</li><li>@media print</li></ul>
+          </header>
+          <div class="stage"><cssv-table src="../examples/invoice.cssv"></cssv-table></div>
+        </div>
+
+        <div class="example card" id="ex-league" role="tabpanel" aria-labelledby="tab-league" hidden>
+          <header>
+            <div>
+              <h3>A spreadsheet export <span class="file">league.cssv</span></h3>
+              <p>Semicolon-delimited, detected from the header. Ranks come from a CSS counter, crests from two colors per club, and zones from <code>:nth-child</code>. The palette follows <code>prefers-color-scheme</code>.</p>
+            </div>
+            <ul class="chips"><li>; delimiter</li><li>counter(rank)</li><li>prefers-color-scheme</li></ul>
+          </header>
+          <div class="stage"><cssv-table src="../examples/league.cssv"></cssv-table></div>
+        </div>
+
+        <p class="more-link"><a href="../examples/">Open the full gallery</a>, with every file's source, a locale switcher and a paginated table.</p>
+      </div>
+    </section>
+
     <!-- Why -------------------------------------------------------------- -->
-    <section class="section" id="why">
+    <section class="section alt" id="why">
       <div class="wrap">
         <p class="eyebrow">Why CSSV</p>
         <h2>Tables are data <em>and</em> presentation. Most formats make you pick one.</h2>
@@ -180,7 +242,7 @@ CSSV,1,1,1,1,-1
     </section>
 
     <!-- How it works ----------------------------------------------------- -->
-    <section class="section alt" id="how">
+    <section class="section" id="how">
       <div class="wrap">
         <p class="eyebrow">How it works</p>
         <h2>One file, two languages, one fixed table.</h2>
@@ -261,68 +323,6 @@ Sticky header,thead th { position: sticky; top: 0; }
           </cssv-table>
           <figcaption>The selector cookbook from the spec's Appendix A, as a <code>.cssv</code> file.</figcaption>
         </figure>
-      </div>
-    </section>
-
-    <!-- Examples --------------------------------------------------------- -->
-    <section class="section" id="examples">
-      <div class="wrap">
-        <p class="eyebrow">Examples</p>
-        <h2>Same format, very different tables.</h2>
-        <p class="lede">Each of these is one <code>.cssv</code> file rendered by the same element. The page adds no styles to them: the element tiles, arrows, letterhead and crests all come from the file's own style block.</p>
-
-        <div class="tabs example-tabs" role="tablist" aria-label="Examples">
-          <button role="tab" aria-selected="true" aria-controls="ex-elements" id="tab-elements">Periodic table</button>
-          <button role="tab" aria-selected="false" aria-controls="ex-markets" id="tab-markets" tabindex="-1">Market close</button>
-          <button role="tab" aria-selected="false" aria-controls="ex-invoice" id="tab-invoice" tabindex="-1">Invoice</button>
-          <button role="tab" aria-selected="false" aria-controls="ex-league" id="tab-league" tabindex="-1">League table</button>
-        </div>
-
-        <div class="example card" id="ex-elements" role="tabpanel" aria-labelledby="tab-elements">
-          <header>
-            <div>
-              <h3>A periodic table from row order <span class="file">elements.cssv</span></h3>
-              <p>118 records in atomic-number order. The style block makes <code>tbody</code> an 18-column grid, so <code>tr:nth-child(26)</code> is iron: most elements flow into place, and five rules move the rest. <code>--cssv-key: category</code> names every row by its category, and each category sets one color.</p>
-            </div>
-            <ul class="chips"><li>tbody { display: grid }</li><li>:nth-child ranges</li><li>--cssv-key</li><li>@container</li></ul>
-          </header>
-          <div class="stage"><cssv-table src="../examples/elements.cssv"></cssv-table></div>
-        </div>
-
-        <div class="example card" id="ex-markets" role="tabpanel" aria-labelledby="tab-markets" hidden>
-          <header>
-            <div>
-              <h3>A trading terminal from sign classes <span class="file">markets.cssv</span></h3>
-              <p>Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>. That drives the arrows, the colors, the pill tints and the row highlights, and no value is repeated in the CSS.</p>
-            </div>
-            <ul class="chips"><li>sign classes</li><li>tr:has(.negative)</li><li>--cssv-format per column</li><li>@keyframes</li></ul>
-          </header>
-          <div class="stage"><cssv-table src="../examples/markets.cssv"></cssv-table></div>
-        </div>
-
-        <div class="example card" id="ex-invoice" role="tabpanel" aria-labelledby="tab-invoice" hidden>
-          <header>
-            <div>
-              <h3>An invoice on paper <span class="file">invoice.cssv</span></h3>
-              <p>SKUs like <code>0042</code> stay text because of the leading zero. Quoted fields span two lines and <code>::first-line</code> bolds the title. Summary rows have no SKU, so <code>tr:not([data-key])</code> selects them.</p>
-            </div>
-            <ul class="chips"><li>text IDs</li><li>multi-line fields</li><li>:lang(de)</li><li>@media print</li></ul>
-          </header>
-          <div class="stage"><cssv-table src="../examples/invoice.cssv"></cssv-table></div>
-        </div>
-
-        <div class="example card" id="ex-league" role="tabpanel" aria-labelledby="tab-league" hidden>
-          <header>
-            <div>
-              <h3>A spreadsheet export <span class="file">league.cssv</span></h3>
-              <p>Semicolon-delimited, detected from the header. Ranks come from a CSS counter, crests from two colors per club, and zones from <code>:nth-child</code>. The palette follows <code>prefers-color-scheme</code>.</p>
-            </div>
-            <ul class="chips"><li>; delimiter</li><li>counter(rank)</li><li>prefers-color-scheme</li></ul>
-          </header>
-          <div class="stage"><cssv-table src="../examples/league.cssv"></cssv-table></div>
-        </div>
-
-        <p class="more-link"><a href="../examples/">Open the full gallery</a>, with every file's source, a locale switcher and a paginated table.</p>
       </div>
     </section>
 
