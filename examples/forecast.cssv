@@ -1,0 +1,165 @@
+---
+/* A week of weather. Each row is a day, and the style block stands the
+   table on its side: rows become columns, and the header row becomes the
+   labels. The condition is the key column, and each condition paints its
+   own sky and icon in CSS. Temperatures below zero are .negative, even
+   when they round to 0. */
+table {
+  --cssv-key: condition;
+  --cssv-format: "maximumFractionDigits: 0";
+  display: grid;
+  container-type: inline-size;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(6, auto);
+  grid-template-columns: max-content;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 0 8px;
+  min-width: 700px;
+  padding: 18px;
+  border-radius: 22px;
+  font: 14px/1.3 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #f8fafc;
+  background: linear-gradient(165deg, #1b2a52, #0b1222);
+}
+thead, tbody { display: contents; }
+colgroup { display: none; } /* it would take the grid's first cell */
+
+/* Every row is a column of the table's grid, sharing its six rows. */
+tr {
+  display: grid;
+  grid-row: 1 / -1;
+  grid-template-rows: subgrid;
+  border-radius: 16px;
+}
+th, td { padding: 4px 8px; text-align: center; white-space: nowrap; }
+
+/* The header row: labels for the rows below the icons. */
+thead th {
+  align-self: center;
+  font-size: 0.68em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: end;
+  color: rgb(248 250 252 / 0.5);
+}
+thead th:is([data-col="day"], [data-col="condition"]) { visibility: hidden; }
+
+tbody tr {
+  position: relative;
+  padding: 12px 4px 10px;
+  background: var(--sky);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 10px 24px -14px rgb(0 0 0 / 0.8);
+}
+tbody tr:first-child { outline: 2px solid rgb(255 255 255 / 0.85); outline-offset: 2px; }
+tbody tr:first-child::before {
+  content: "Today";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  translate: -50% 0;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.65em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0b1222;
+  background: #fff;
+}
+td[data-col="day"] { font-weight: 700; letter-spacing: 0.02em; }
+td[data-col="condition"] { font-size: 0.75em; text-transform: capitalize; color: rgb(248 250 252 / 0.85); }
+td[data-col="high"] { font-size: 1.9em; font-weight: 700; letter-spacing: -0.03em; }
+td[data-col="low"] { font-size: 1.05em; color: rgb(248 250 252 / 0.7); }
+td:is([data-col="high"], [data-col="low"])::after { content: "°"; }
+td.negative { color: #a5d8ff; }
+td[data-col="rain"]::after { content: "%"; }
+td[data-col="rain"]::before { content: "\25CF"; content: "\25CF" / ""; margin-inline-end: 4px; font-size: 0.6em; color: #74c0fc; vertical-align: 0.15em; }
+td[data-col="rain"].zero { opacity: 0.45; }
+td[data-col="wind"]::after { content: " km/h"; font-size: 0.75em; opacity: 0.7; }
+
+/* The icons: gradients on a 56px square, set per condition. */
+td[data-col="condition"]::before {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin: 2px auto 6px;
+  background: var(--icon);
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.25));
+}
+tbody tr {
+  --sun: radial-gradient(circle at 28px 28px, #fff3bf 0 8px, #ffd43b 8.5px 13px, transparent 13.5px),
+    repeating-conic-gradient(from -6deg at 28px 28px, #ffd43b 0 12deg, transparent 12deg 30deg);
+  --small-sun: radial-gradient(circle at 37px 19px, #fff3bf 0 6px, #ffd43b 6.5px 10px, transparent 10.5px);
+  --cloud-color: #f1f3f5;
+  --cloud: radial-gradient(circle at 20px 35px, var(--cloud-color) 0 9.5px, transparent 10px),
+    radial-gradient(circle at 31px 28px, var(--cloud-color) 0 12.5px, transparent 13px),
+    radial-gradient(circle at 41px 36px, var(--cloud-color) 0 8.5px, transparent 9px),
+    linear-gradient(var(--cloud-color), var(--cloud-color)) 20px 34px / 21px 10.5px no-repeat;
+  --drops: repeating-linear-gradient(110deg, transparent 0 5px, #74c0fc 5px 7.5px) 14px 47px / 30px 9px no-repeat;
+  --flakes: radial-gradient(circle at 18px 50px, #fff 0 2px, transparent 2.5px),
+    radial-gradient(circle at 27px 53px, #fff 0 2px, transparent 2.5px),
+    radial-gradient(circle at 36px 49px, #fff 0 2px, transparent 2.5px),
+    radial-gradient(circle at 44px 53px, #fff 0 2px, transparent 2.5px);
+}
+tr[data-key="sunny"] {
+  --sky: linear-gradient(170deg, #f59f00, #e8590c);
+  --icon: var(--sun);
+}
+/* The rays are cut from a cone of stripes: a ring between disc and edge. */
+tr[data-key="sunny"] td[data-col="condition"]::before {
+  mask: radial-gradient(circle at 28px 28px, #000 0 14px, transparent 14.5px 17px, #000 17.5px 25px, transparent 25.5px);
+}
+tr[data-key="partly cloudy"] {
+  --sky: linear-gradient(170deg, #4dabf7, #1971c2);
+  --icon: var(--cloud), var(--small-sun);
+}
+tr[data-key="cloudy"] {
+  --sky: linear-gradient(170deg, #868e96, #495057);
+  --icon: var(--cloud);
+}
+tr[data-key="rain"] {
+  --sky: linear-gradient(170deg, #5c7cfa, #364fc7);
+  --cloud-color: #dee2e6;
+  --icon: var(--cloud), var(--drops);
+}
+tr[data-key="storm"] {
+  --sky: linear-gradient(170deg, #5f3dc4, #2b2257);
+  --cloud-color: #adb5bd;
+  --icon: var(--cloud), var(--drops);
+}
+tr[data-key="snow"] {
+  --sky: linear-gradient(170deg, #5b9bd5, #1c5fa8);
+  --icon: var(--cloud), var(--flakes);
+}
+/* The storm's bolt is a shape of its own. */
+tr[data-key="storm"] td[data-col="condition"] { position: relative; }
+tr[data-key="storm"] td[data-col="condition"]::after {
+  content: "";
+  position: absolute;
+  top: 38px;
+  left: calc(50% - 4px);
+  width: 14px;
+  height: 22px;
+  background: #ffd43b;
+  clip-path: polygon(45% 0, 100% 0, 62% 42%, 95% 42%, 20% 100%, 38% 55%, 5% 55%);
+  filter: drop-shadow(0 0 4px #ffd43b);
+}
+
+/* Narrow tables: smaller numbers, and a condition may take two lines. */
+@container (width < 860px) {
+  th, td { padding-inline: 4px; }
+  td[data-col="high"] { font-size: 1.5em; }
+  td[data-col="condition"] { white-space: normal; }
+  td[data-col="wind"]::after { content: "\A km/h"; white-space: pre; }
+}
+---
+day,condition,high,low,rain,wind
+Mon,sunny,11.4,3.2,0,9
+Tue,partly cloudy,9.8,2.1,10,14
+Wed,cloudy,7.6,1.4,20,18
+Thu,rain,6.2,0.6,80,27
+Fri,storm,4.9,-0.3,90,46
+Sat,snow,0.8,-4.6,70,22
+Sun,sunny,-1.2,-7.5,0,11

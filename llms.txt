@@ -20,6 +20,10 @@ The reference renderer is the `<cssv-table>` custom element, published on npm as
 - [planets.cssv](https://cssv.dev/examples/planets.cssv): rows styled by name through custom properties
 - [invoice.cssv](https://cssv.dev/examples/invoice.cssv): text IDs, multi-line fields and currency placement by locale
 - [league.cssv](https://cssv.dev/examples/league.cssv): a semicolon-delimited export with CSS counters and positional zones
+- [elements.cssv](https://cssv.dev/examples/elements.cssv): the periodic table, with 118 rows laid out as an 18-column grid by position and colored through the key column
+- [forecast.cssv](https://cssv.dev/examples/forecast.cssv): a week of weather stood on its side with subgrid, its icons drawn per condition
+- [seats.cssv](https://cssv.dev/examples/seats.cssv): a seat map where empty fields are free seats and the row-number column is the aisle
+- [nutrition.cssv](https://cssv.dev/examples/nutrition.cssv): a Nutrition Facts label made from four columns of numbers
 - [Ledger, page 1](https://cssv.dev/examples/ledger/page-1.cssv): pagination, with one .cssv file per page (page-1 to page-5) sharing the imported [ledger.css](https://cssv.dev/examples/ledger/ledger.css)
 
 ## Optional

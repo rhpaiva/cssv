@@ -1,0 +1,103 @@
+---
+/* A seat map from a booking export: one record per seat row, with the
+   passenger's initials where a seat is taken. Free seats are empty fields,
+   so :empty finds them. The row number is the middle column, which makes
+   it the aisle, and the key column, so exit rows and your seat are picked
+   by name. There is no row 13. */
+table {
+  --cssv-key: row;
+  --free: #2f9e44;
+  --you: #1c7ed6;
+  margin-inline: auto;
+  border-collapse: separate;
+  border-spacing: 6px;
+  padding: 104px 38px 44px;
+  border-radius: 50% 50% 44px 44px / 150px 150px 44px 44px;
+  font: 700 10px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #64748b;
+  background:
+    radial-gradient(46px 11px at 50% 62px, #475569 0 94%, transparent),
+    radial-gradient(70px 30px at 50% 70px, #e2e8f0 0 94%, transparent),
+    linear-gradient(90deg, #dbe3ec, #f8fafc 16% 84%, #dbe3ec);
+  box-shadow: 0 0 0 3px #c9d3df, 0 30px 50px -30px rgb(15 23 42 / 0.55);
+}
+thead th { padding: 0 0 4px; text-align: center; font-weight: 700; color: #94a3b8; }
+thead th[data-col="row"] { visibility: hidden; }
+
+td {
+  position: relative;
+  width: 30px;
+  height: 32px;
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 10px 10px 5px 5px;
+}
+/* A taken seat shows the passenger's initials. */
+td:not([data-col="row"]) {
+  color: #475569;
+  background-color: #cbd5e1;
+  box-shadow: inset 0 4px 0 #94a3b8;
+}
+/* A free seat is an empty field. */
+td:not([data-col="row"]):empty {
+  background-color: #fff;
+  box-shadow: inset 0 0 0 2px var(--free), inset 0 5px 0 var(--free);
+  cursor: pointer;
+}
+td:not([data-col="row"]):empty:hover { background-color: #d3f9d8; }
+/* The aisle. */
+td[data-col="row"] { width: 22px; font-weight: 600; color: #94a3b8; }
+
+/* Business: the first three rows, two seats a side and more room. */
+tbody tr:nth-child(-n+3) td:is([data-col="B"], [data-col="E"]) { visibility: hidden; }
+tbody tr:nth-child(-n+3) td { height: 42px; }
+tbody tr:nth-child(-n+3) td:not([data-col="row"]):not(:empty) { color: #fff; background-color: #475569; box-shadow: inset 0 4px 0 #1e293b; }
+/* Space after business and before exit rows is a transparent border, so the
+   radius grows by its width to keep the seats' corners round. */
+tbody tr:nth-child(3) td { border-bottom: 26px solid transparent; border-radius: 10px 10px 5px 5px / 10px 10px 31px 31px; background-clip: padding-box; }
+
+/* Exit rows get more legroom and a door on each side. */
+tr:is([data-key="12"], [data-key="14"]) td { border-top: 10px solid transparent; border-radius: 10px 10px 5px 5px / 20px 20px 5px 5px; background-clip: padding-box; }
+tr:is([data-key="12"], [data-key="14"]) td:is([data-col="A"], [data-col="F"])::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  width: 7px;
+  height: 30px;
+  border-radius: 3px;
+  background: #e03131;
+}
+tr:is([data-key="12"], [data-key="14"]) td[data-col="A"]::after { right: calc(100% + 12px); }
+tr:is([data-key="12"], [data-key="14"]) td[data-col="F"]::after { left: calc(100% + 12px); }
+
+/* Your seat: one cell, by row and column. */
+tr[data-key="17"] td[data-col="D"] {
+  color: #fff;
+  background-color: var(--you);
+  box-shadow: inset 0 4px 0 #1864ab, 0 0 0 3px #a5d8ff;
+  animation: ping 1.8s ease-out infinite;
+}
+@keyframes ping {
+  70% { box-shadow: inset 0 4px 0 #1864ab, 0 0 0 9px rgb(165 216 255 / 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  tr[data-key="17"] td[data-col="D"] { animation: none; }
+}
+---
+A,B,C,row,D,E,F
+EN,,,1,TD,,BS
+CO,,HC,2,,,VD
+,,,3,,,VN
+HB,EK,TD,10,TF,VY,DT
+,WG,TO,11,,PM,FH
+KS,LP,CD,12,FL,RO,CT
+LL,,VP,14,CJ,CB,
+VP,NM,PM,15,DR,KE,
+RC,NT,EO,16,,OM,
+HE,EH,,17,RP,AE,MW
+ES,,,18,,TN,ND
+NB,GP,LW,19,AV,DM,CG
+EY,MW,DD,20,,,RK
+DL,,FS,21,SM,TA,
+YC,,MF,22,HT,SL,

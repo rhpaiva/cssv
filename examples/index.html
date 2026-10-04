@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CSSV examples</title>
-  <meta name="description" content="CSSV examples: trading terminal, solar system, invoice, league table, release notes and a paginated ledger, each one .cssv file rendered by <cssv-table>.">
+  <meta name="description" content="CSSV examples: trading terminal, solar system, invoice, league table, release notes, periodic table, weather forecast, seat map, nutrition label and a paginated ledger, each one .cssv file rendered by <cssv-table>.">
   <link rel="canonical" href="https://cssv.dev/examples/">
   <meta property="og:url" content="https://cssv.dev/examples/">
   <meta property="og:title" content="CSSV examples">
-  <meta property="og:description" content="Trading terminal, solar system, invoice, league table, release notes and a paginated ledger, each one .cssv file.">
+  <meta property="og:description" content="Trading terminal, solar system, invoice, league table, release notes, periodic table, weather forecast, seat map, nutrition label and a paginated ledger, each one .cssv file.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CSSV">
   <meta property="og:image" content="https://cssv.dev/og.png">
@@ -298,6 +298,8 @@
     .grid > .example:has(> .source:not([hidden])) > .stage { grid-row: 2; }
     .grid > .example > .source { grid-row: 3; }
     .grid > .example.wide { grid-column: 1 / -1; }
+    .grid.pair { --card-min: 440px; margin-top: 0; }
+    .grid.pair .example > header > div { flex-basis: 160px; }
     section > h2 { margin: 56px 0 6px; font-size: 1.5rem; letter-spacing: -0.015em; }
     section > p { margin: 0 0 8px; color: var(--muted); max-width: 70ch; }
 
@@ -594,6 +596,97 @@ The date picker uses each locale's first day of the week.",tomas
             </script>
           </cssv-table>
         </div>
+      </article>
+      </div>
+
+      <h2>Tables that don't look like tables</h2>
+      <p>Each of these files is still a plain table, one record per row. The style block lays it out as a grid of tiles, turns its rows into columns, draws a cabin around it or sets it as a food label.</p>
+      <div class="grid">
+      <article class="example wide">
+        <header>
+          <div>
+            <h2>The periodic table <span class="file">elements.cssv</span></h2>
+            <p>118 records in atomic-number order. The style block makes <code>tbody</code> an 18-column grid, so <code>tr:nth-child(26)</code> is iron: most elements flow into place, and five rules move the rest. <code>--cssv-key: category</code> names every row by its category, and each category sets one color. Masses keep the digits written in the file; switch to de-DE for decimal commas.</p>
+            <ul class="chips">
+              <li>tbody { display: grid }</li>
+              <li>:nth-child(n+57):nth-child(-n+71)</li>
+              <li>--cssv-key</li>
+              <li>tbody::after</li>
+              <li>@container</li>
+            </ul>
+            <div class="legend">
+              <span style="--swatch: #ff6b6b">Alkali metal</span>
+              <span style="--swatch: #ff922b">Alkaline earth metal</span>
+              <span style="--swatch: #fcc419">Transition metal</span>
+              <span style="--swatch: #94d82d">Post-transition metal</span>
+              <span style="--swatch: #20c997">Metalloid</span>
+              <span style="--swatch: #4dabf7">Nonmetal</span>
+              <span style="--swatch: #748ffc">Halogen</span>
+              <span style="--swatch: #b197fc">Noble gas</span>
+              <span style="--swatch: #f783ac">Lanthanide</span>
+              <span style="--swatch: #e599f7">Actinide</span>
+              <span style="--swatch: #868e96">Unknown</span>
+            </div>
+          </div>
+        </header>
+        <div class="stage"><cssv-table src="elements.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example wide">
+        <header>
+          <div>
+            <h2>A week of weather <span class="file">forecast.cssv</span></h2>
+            <p>Each record is a day, and the style block stands the table on its side: every <code>tr</code> becomes a column of the table's grid, sharing its rows through <code>subgrid</code>, and the header row becomes the labels. The condition is the key column, and each condition paints its own sky and icon with gradients. Friday's low of −0.3 rounds to 0 but keeps <code>.negative</code>, so it stays frost blue. Try ar-EG.</p>
+            <ul class="chips">
+              <li>grid-template-rows: subgrid</li>
+              <li>rows as columns</li>
+              <li>tr[data-key="storm"]</li>
+              <li>.negative</li>
+              <li>colgroup { display: none }</li>
+            </ul>
+          </div>
+        </header>
+        <div class="stage"><cssv-table src="forecast.cssv"></cssv-table></div>
+      </article>
+      </div>
+
+      <div class="grid pair">
+      <article class="example">
+        <header>
+          <div>
+            <h2>Seat map <span class="file">seats.cssv</span></h2>
+            <p>A booking export: initials where a seat is taken, an empty field where it's free, so <code>:empty</code> draws the free seats. The row number is the middle column, which puts it in the aisle, and the key column, so <code>tr[data-key="12"]</code> is an exit row and one rule finds your seat by row and column. There is no row 13.</p>
+            <ul class="chips">
+              <li>:empty</li>
+              <li>tr[data-key="17"] td[data-col="D"]</li>
+              <li>:nth-child(-n+3)</li>
+              <li>@keyframes</li>
+            </ul>
+            <div class="legend">
+              <span style="--swatch: #2f9e44">Free</span>
+              <span style="--swatch: #94a3b8">Taken</span>
+              <span style="--swatch: #1c7ed6">Your seat</span>
+              <span style="--swatch: #e03131">Exit</span>
+            </div>
+          </div>
+        </header>
+        <div class="stage"><cssv-table src="seats.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example">
+        <header>
+          <div>
+            <h2>Nutrition Facts <span class="file">nutrition.cssv</span></h2>
+            <p>Four columns: nutrient, amount, unit and % Daily Value. Every row is a flex line, and the nutrient, the key column, styles it by name: the heavy rules, the indents, the <code>order</code> that makes "Includes 10g Added Sugars", and the title and footnote as generated content. Empty % cells disappear with <code>:empty</code>.</p>
+            <ul class="chips">
+              <li>tr { display: flex }</li>
+              <li>order</li>
+              <li>::before / ::after</li>
+              <li>:empty</li>
+            </ul>
+          </div>
+        </header>
+        <div class="stage"><cssv-table src="nutrition.cssv"></cssv-table></div>
       </article>
       </div>
     </section>

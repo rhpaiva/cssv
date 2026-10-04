@@ -1,0 +1,109 @@
+---
+/* A Nutrition Facts label. The CSV holds the label's numbers, one nutrient
+   per record; the nutrient is the key column, so each line is styled by
+   name. The style block draws everything else: the title, the heavy rules,
+   the indents, "Includes … Added Sugars" and the % signs. */
+table {
+  --cssv-key: nutrient;
+  display: block;
+  width: 300px;
+  margin-inline: auto;
+  padding: 4px 8px 8px;
+  border: 1px solid #000;
+  font: 13px/1.25 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #000;
+  background: #fff;
+}
+thead, tbody, thead tr { display: block; }
+thead th { display: none; }
+thead tr::before {
+  content: "Nutrition Facts";
+  display: block;
+  padding-bottom: 2px;
+  font-size: 39px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* Every line: the nutrient, its amount, then the % Daily Value at the end. */
+tbody tr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  padding: 2px 0;
+  border-top: 1px solid #000;
+}
+td { padding: 0; white-space: nowrap; }
+td[data-col="nutrient"] { margin-inline-end: 0.25em; font-weight: 700; }
+td[data-col="dv"] { margin-inline-start: auto; font-weight: 700; }
+td[data-col="dv"]::after { content: "%"; }
+td[data-col="dv"]:empty { display: none; }
+
+/* Servings, then the serving size above the heaviest rule. */
+tr[data-key="Servings per container"] { border-top: 0; font-size: 15px; }
+tr[data-key="Servings per container"] td[data-col="amount"] { order: -1; margin-inline-end: 0.25em; }
+tr[data-key="Servings per container"] td[data-col="nutrient"] { font-weight: 400; text-transform: lowercase; }
+tr[data-key="Serving size"] { border-top: 0; border-bottom: 10px solid; font-size: 16px; font-weight: 700; }
+tr[data-key="Serving size"] td[data-col="amount"] { margin-inline-start: auto; }
+
+/* Calories, between "Amount per serving" and "% Daily Value*". */
+tr[data-key="Calories"] { border-top: 0; align-items: last baseline; }
+tr[data-key="Calories"]::before { content: "Amount per serving"; flex-basis: 100%; font-size: 11px; font-weight: 700; }
+tr[data-key="Calories"] td { font-size: 30px; font-weight: 900; line-height: 1.05; }
+tr[data-key="Calories"] td[data-col="amount"] { margin-inline-start: auto; font-size: 40px; }
+tr[data-key="Calories"]::after {
+  content: "% Daily Value*";
+  flex-basis: 100%;
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 5px solid;
+  text-align: end;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Parts of a nutrient are indented, and not bold. */
+tr:is([data-key="Saturated Fat"], [data-key="Trans Fat"], [data-key="Dietary Fiber"], [data-key="Total Sugars"]) td[data-col="nutrient"] {
+  padding-inline-start: 1.1em;
+  font-weight: 400;
+}
+tr[data-key="Added Sugars"] { padding-inline-start: 2.2em; }
+tr[data-key="Added Sugars"] td[data-col="nutrient"] { order: 1; margin-inline-start: 0.25em; font-weight: 400; }
+tr[data-key="Added Sugars"] td[data-col="amount"]::before { content: "Includes "; }
+tr[data-key="Added Sugars"] td[data-col="dv"] { order: 2; }
+
+/* Vitamins and minerals sit below a second heavy rule, in regular type. */
+tr[data-key="Protein"] { border-bottom: 10px solid; }
+tr[data-key="Vitamin D"] { border-top: 0; }
+tr:is([data-key="Vitamin D"], [data-key="Calcium"], [data-key="Iron"], [data-key="Potassium"]) td { font-weight: 400; }
+
+table::after {
+  content: "* The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.";
+  display: block;
+  margin-top: 1px;
+  padding-top: 4px;
+  border-top: 5px solid;
+  font-size: 10px;
+  line-height: 1.3;
+}
+---
+nutrient,amount,unit,dv
+Servings per container,8,,
+Serving size,55,g,
+Calories,230,,
+Total Fat,8,g,10
+Saturated Fat,1,g,5
+Trans Fat,0,g,
+Cholesterol,0,mg,0
+Sodium,160,mg,7
+Total Carbohydrate,37,g,13
+Dietary Fiber,4,g,14
+Total Sugars,12,g,
+Added Sugars,10,g,20
+Protein,3,g,
+Vitamin D,2,mcg,10
+Calcium,260,mg,20
+Iron,8,mg,45
+Potassium,235,mg,6

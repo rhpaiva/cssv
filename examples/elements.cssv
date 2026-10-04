@@ -1,0 +1,232 @@
+---
+/* The periodic table: one row per element, in atomic-number order. The
+   table body becomes an 18-column grid, so row n is element n: most flow
+   into place, and five rules move the rest. The category is the key column,
+   and each category sets one color. */
+table {
+  --cssv-key: category;
+  --bg: #0b0f1a;
+  display: block;
+  container-type: inline-size;
+  min-width: 760px;
+  padding: 20px;
+  border-radius: 18px;
+  font: 12px/1.15 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #e2e8f0;
+  background:
+    radial-gradient(90% 70% at 50% 0%, rgb(56 76 140 / 0.45), transparent 70%),
+    var(--bg);
+}
+thead { display: none; }
+
+tbody {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(0, 1fr));
+  grid-template-rows: repeat(7, auto) 14px repeat(2, auto);
+  gap: 3px;
+}
+
+/* Rows flow into the grid in order; these start somewhere else. */
+tr:nth-child(2) { grid-column: 18; }                    /* He: far right */
+tr:nth-child(5), tr:nth-child(13) { grid-column: 13; }  /* B, Al: after the gap */
+tr:nth-child(72), tr:nth-child(104) { grid-column: 4; } /* Hf, Rf: after the f-block */
+tr:nth-child(n+57):nth-child(-n+71) { grid-row: 9; }    /* La–Lu */
+tr:nth-child(n+89):nth-child(-n+103) { grid-row: 10; }  /* Ac–Lr */
+
+/* The title fills the gap above the transition metals, and a label takes
+   the first two columns of the f-block rows, so La and Ac start in column 3. */
+tbody::after {
+  content: "Periodic Table\A of the Elements";
+  grid-area: 1 / 3 / 4 / 13;
+  align-self: center;
+  justify-self: center;
+  white-space: pre;
+  text-align: center;
+  font-size: 2.3em;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+  text-shadow: 0 0 30px rgb(120 150 255 / 0.5);
+}
+tbody::before {
+  content: "57–71\A\A 89–103";
+  grid-area: 9 / 1 / 11 / 3;
+  align-self: center;
+  justify-self: end;
+  padding-inline-end: 8px;
+  white-space: pre;
+  text-align: end;
+  font-size: 0.85em;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+/* A tile per element. */
+tr {
+  --c: #94a3b8;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 5 / 6;
+  padding: 4px 5px;
+  border: 1px solid color-mix(in oklab, var(--c) 40%, transparent);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--c) 14%, var(--bg));
+  transition: transform 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+tr:hover {
+  z-index: 1;
+  transform: scale(1.45);
+  background: color-mix(in oklab, var(--c) 30%, var(--bg));
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.6), 0 0 0 1px var(--c);
+}
+td { display: block; padding: 0; text-align: start; white-space: nowrap; }
+td[data-col="number"] { font-size: 0.75em; color: color-mix(in oklab, var(--c) 55%, #fff); }
+td[data-col="symbol"] { margin-top: auto; font-size: 1.55em; font-weight: 700; color: var(--c); }
+td[data-col="name"], td[data-col="mass"] { overflow: hidden; text-overflow: ellipsis; font-size: 0.6em; }
+td[data-col="mass"] { color: rgb(226 232 240 / 0.6); }
+td[data-col="category"] { display: none; }
+
+/* No stable isotope: the mass number of a long-lived one, in brackets.
+   Thorium, protactinium and uranium have standard weights. */
+tr:is(:nth-child(43), :nth-child(61), :nth-child(n+84)):not(:nth-child(n+90):nth-child(-n+92)) td[data-col="mass"]::before { content: "["; }
+tr:is(:nth-child(43), :nth-child(61), :nth-child(n+84)):not(:nth-child(n+90):nth-child(-n+92)) td[data-col="mass"]::after { content: "]"; }
+
+tr[data-key="alkali metal"] { --c: #ff6b6b; }
+tr[data-key="alkaline earth metal"] { --c: #ff922b; }
+tr[data-key="transition metal"] { --c: #fcc419; }
+tr[data-key="post-transition metal"] { --c: #94d82d; }
+tr[data-key="metalloid"] { --c: #20c997; }
+tr[data-key="nonmetal"] { --c: #4dabf7; }
+tr[data-key="halogen"] { --c: #748ffc; }
+tr[data-key="noble gas"] { --c: #b197fc; }
+tr[data-key="lanthanide"] { --c: #f783ac; }
+tr[data-key="actinide"] { --c: #e599f7; }
+tr[data-key="unknown"] { --c: #868e96; }
+
+/* Narrow tables keep the number and the symbol. */
+@container (width < 1000px) {
+  td[data-col="name"], td[data-col="mass"] { display: none; }
+  tbody::after { font-size: 1.7em; }
+}
+---
+number,symbol,name,mass,category
+1,H,Hydrogen,1.008,nonmetal
+2,He,Helium,4.0026,noble gas
+3,Li,Lithium,6.94,alkali metal
+4,Be,Beryllium,9.0122,alkaline earth metal
+5,B,Boron,10.81,metalloid
+6,C,Carbon,12.011,nonmetal
+7,N,Nitrogen,14.007,nonmetal
+8,O,Oxygen,15.999,nonmetal
+9,F,Fluorine,18.998,halogen
+10,Ne,Neon,20.180,noble gas
+11,Na,Sodium,22.990,alkali metal
+12,Mg,Magnesium,24.305,alkaline earth metal
+13,Al,Aluminium,26.982,post-transition metal
+14,Si,Silicon,28.085,metalloid
+15,P,Phosphorus,30.974,nonmetal
+16,S,Sulfur,32.06,nonmetal
+17,Cl,Chlorine,35.45,halogen
+18,Ar,Argon,39.95,noble gas
+19,K,Potassium,39.098,alkali metal
+20,Ca,Calcium,40.078,alkaline earth metal
+21,Sc,Scandium,44.956,transition metal
+22,Ti,Titanium,47.867,transition metal
+23,V,Vanadium,50.942,transition metal
+24,Cr,Chromium,51.996,transition metal
+25,Mn,Manganese,54.938,transition metal
+26,Fe,Iron,55.845,transition metal
+27,Co,Cobalt,58.933,transition metal
+28,Ni,Nickel,58.693,transition metal
+29,Cu,Copper,63.546,transition metal
+30,Zn,Zinc,65.38,transition metal
+31,Ga,Gallium,69.723,post-transition metal
+32,Ge,Germanium,72.630,metalloid
+33,As,Arsenic,74.922,metalloid
+34,Se,Selenium,78.971,nonmetal
+35,Br,Bromine,79.904,halogen
+36,Kr,Krypton,83.798,noble gas
+37,Rb,Rubidium,85.468,alkali metal
+38,Sr,Strontium,87.62,alkaline earth metal
+39,Y,Yttrium,88.906,transition metal
+40,Zr,Zirconium,91.224,transition metal
+41,Nb,Niobium,92.906,transition metal
+42,Mo,Molybdenum,95.95,transition metal
+43,Tc,Technetium,97,transition metal
+44,Ru,Ruthenium,101.07,transition metal
+45,Rh,Rhodium,102.91,transition metal
+46,Pd,Palladium,106.42,transition metal
+47,Ag,Silver,107.87,transition metal
+48,Cd,Cadmium,112.41,transition metal
+49,In,Indium,114.82,post-transition metal
+50,Sn,Tin,118.71,post-transition metal
+51,Sb,Antimony,121.76,metalloid
+52,Te,Tellurium,127.60,metalloid
+53,I,Iodine,126.90,halogen
+54,Xe,Xenon,131.29,noble gas
+55,Cs,Caesium,132.91,alkali metal
+56,Ba,Barium,137.33,alkaline earth metal
+57,La,Lanthanum,138.91,lanthanide
+58,Ce,Cerium,140.12,lanthanide
+59,Pr,Praseodymium,140.91,lanthanide
+60,Nd,Neodymium,144.24,lanthanide
+61,Pm,Promethium,145,lanthanide
+62,Sm,Samarium,150.36,lanthanide
+63,Eu,Europium,151.96,lanthanide
+64,Gd,Gadolinium,157.25,lanthanide
+65,Tb,Terbium,158.93,lanthanide
+66,Dy,Dysprosium,162.50,lanthanide
+67,Ho,Holmium,164.93,lanthanide
+68,Er,Erbium,167.26,lanthanide
+69,Tm,Thulium,168.93,lanthanide
+70,Yb,Ytterbium,173.05,lanthanide
+71,Lu,Lutetium,174.97,lanthanide
+72,Hf,Hafnium,178.49,transition metal
+73,Ta,Tantalum,180.95,transition metal
+74,W,Tungsten,183.84,transition metal
+75,Re,Rhenium,186.21,transition metal
+76,Os,Osmium,190.23,transition metal
+77,Ir,Iridium,192.22,transition metal
+78,Pt,Platinum,195.08,transition metal
+79,Au,Gold,196.97,transition metal
+80,Hg,Mercury,200.59,transition metal
+81,Tl,Thallium,204.38,post-transition metal
+82,Pb,Lead,207.2,post-transition metal
+83,Bi,Bismuth,208.98,post-transition metal
+84,Po,Polonium,209,post-transition metal
+85,At,Astatine,210,halogen
+86,Rn,Radon,222,noble gas
+87,Fr,Francium,223,alkali metal
+88,Ra,Radium,226,alkaline earth metal
+89,Ac,Actinium,227,actinide
+90,Th,Thorium,232.04,actinide
+91,Pa,Protactinium,231.04,actinide
+92,U,Uranium,238.03,actinide
+93,Np,Neptunium,237,actinide
+94,Pu,Plutonium,244,actinide
+95,Am,Americium,243,actinide
+96,Cm,Curium,247,actinide
+97,Bk,Berkelium,247,actinide
+98,Cf,Californium,251,actinide
+99,Es,Einsteinium,252,actinide
+100,Fm,Fermium,257,actinide
+101,Md,Mendelevium,258,actinide
+102,No,Nobelium,259,actinide
+103,Lr,Lawrencium,266,actinide
+104,Rf,Rutherfordium,267,transition metal
+105,Db,Dubnium,268,transition metal
+106,Sg,Seaborgium,269,transition metal
+107,Bh,Bohrium,270,transition metal
+108,Hs,Hassium,269,transition metal
+109,Mt,Meitnerium,278,unknown
+110,Ds,Darmstadtium,281,unknown
+111,Rg,Roentgenium,282,unknown
+112,Cn,Copernicium,285,unknown
+113,Nh,Nihonium,286,unknown
+114,Fl,Flerovium,289,unknown
+115,Mc,Moscovium,290,unknown
+116,Lv,Livermorium,293,unknown
+117,Ts,Tennessine,294,unknown
+118,Og,Oganesson,294,unknown
