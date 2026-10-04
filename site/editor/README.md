@@ -11,7 +11,7 @@ node tools/editor-ledger.js     # regenerates ledger.cssv from ledger-theme.css
 ## Pages and files
 
 - The page uses the website's header (`site/nav.css`) and copies its color tokens from `site/site.css` into `sheet.css`. It doesn't load `site.css`, whose class names (`.wrap`, `.card`, `.status`) mean other things here. The home scrolls like the site's other pages, with their footer; the editor fills the window below the header.
-- The home shows a card for each file listed in `files.js`, the ones that best show what a style block can do, with the file's first rows rendered from its own style block. The budget and paginated ledger examples stay in the gallery but aren't listed. A card opens `?file=<repository path>`, and only listed paths open. Files from the computer open through "Open…" or by dropping them on the page.
+- The home shows a card for each file listed in `files.js`, in the gallery's groups (files people already have, files made for the gallery, the website's own), with the file's first rows rendered from its own style block. Oslo stands for the three weather files, which share `weather.css`. The budget and paginated ledger examples stay in the gallery but aren't listed. A card opens `?file=<repository path>`, and only listed paths open. Files from the computer open through "Open…" or by dropping them on the page.
 - Project files are loaded through the table's `src` first, so relative URLs in the style block (`@import url("ledger.css")`) resolve against the file; `update()` keeps that base for every later change.
 
 ## Privacy

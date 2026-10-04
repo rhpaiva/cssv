@@ -1,10 +1,24 @@
-// The files the home shows, by their path in the repository: the ones that
-// show best what a style block can do. They must be files the website
-// serves (test/ isn't deployed), and ?file= opens only these. The budget
-// and paginated ledger examples stay in the gallery, not here.
+// The files the home shows, by their path in the repository, in the
+// gallery's groups. They must be files the website serves (test/ isn't
+// deployed), and ?file= opens only these. Oslo stands for the three weather
+// files, which share weather.css; the budget and paginated ledger examples
+// stay in the gallery, not here.
 export const GROUPS = [
   {
-    title: 'Examples',
+    title: 'Files you already have',
+    files: [
+      'examples/oslo.cssv',
+      'examples/jira-export.cssv',
+      'examples/whatsapp-chat.cssv',
+      'examples/calendar-import.cssv',
+      'examples/grades-bio-101.cssv',
+      'examples/strings.cssv',
+      'examples/git-log.cssv',
+      'examples/attendees.cssv',
+    ],
+  },
+  {
+    title: 'Made for the gallery',
     files: [
       'examples/elements.cssv',
       'examples/forecast.cssv',
