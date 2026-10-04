@@ -39,7 +39,7 @@ Or load it in a page from a CDN, with no install or build step:
 <script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.2/src/cssv-table.js"></script>
 ```
 
-The package has no dependencies and two entry points: `@rhpaiva/cssv/cssv-table.js` defines the `<cssv-table>` element, and `@rhpaiva/cssv` is the processor, which needs no DOM. Versions are 0.x, so pin the minor version (`@0.1`) to get fixes without breaking changes.
+The package has no dependencies and two entry points: `@rhpaiva/cssv/cssv-table.js` defines the `<cssv-table>` element, and `@rhpaiva/cssv` is the processor, which needs no DOM. Versions are 0.x, so pin the minor version (`@0.2`) to get fixes without breaking changes.
 
 ## Use in a page
 
@@ -152,7 +152,7 @@ Parsing is a small share. Most of the time is creating the DOM and computing sty
 ## Website and demo
 
 ```
-python3 -m http.server   # from the repository root: website at http://localhost:8000/site/, demo at /examples/
+python3 -m http.server   # from the repository root: website at http://localhost:8000/site/, demo at /examples/, editor at /site/editor/
 ```
 
 The website lives in `site/`. Like the demo, it loads `../src/` and `../examples/`, so any static server at the repository root works, and every table on it is a `<cssv-table>`. `.github/workflows/pages.yml` publishes it to [cssv.dev](https://cssv.dev/) on each push to `main`, with `site/` as the root.
@@ -166,7 +166,8 @@ The website lives in `site/`. Like the demo, it loads `../src/` and `../examples
 ```
 curl --create-dirs -o ~/.claude/skills/cssv/SKILL.md https://cssv.dev/skills/cssv/SKILL.md
 ```
- [cssv.dev/llms.txt](https://cssv.dev/llms.txt) lists the docs and examples for language models and the tools that index sites for them.
+
+[cssv.dev/llms.txt](https://cssv.dev/llms.txt) lists the docs and examples for language models and the tools that index sites for them.
 
 ## Implementation notes
 
