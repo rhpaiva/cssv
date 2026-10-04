@@ -129,7 +129,7 @@ When a style depends on something CSS can't see, put it in the data:
 In a web page, load the renderer from a CDN; no build step is needed. With npm, run `npm install @rhpaiva/cssv` and `import '@rhpaiva/cssv/cssv-table.js'` instead of the script tag.
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.1/src/cssv-table.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.2/src/cssv-table.js"></script>
 
 <cssv-table src="report.cssv"></cssv-table>
 
