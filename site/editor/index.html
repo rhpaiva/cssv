@@ -66,91 +66,111 @@
     </div>
   </main>
 
-  <div class="filebar">
-    <a class="crumb" href="./">All files</a>
-    <span class="crumb-sep" aria-hidden="true">/</span>
-    <strong class="name" id="file-name"></strong>
-    <span class="dirty" id="dirty" hidden>edited</span>
-    <span class="draft" id="draft" hidden>Unsaved changes from <span id="draft-when"></span>
-      <button type="button" id="draft-restore">Restore</button>
-      <button type="button" id="draft-discard">Discard</button>
-    </span>
-    <span class="spacer"></span>
-    <label class="field" title="The key column (--cssv-key) names each row by its value. When every row has a different key, styles for single rows and cells follow the row wherever it moves.">Key column
-      <select id="key"><option value="">none</option></select>
-    </label>
-    <label class="field">Locale
-      <select id="locale">
-        <option value="en-US">en-US</option>
-        <option value="de-DE">de-DE</option>
-        <option value="fr-FR">fr-FR</option>
-        <option value="hi-IN">hi-IN</option>
-        <option value="ar-EG">ar-EG</option>
-      </select>
-    </label>
-    <button type="button" id="open">Open…</button>
-    <button type="button" id="save" title="Save (Ctrl+S). Where the browser can't write files, this downloads the file.">Save</button>
-    <button type="button" id="toggle-source" aria-pressed="false">Source</button>
-  </div>
+  <header class="appbar">
+    <a class="app-logo" href="../" aria-label="CSSV home"><img src="../favicon.svg" alt="" width="34" height="34"></a>
+    <div class="app-title">
+      <div class="title-row">
+        <a class="crumb" href="./">All files</a>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <strong class="name" id="file-name"></strong>
+        <span class="dirty" id="dirty" hidden>edited</span>
+        <span class="draft" id="draft" hidden>Unsaved changes from <span id="draft-when"></span>
+          <button type="button" id="draft-restore">Restore</button>
+          <button type="button" id="draft-discard">Discard</button>
+        </span>
+      </div>
+      <div class="menubar" id="menubar" aria-label="Menus"></div>
+    </div>
+    <div class="app-actions">
+      <button type="button" class="action" id="open"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>Open…</button>
+      <button type="button" class="action" id="toggle-source" aria-pressed="false" title="The file's text, next to the table"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5"/><path d="m16 7 5 5-5 5"/></svg>Source</button>
+      <button type="button" class="action" id="toggle-inspector" aria-pressed="false" title="What styles the selected cell, and its number format"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9"/><path d="M17 6h3"/><path d="M15 4v4"/><path d="M4 12h3"/><path d="M11 12h9"/><path d="M9 10v4"/><path d="M4 18h11"/><path d="M19 18h1"/><path d="M17 16v4"/></svg>Inspector</button>
+      <button type="button" class="action primary" id="save" title="Save (Ctrl+S). Where the browser can't write files, this downloads the file."><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>Save</button>
+    </div>
+  </header>
   <input type="file" id="file" accept=".cssv,.csv,.txt,text/plain" hidden>
 
   <div class="toolbar" role="toolbar" aria-label="Sheet tools">
-    <button type="button" id="undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
-    <button type="button" id="redo" title="Redo (Ctrl+Shift+Z)" aria-label="Redo">↷</button>
+    <button type="button" class="tb" id="undo" disabled title="Undo (Ctrl+Z)" aria-label="Undo (Ctrl+Z)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+    <button type="button" class="tb" id="redo" disabled title="Redo (Ctrl+Shift+Z)" aria-label="Redo (Ctrl+Shift+Z)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+    <button type="button" class="tb" id="print" title="Print preview (Ctrl+P)" aria-label="Print preview (Ctrl+P)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><path d="M6 14h12v7H6z"/></svg></button>
     <span class="sep"></span>
-    <button type="button" id="sort-asc" title="Sort rows by this column, ascending">Sort A→Z</button>
-    <button type="button" id="sort-desc" title="Sort rows by this column, descending">Z→A</button>
+    <button type="button" class="tb" id="dec-less" title="Fewer decimal places" aria-label="Fewer decimal places"><span class="glyph">.0</span><svg class="i small" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="m11 6-6 6 6 6"/></svg></button>
+    <button type="button" class="tb" id="dec-more" title="More decimal places" aria-label="More decimal places"><span class="glyph">.00</span><svg class="i small" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+    <button type="button" class="tb" id="grouping" title="Group thousands (1,000)" aria-label="Group thousands (1,000)" aria-pressed="false"><span class="glyph">1,000</span></button>
     <span class="sep"></span>
-    <span class="field">Row</span>
-    <button type="button" id="row-add" title="Insert an empty row below" aria-label="Insert a row">+</button>
-    <button type="button" id="row-del" title="Delete the selected rows" aria-label="Delete the selected rows">−</button>
+    <select class="tb-select" id="font" title="Font" aria-label="Font"></select>
     <span class="sep"></span>
-    <span class="field">Column</span>
-    <button type="button" id="col-add" title="Insert a column to the right" aria-label="Insert a column">+</button>
-    <button type="button" id="col-del" title="Delete the selected columns" aria-label="Delete the selected columns">−</button>
-    <button type="button" id="col-left" title="Move the selected columns left" aria-label="Move the selected columns left">←</button>
-    <button type="button" id="col-right" title="Move the selected columns right" aria-label="Move the selected columns right">→</button>
+    <button type="button" class="tb" id="size-down" title="Smaller text" aria-label="Smaller text"><span class="glyph">−</span></button>
+    <input class="tb-size" id="size" inputmode="numeric" autocomplete="off" title="Font size, in pixels" aria-label="Font size, in pixels">
+    <button type="button" class="tb" id="size-up" title="Larger text" aria-label="Larger text"><span class="glyph">+</span></button>
     <span class="sep"></span>
-    <label class="field" title="Which cells a style applies to. Written as a CSS rule in the style block.">Style
-      <select id="scope">
-        <option value="cells">selected cells</option>
-        <option value="rows">selected rows</option>
-        <option value="columns">selected columns</option>
-        <option value="key">every row with this key</option>
-      </select>
-    </label>
-    <button type="button" id="bold" title="Bold (Ctrl+B)" aria-label="Bold"><b>B</b></button>
-    <button type="button" id="italic" title="Italic (Ctrl+I)" aria-label="Italic"><i>I</i></button>
-    <label class="swatch" title="Text color"><span>A</span><input type="color" id="color" value="#1d4ed8"></label>
-    <label class="swatch fill" title="Fill"><span>▧</span><input type="color" id="fill" value="#fde68a"></label>
-    <button type="button" id="unstyle" title="Remove the editor's rule for this scope">Clear style</button>
+    <button type="button" class="tb" id="bold" title="Bold (Ctrl+B)" aria-label="Bold (Ctrl+B)"><b class="glyph">B</b></button>
+    <button type="button" class="tb" id="italic" title="Italic (Ctrl+I)" aria-label="Italic (Ctrl+I)"><i class="glyph serif">I</i></button>
+    <button type="button" class="tb" id="underline" title="Underline (Ctrl+U)" aria-label="Underline (Ctrl+U)"><u class="glyph">U</u></button>
+    <button type="button" class="tb" id="strike" title="Strikethrough (Alt+Shift+5)" aria-label="Strikethrough (Alt+Shift+5)"><s class="glyph">S</s></button>
+    <label class="tb swatch" title="Text color"><span class="glyph">A</span><span class="bar"></span><input type="color" id="color" value="#1d4ed8" aria-label="Text color"></label>
+    <label class="tb swatch fill" title="Fill color"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2a2 2 0 0 0 2.8 0z"/><path d="m5 2 5 5"/><path d="M2 13h15"/><path d="M22 20a2 2 0 1 1-4 0c0-1.6 1.7-2.4 2-4 .3 1.6 2 2.4 2 4z"/></svg><span class="bar"></span><input type="color" id="fill" value="#fde68a" aria-label="Fill color"></label>
+    <button type="button" class="tb dd" id="borders" title="Borders" aria-label="Borders" aria-haspopup="menu" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M3 12h18"/><path d="M12 3v18"/></svg><svg class="i small" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
     <span class="sep"></span>
-    <button type="button" id="copy" title="Copy the selection as tab-separated values (Ctrl+C)">Copy</button>
+    <button type="button" class="tb" id="align-start" title="Align to the start" aria-label="Align to the start"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 10h10"/><path d="M4 14h16"/><path d="M4 18h10"/></svg></button>
+    <button type="button" class="tb" id="align-center" title="Center" aria-label="Center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M7 10h10"/><path d="M4 14h16"/><path d="M7 18h10"/></svg></button>
+    <button type="button" class="tb" id="align-end" title="Align to the end" aria-label="Align to the end"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M10 10h10"/><path d="M4 14h16"/><path d="M10 18h10"/></svg></button>
+    <button type="button" class="tb dd" id="valign" title="Vertical alignment" aria-label="Vertical alignment" aria-haspopup="menu" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21h16"/><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/></svg><svg class="i small" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+    <button type="button" class="tb dd" id="wrapping" title="Text wrapping" aria-label="Text wrapping" aria-haspopup="menu" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h13a3 3 0 0 1 0 6h-4"/><path d="m15 16-2 2 2 2"/><path d="M4 18h5"/></svg><svg class="i small" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+    <span class="sep"></span>
+    <button type="button" class="tb" id="unstyle" title="Clear the editor's styles from the selection" aria-label="Clear the editor's styles from the selection"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V5h11v2"/><path d="M9.5 5 7 19"/><path d="m14 13 6 6"/><path d="m20 13-6 6"/></svg></button>
+    <span class="spacer"></span>
+    <button type="button" class="tb" id="find-open" title="Find and replace (Ctrl+F)" aria-label="Find and replace (Ctrl+F)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/><path d="m20 20-3.5-3.5"/></svg></button>
   </div>
 
   <div class="formula">
     <output class="ref" id="ref">A1</output>
+    <span class="type" id="type"></span>
     <span class="meta" id="meta"></span>
     <input id="value" spellcheck="false" autocomplete="off" aria-label="Raw value of the selected cell">
     <span class="hint" id="hint"></span>
   </div>
 
   <main class="main" id="main" hidden>
-    <p class="sr-only" id="sheet-help">Arrow keys move between cells. Enter or F2 edits a cell, and typing replaces its value. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste.</p>
+    <p class="sr-only" id="sheet-help">Arrow keys move between cells. Enter or F2 edits a cell, and typing replaces its value. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste. Shift+F10 opens the cell's menu, Ctrl+F finds, Ctrl+P previews the printed table, and Ctrl+/ lists every shortcut. Styles apply to the selection: select a column's letter to style the column, or everything to style the table.</p>
     <p class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></p>
-    <div class="viewport" id="viewport" tabindex="0" aria-label="Sheet" aria-describedby="sheet-help">
-      <div class="grid" id="grid">
-        <div class="corner"></div>
-        <div class="colbar" id="colbar"></div>
-        <div class="rowbar" id="rowbar"></div>
-        <div class="layer" id="wrap">
-          <cssv-table></cssv-table>
-          <div class="sel" id="sel" hidden></div>
-          <div class="active" id="active" hidden></div>
-          <textarea class="cell-editor" id="cell-editor" rows="1" wrap="off" spellcheck="false" autocomplete="off" aria-label="Edit cell" hidden></textarea>
+    <div class="sheet-area">
+      <div class="viewport" id="viewport" tabindex="0" aria-label="Sheet" aria-describedby="sheet-help">
+        <div class="grid" id="grid">
+          <div class="corner"></div>
+          <div class="colbar" id="colbar"></div>
+          <div class="rowbar" id="rowbar"></div>
+          <div class="layer" id="wrap">
+            <cssv-table></cssv-table>
+            <div class="sel" id="sel" hidden></div>
+            <div class="active" id="active" hidden></div>
+            <div class="marks" id="marks" aria-hidden="true"></div>
+            <textarea class="cell-editor" id="cell-editor" rows="1" wrap="off" spellcheck="false" autocomplete="off" aria-label="Edit cell" hidden></textarea>
+          </div>
+        </div>
+        <p class="empty" id="empty" hidden></p>
+      </div>
+      <div class="find" id="find" role="search" aria-label="Find and replace" hidden>
+        <div class="find-row">
+          <input id="find-text" type="text" placeholder="Find in the file" aria-label="Find" spellcheck="false" autocomplete="off">
+          <span class="find-count" id="find-count" aria-live="polite"></span>
+          <button type="button" class="tb" id="find-prev" title="Previous match (Shift+Enter)" aria-label="Previous match (Shift+Enter)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>
+          <button type="button" class="tb" id="find-next" title="Next match (Enter)" aria-label="Next match (Enter)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <button type="button" class="tb" id="find-replace-toggle" title="Replace (Ctrl+H)" aria-label="Replace (Ctrl+H)" aria-pressed="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h12"/><path d="m13 4 3 3-3 3"/><path d="M20 17H8"/><path d="m11 14-3 3 3 3"/></svg></button>
+          <button type="button" class="tb" id="find-close" title="Close (Escape)" aria-label="Close (Escape)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg></button>
+        </div>
+        <div class="find-row" id="replace-row" hidden>
+          <input id="replace-text" type="text" placeholder="Replace with" aria-label="Replace with" spellcheck="false" autocomplete="off">
+          <button type="button" class="action small" id="replace-one">Replace</button>
+          <button type="button" class="action small" id="replace-all">Replace all</button>
+        </div>
+        <div class="find-opts">
+          <label><input type="checkbox" id="find-case"> Match case</label>
+          <label><input type="checkbox" id="find-whole"> Whole cell</label>
+          <span>Searches values as the file has them.</span>
         </div>
       </div>
-      <p class="empty" id="empty" hidden></p>
     </div>
     <aside class="source" id="source-panel" hidden>
       <div class="source-head">
@@ -164,6 +184,13 @@
         </div>
       </div>
     </aside>
+    <aside class="inspector" id="inspector" aria-label="Inspector" hidden>
+      <div class="panel-head">
+        <strong>Inspector</strong>
+        <button type="button" class="tb" id="inspector-close" title="Close the inspector" aria-label="Close the inspector"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg></button>
+      </div>
+      <div class="inspector-body" id="inspector-body"></div>
+    </aside>
   </main>
 
   <footer class="status">
@@ -174,7 +201,58 @@
     <span id="stat-msg" role="status"></span>
     <span id="stat-warn"></span>
     <span id="stat-time"></span>
+    <span class="mode" id="key-mode" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="m10.8 12.2 8.2-8.2"/><path d="m17 6 3 3"/><path d="m14 9 2 2"/></svg>Styling every row with key <b id="key-mode-value"></b><button type="button" id="key-mode-off" title="Style the selection again" aria-label="Stop styling by key"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg></button></span>
+    <label class="locale" title="The key column (--cssv-key) names each row by its value. When every row has a different key, styles for single rows and cells follow the row wherever it moves."><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="m10.8 12.2 8.2-8.2"/><path d="m17 6 3 3"/><path d="m14 9 2 2"/></svg><span class="sr-only">Key column</span>
+      <select id="key"><option value="">none</option></select>
+    </label>
+    <label class="locale" title="How numbers are shown. The file always keeps them in its fixed form.">Locale
+      <select id="locale">
+        <option value="en-US">en-US</option>
+        <option value="de-DE">de-DE</option>
+        <option value="fr-FR">fr-FR</option>
+        <option value="hi-IN">hi-IN</option>
+        <option value="ar-EG">ar-EG</option>
+      </select>
+    </label>
   </footer>
+
+  <section class="print-view" id="print-view" aria-label="Print preview" hidden>
+    <div class="print-bar">
+      <strong>Print preview</strong>
+      <label class="tb-field">Paper
+        <select id="print-paper"><option value="a4">A4</option><option value="letter">Letter</option></select>
+      </label>
+      <label class="tb-field">Orientation
+        <select id="print-orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select>
+      </label>
+      <label class="tb-field">Scale
+        <select id="print-scale"><option value="fit">Fit to page width</option><option value="actual">Actual size</option></select>
+      </label>
+      <label class="tb-field">Margins
+        <select id="print-margins"><option value="12">Normal</option><option value="6">Narrow</option><option value="0">None</option></select>
+      </label>
+      <label class="tb-field"><input type="checkbox" id="print-bg" checked> Background colors</label>
+      <span class="print-actions">
+        <button type="button" class="action" id="print-close">Close</button>
+        <button type="button" class="action primary" id="print-go"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><path d="M6 14h12v7H6z"/></svg>Print…</button>
+      </span>
+    </div>
+    <div class="print-stage" id="print-stage">
+      <p class="print-info" id="print-info"></p>
+      <div class="sheets" id="sheets">
+        <div class="papers" id="papers" aria-hidden="true"></div>
+        <div class="pages" id="pages"><cssv-table id="print-table"></cssv-table></div>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="shortcuts" id="shortcuts" aria-labelledby="shortcuts-title">
+    <div class="panel-head">
+      <strong id="shortcuts-title">Keyboard shortcuts</strong>
+      <button type="button" class="tb" id="shortcuts-close" title="Close" aria-label="Close"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg></button>
+    </div>
+    <div class="shortcuts-body" id="shortcuts-body"></div>
+  </dialog>
 
   <footer class="footer">
     <div class="wrap">

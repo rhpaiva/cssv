@@ -11,7 +11,7 @@
 // styles, a new locale), and otherwise keeps it on screen until the new one
 // is ready. Text that doesn't parse isn't sent, so the last good table stays.
 import '../../src/cssv-table.js';
-import { classify, parseCssvValue } from '../../src/core.js';
+import { classify, parseCssvValue, parseFormat, formatNumber, rewriteCssUrls } from '../../src/core.js';
 import {
   scan, fieldEdit, recordEdit, applyEdits, rebuildBody, rebuildColumns, blankRecord, readRules, writeRules, cssString, remapRows,
 } from './cssv-text.js';
@@ -19,15 +19,18 @@ import { DRAFTS, FILES, urlOf } from './files.js';
 import { hoistFonts } from './fonts.js';
 import { highlightCssv } from '../highlight.js';
 import { renderHome } from './home.js';
+import { openMenu, closeMenu, menubar } from './menu.js';
+import { styleRules, matchingRules, declarations, rulePreludes, locateRules } from './rules.js';
 
 const $ = (id) => document.getElementById(id);
 const els = {
   viewport: $('viewport'), grid: $('grid'), colbar: $('colbar'), rowbar: $('rowbar'), wrap: $('wrap'),
   sel: $('sel'), active: $('active'), editor: $('cell-editor'), empty: $('empty'),
-  ref: $('ref'), meta: $('meta'), value: $('value'), hint: $('hint'),
+  ref: $('ref'), type: $('type'), meta: $('meta'), value: $('value'), hint: $('hint'),
   source: $('source'), sourceHl: $('source-hl'), sourcePanel: $('source-panel'), sourceInfo: $('source-info'),
+  inspector: $('inspector'), inspectorBody: $('inspector-body'),
   size: $('stat-size'), stats: $('stat-sel'), msg: $('stat-msg'), warn: $('stat-warn'), time: $('stat-time'),
-  locale: $('locale'), scope: $('scope'), dirty: $('dirty'), fileName: $('file-name'),
+  locale: $('locale'), dirty: $('dirty'), fileName: $('file-name'), marks: $('marks'),
   home: $('home'), groups: $('groups'), homeNote: $('home-note'), skip: $('skip'), draft: $('draft'),
 };
 const front = els.wrap.querySelector('cssv-table');
@@ -51,6 +54,9 @@ const state = {
   redo: [],
   geo: { rows: [], cols: [] },
   timings: [],
+  version: 0, // counts changes to text, for the inspector
+  byKey: false, // styles go to every row with the active row's key, not the selection
+  find: { text: '', matches: [], index: -1 },
 };
 
 // --- Text --------------------------------------------------------------------
@@ -69,6 +75,7 @@ const columnName = (c) => raw(0, c);
 
 function setText(text, { message, fromSource = false, keep = true } = {}) {
   state.text = text;
+  state.version++;
   try {
     state.scan = scan(text);
     state.width = widthOf(state.scan);
@@ -78,6 +85,9 @@ function setText(text, { message, fromSource = false, keep = true } = {}) {
     state.scan = null;
   }
   els.dirty.hidden = text === state.original;
+  // Every change, undo, redo and load comes through here, so the buttons follow the history.
+  $('undo').disabled = !state.undo.length;
+  $('redo').disabled = !state.redo.length;
   if (!fromSource && !els.sourcePanel.hidden) showSource(text);
   updateSourceInfo();
   if (keep) keepDraft();
@@ -121,6 +131,8 @@ function show(text, message) {
     measure();
     hoistFonts(front.model, state.base);
     showWarnings();
+    refreshInspector(true);
+    if (!find.box.hidden) runFind({ jump: false });
     if (message) say(message);
     return nextFrame().then(() => {
       timing(front.table === table ? 'update' : 'render', message, started);
@@ -182,6 +194,7 @@ function measure() {
   els.empty.textContent = table ? '' : 'Nothing to show.';
   drawBars();
   drawSelection();
+  drawMarks();
   els.size.innerHTML = `<b>${Math.max(rowCount() - 1, 0)}</b> rows × <b>${state.width}</b> columns`;
   updateKeyPicker();
 }
@@ -191,10 +204,11 @@ const letter = (c) => {
   for (c += 1; c > 0; c = Math.floor((c - 1) / 26)) s = String.fromCharCode(65 + ((c - 1) % 26)) + s;
   return s;
 };
-const esc = (s) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
+const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);
+const CHEVRON = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 
 function drawBars() {
-  els.colbar.innerHTML = state.geo.cols.map(([x, w], c) => `<div class="cl" data-c="${c}" style="left:${x}px;width:${w}px" title="${esc(columnName(c))}"><b>${letter(c)}</b><span>${esc(columnName(c))}</span></div>`).join('');
+  els.colbar.innerHTML = state.geo.cols.map(([x, w], c) => `<div class="cl" data-c="${c}" style="left:${x}px;width:${w}px" title="${esc(columnName(c))}"><b>${letter(c)}</b><span>${esc(columnName(c))}</span><button type="button" class="cl-menu" tabindex="-1" aria-haspopup="menu" aria-expanded="false" aria-label="Menu for column ${esc(columnName(c) || letter(c))}">${CHEVRON}</button></div>`).join('');
   els.rowbar.innerHTML = state.geo.rows.map(([y, h], r) => `<div class="rl" data-r="${r}" style="top:${y}px;height:${h}px">${r + 1}</div>`).join('');
   highlightBars();
 }
@@ -248,6 +262,7 @@ function drawSelection() {
   updateFormulaBar();
   updateStats();
   announce();
+  refreshInspector();
 }
 
 // The table is drawn in shadow roots, out of reach of aria-activedescendant,
@@ -332,9 +347,20 @@ els.colbar.addEventListener('mousedown', (e) => {
   if (Number.isNaN(c)) return;
   e.preventDefault();
   els.viewport.focus({ preventScroll: true });
-  if (!e.shiftKey) state.anchor = { r: 0, c };
-  state.focus = { r: lastRow(), c };
-  drawSelection();
+  const button = e.target.closest('.cl-menu');
+  if (button && !e.shiftKey && !(c >= range().c1 && c <= range().c2 && range().r1 === 0)) selectColumns(c, c);
+  else if (!button) {
+    if (!e.shiftKey) state.anchor = { r: 0, c };
+    state.focus = { r: lastRow(), c };
+    drawSelection();
+  }
+  if (button) openMenu(button, columnMenu(c), { label: `Column ${columnName(c) || letter(c)}`, done: focusSheet });
+});
+els.colbar.addEventListener('contextmenu', (e) => {
+  const c = Number(e.target.closest('.cl')?.dataset.c);
+  if (Number.isNaN(c)) return;
+  e.preventDefault();
+  openMenu(e.target, columnMenu(c), { label: `Column ${columnName(c) || letter(c)}`, done: focusSheet, at: { x: e.clientX, y: e.clientY } });
 });
 els.rowbar.addEventListener('mousedown', (e) => {
   const r = Number(e.target.closest('.rl')?.dataset.r);
@@ -381,22 +407,29 @@ function normalize(input, locale) {
   return { value: input };
 }
 
+/** The cell's type as the table model has it (6), and how it shows when that differs from the file. */
 function describe(r, c) {
-  if (r === 0) return 'column name';
+  if (r === 0) return { type: 'column name', shown: '' };
   const t = classify(raw(r, c));
   const shown = front.table?.rows[r]?.cells[c]?.textContent ?? '';
-  const type = t.type === 'number' ? `number, ${t.sign}` : t.type;
-  return t.type === 'number' && shown !== raw(r, c) ? `${type} · shown as ${shown}` : type;
+  return {
+    type: t.type === 'number' ? `number · ${t.sign}` : t.type,
+    number: t.type === 'number',
+    shown: t.type === 'number' && shown !== raw(r, c) ? shown : '',
+  };
 }
 
 function updateFormulaBar() {
   const { r1, r2, c1, c2 } = range();
   const { r, c } = state.anchor;
+  const d = describe(r, c);
   els.ref.textContent = r1 === r2 && c1 === c2 ? `${letter(c)}${r + 1}` : `${letter(c1)}${r1 + 1}:${letter(c2)}${r2 + 1}`;
-  els.meta.textContent = `${columnName(c) || '(no name)'} · ${describe(r, c)}`;
+  els.type.textContent = d.type;
+  els.type.className = d.number ? 'type number' : 'type';
+  els.meta.textContent = columnName(c) || '(no name)';
   if (document.activeElement !== els.value && !state.editing) {
     els.value.value = raw(r, c);
-    els.hint.textContent = '';
+    els.hint.textContent = d.shown ? `shows as ${d.shown}` : '';
   }
 }
 
@@ -577,6 +610,12 @@ els.viewport.addEventListener('keydown', (e) => {
   } else if (mod && key === 'i') {
     e.preventDefault();
     toggleStyle('font-style', 'italic');
+  } else if (mod && key === 'u') {
+    e.preventDefault();
+    toggleDecoration('underline', 'Underline');
+  } else if (e.altKey && e.shiftKey && e.code === 'Digit5') {
+    e.preventDefault();
+    toggleDecoration('line-through', 'Strikethrough');
   } else if (mod && key === 'a') {
     e.preventDefault();
     state.anchor = { r: 0, c: 0 };
@@ -591,6 +630,12 @@ els.viewport.addEventListener('keydown', (e) => {
   } else if (key === 'Delete' || key === 'Backspace') {
     e.preventDefault();
     clearSelection();
+  } else if (key === 'ContextMenu' || (e.shiftKey && key === 'F10')) {
+    e.preventDefault();
+    openCellMenu();
+  } else if (mod && key === '/') {
+    e.preventDefault();
+    showShortcuts();
   } else if (e.key.length === 1 && !mod && !e.altKey) {
     e.preventDefault();
     openEditor(e.key, 'replace');
@@ -600,10 +645,14 @@ els.viewport.addEventListener('keydown', (e) => {
 addEventListener('keydown', (e) => {
   // Undo and redo also work from the toolbar's focus, but not inside text fields.
   if (e.target === els.viewport || e.target.closest?.('input, textarea, select')) return;
+  if (document.body.classList.contains('home')) return;
   const mod = e.ctrlKey || e.metaKey;
   if (mod && e.key.toLowerCase() === 'z') {
     e.preventDefault();
     e.shiftKey ? redo() : undo();
+  } else if (mod && e.key === '/') {
+    e.preventDefault();
+    showShortcuts();
   }
 });
 
@@ -725,14 +774,6 @@ function pasteValues(values) {
 }
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
-$('copy').addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(selectionTsv());
-    say('Copied as tab-separated values');
-  } catch {
-    say('The browser blocked clipboard access; use Ctrl+C in the sheet.', 'warn');
-  }
-});
 
 // --- Rows -------------------------------------------------------------------------
 
@@ -767,9 +808,8 @@ function reorder(items, message) {
 
 const bodyRows = () => Array.from({ length: rowCount() - 1 }, (_, i) => i + 1);
 
-function sortRows(dir) {
+function sortRows(dir, c = state.anchor.c) {
   if (state.broken) return Promise.resolve(false);
-  const c = state.anchor.c;
   const coll = new Intl.Collator(state.locale, { numeric: true });
   const rows = bodyRows();
   const vals = new Map(rows.map((r) => [r, { v: raw(r, c), type: classify(raw(r, c)).type }]));
@@ -783,12 +823,12 @@ function sortRows(dir) {
   return reorder(rows, `Sorted by ${columnName(c)}, ${dir > 0 ? 'ascending' : 'descending'}`);
 }
 
-function addRow() {
+function addRow(above = false) {
   if (state.broken) return Promise.resolve(false);
-  const after = state.anchor.r;
+  const at = above ? Math.max(0, state.anchor.r - 1) : state.anchor.r; // index into the body rows
   const items = bodyRows();
-  items.splice(after, 0, blankRecord(state.scan, state.width));
-  return reorder(items, `Inserted row ${after + 2}`).then(() => select(after + 1, state.anchor.c));
+  items.splice(at, 0, blankRecord(state.scan, state.width));
+  return reorder(items, `Inserted row ${at + 2}`).then(() => select(at + 1, state.anchor.c));
 }
 
 function deleteRows() {
@@ -902,9 +942,9 @@ function newColumnNames(count) {
   return names;
 }
 
-function insertColumn() {
+function insertColumn(left = false, c = state.anchor.c) {
   if (state.broken) return Promise.resolve(false);
-  const at = state.anchor.c + 1;
+  const at = c + (left ? 0 : 1);
   const [name] = newColumnNames(1);
   const columns = columnIndexes();
   columns.splice(at, 0, { name });
@@ -953,6 +993,22 @@ function moveColumns(dir) {
 
 // --- Styles: rules in the style block, checked against computed styles ---------
 
+// What a style applies to follows the selection, as in spreadsheets: whole
+// columns (from the column letters, or every body row of some columns) get
+// a column rule, whole rows a row rule, everything the table rule, and
+// anything else a rule per cell. The cell menu can switch to every row that
+// shares the active row's key instead.
+function scope() {
+  if (state.byKey) return 'key';
+  const { r1, r2, c1, c2 } = range();
+  const allRows = r1 <= 1 && r2 >= lastRow() && lastRow() > 0;
+  const allCols = c1 === 0 && c2 >= lastCol();
+  if (allRows && allCols) return 'table';
+  if (allRows) return 'columns';
+  if (allCols && r2 >= 1) return 'rows';
+  return 'cells';
+}
+
 const MAX_STYLED_CELLS = 2000;
 
 // The rules a style applies to. Rows are named by their key when every row
@@ -965,6 +1021,7 @@ function targets(scope) {
   const col = (c) => `td[data-col=${cssString(columnName(c))}]`;
   const cols = Array.from({ length: c2 - c1 + 1 }, (_, i) => c1 + i);
   const n = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+  if (scope === 'table') return { selectors: ['table'], label: 'the whole table', table: true };
   if (scope === 'columns') {
     return { selectors: cols.map(col), label: cols.length === 1 ? `column ${columnName(c1)}` : n(cols.length, 'column') };
   }
@@ -988,7 +1045,7 @@ function targets(scope) {
   return { selectors, label: selectors.length === 1 ? `${letter(c1)}${rows[0] + 1}` : n(selectors.length, 'cell') };
 }
 
-function setStyle(property, value, verb, target = targets(els.scope.value)) {
+function setStyle(property, value, verb, target = targets(scope())) {
   if (state.broken) return Promise.resolve(false);
   if (target.error) {
     say(target.error, 'warn');
@@ -1008,27 +1065,41 @@ function setStyle(property, value, verb, target = targets(els.scope.value)) {
     });
 }
 
-function toggleStyle(property, value) {
-  const target = targets(els.scope.value);
+function toggleStyle(property, value, verb = value[0].toUpperCase() + value.slice(1)) {
+  const target = targets(scope());
   if (target.error) {
     say(target.error, 'warn');
     return Promise.resolve(false);
   }
   const rules = readRules(state.text, state.scan);
   const on = target.selectors.every((s) => rules.get(s)?.get(property) === value);
-  return setStyle(property, on ? null : value, on ? `Removed ${value}` : value[0].toUpperCase() + value.slice(1), target);
+  return setStyle(property, on ? null : value, on ? `Removed ${verb.toLowerCase()}` : verb, target);
 }
+
+const align = (where) => toggleStyle('text-align', where, { start: 'Aligned to the start', center: 'Centered', end: 'Aligned to the end' }[where]);
 
 function unstyle() {
   if (state.broken) return Promise.resolve(false);
-  const target = targets(els.scope.value);
+  const target = targets(scope());
   if (target.error) {
     say(target.error, 'warn');
     return Promise.resolve(false);
   }
   const rules = readRules(state.text, state.scan);
   let removed = 0;
-  for (const s of target.selectors) if (rules.delete(s)) removed++;
+  for (const s of target.selectors) {
+    if (s !== 'table') {
+      if (rules.delete(s)) removed++;
+      continue;
+    }
+    // The table rule also holds the key column (setKey), which stays.
+    const decls = rules.get('table');
+    const key = decls?.get('--cssv-key');
+    if (decls && decls.size > (key ? 1 : 0)) {
+      removed++;
+      rules.set('table', new Map(key ? [['--cssv-key', key]] : []));
+    }
+  }
   if (!removed) {
     say(`The sheet has no style for ${target.label}.`, 'warn');
     return Promise.resolve(false);
@@ -1044,22 +1115,1051 @@ const rgb = (hex) => {
 // The new rule joins the author's cascade, so a more specific rule in the
 // style block can still win. Count the cells where it actually shows.
 function verifyStyle(target, property, value, verb) {
-  const cells = front.table ? front.table.querySelectorAll(target.selectors.join(',')) : [];
+  const table = front.table;
+  let cells = !table ? [] : Array.from(table.querySelectorAll(target.table ? 'td' : target.selectors.join(',')));
+  const format = property === '--cssv-format' ? parseFormat(parseCssvValue(value)) : null; // null for initial
+  if (property === '--cssv-format') {
+    cells = cells.filter((td) => td.classList.contains('number'));
+    if (!cells.length) {
+      say(`${verb}: ${target.label} has no number cells, and formats only change numbers (9.2).`, 'warn');
+      return;
+    }
+  }
   const test = {
     'font-weight': (s) => Number(s.fontWeight) >= 700,
     'font-style': (s) => s.fontStyle === 'italic',
     color: (s) => s.color === rgb(value),
     background: (s) => s.backgroundColor === rgb(value) && s.backgroundImage === 'none',
+    'text-align': (s) => s.textAlign === value,
+    'font-family': (s) => unquoteFamilies(s.fontFamily) === unquoteFamilies(value),
+    'font-size': (s) => s.fontSize === value,
+    'text-decoration-line': (s) => s.textDecorationLine.split(' ').includes(value),
+    'vertical-align': (s) => s.verticalAlign === value,
+    'white-space': (s) => s.whiteSpace === value,
+    border: (s) => (value === 'none'
+      ? [s.borderTopStyle, s.borderRightStyle, s.borderBottomStyle, s.borderLeftStyle].every((x) => x === 'none')
+      : [s.borderTopStyle, s.borderRightStyle, s.borderBottomStyle, s.borderLeftStyle].every((x) => x === 'solid')),
+    'border-bottom': (s) => s.borderBottomStyle === 'solid',
+    '--cssv-format': (s) => {
+      const shown = parseFormat(parseCssvValue(s.getPropertyValue('--cssv-format')));
+      return format ? sameFormat(shown, format) : !shown;
+    },
   }[property];
   let shown = 0;
   for (const cell of cells) if (test(getComputedStyle(cell))) shown++;
   const rows = new Set(Array.from(cells, (c) => c.parentElement)).size;
-  const where = `${verb}: ${target.label}${target.shared ? ` (${rows} rows)` : ''}`;
+  const where = `${verb}: ${target.label}${target.shared ? ` (${plural(rows, 'row')})` : ''}`;
   if (shown === cells.length) say(`${where}.`);
   else if (cells.length === 1) say(`${where}: a more specific rule in the style block wins on this cell.`, 'warn');
   else say(`${where}: shows on ${shown} of ${cells.length} cells; more specific rules in the style block win on the rest.`, 'warn');
   state.lastVerify = { selectors: target.selectors.length, property, shown, total: cells.length };
 }
+
+// --- Number formats (9.2) ------------------------------------------------------------
+
+const sameFormat = (a, b) => !!a && !!b && ['minimumIntegerDigits', 'minimumFractionDigits', 'maximumFractionDigits', 'useGrouping'].every((k) => a[k] === b[k]);
+const decimalsOf = (v) => (v.includes('.') ? v.length - v.indexOf('.') - 1 : 0);
+const isNumber = (r, c) => r > 0 && classify(raw(r, c)).type === 'number';
+
+/** The --cssv-format string for parsed options, without the options the defaults give (9.2). */
+function formatString(o) {
+  const parts = [];
+  if (o.minimumIntegerDigits !== 1) parts.push(`minimumIntegerDigits: ${o.minimumIntegerDigits}`);
+  if (o.minimumFractionDigits !== 0) parts.push(`minimumFractionDigits: ${o.minimumFractionDigits}`);
+  if (o.minimumFractionDigits !== 0 || o.maximumFractionDigits !== Math.max(o.minimumFractionDigits, 3)) {
+    parts.push(`maximumFractionDigits: ${o.maximumFractionDigits}`);
+  }
+  if (!o.useGrouping) parts.push('useGrouping: false');
+  return parts.length ? parts.join(', ') : `maximumFractionDigits: ${o.maximumFractionDigits}`;
+}
+
+/**
+ * How a number cell is formatted: its --cssv-format (`set`), or the
+ * default display's options, the field's own decimals without grouping (10.2).
+ */
+function cellFormat(r, c) {
+  const td = front.table?.rows[r]?.cells[c];
+  const set = td ? parseFormat(parseCssvValue(getComputedStyle(td).getPropertyValue('--cssv-format'))) : null;
+  if (set) return { options: set, set: true };
+  const d = decimalsOf(raw(r, c));
+  return { options: { minimumIntegerDigits: 1, minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: false }, set: false };
+}
+
+/** The number cell the format tools read: the active cell, else the first in the selection, else in its column. */
+function numberCell() {
+  const { r, c } = state.anchor;
+  if (isNumber(r, c)) return { r, c };
+  const { r1, r2, c1, c2 } = range();
+  for (let y = Math.max(1, r1); y <= r2; y++) for (let x = c1; x <= c2; x++) if (isNumber(y, x)) return { r: y, c: x };
+  for (let y = 1; y < rowCount(); y++) if (isNumber(y, c)) return { r: y, c };
+  return null;
+}
+
+// Number formats are written as --cssv-format, like any other style. The
+// default display has no format value: "as written" removes the editor's,
+// and writes `initial` when the author's rules set one (as setKey does).
+function setFormat(options, scope, verb) {
+  const target = targets(scope);
+  if (options) return setStyle('--cssv-format', cssString(formatString(options)), verb, target);
+  const style = state.scan?.style ? state.text.slice(state.scan.style.start, state.scan.style.end) : '';
+  const authorSets = style.split('/* cssv-editor:')[0].includes('--cssv-format'); // the editor's section comes last
+  return setStyle('--cssv-format', authorSets ? 'initial' : null, verb, target);
+}
+
+function noNumbers() {
+  say('Number formats change number cells (9.2), and the selection has none.', 'warn');
+  return Promise.resolve(false);
+}
+
+function stepDecimals(delta, where = scope()) {
+  const at = numberCell();
+  if (!at) return noNumbers();
+  const { options } = cellFormat(at.r, at.c);
+  const shown = clamp(decimalsOf(raw(at.r, at.c)), options.minimumFractionDigits, options.maximumFractionDigits);
+  const n = clamp(shown + delta, 0, 20);
+  return setFormat({ ...options, minimumFractionDigits: n, maximumFractionDigits: n }, where, `${n} decimal place${n === 1 ? '' : 's'}`);
+}
+
+function toggleGrouping(where = scope()) {
+  const at = numberCell();
+  if (!at) return noNumbers();
+  const { options } = cellFormat(at.r, at.c);
+  return setFormat({ ...options, useGrouping: !options.useGrouping }, where, options.useGrouping ? 'No thousands separator' : 'Thousands separator');
+}
+
+// --- Inspector: the active cell, its number format, the rules that style it -------
+
+const PRESETS = [
+  { id: 'default', caption: 'as written', options: null },
+  { id: 'whole', caption: 'whole', options: { minimumIntegerDigits: 1, minimumFractionDigits: 0, maximumFractionDigits: 0, useGrouping: true } },
+  { id: 'one', caption: '1 decimal', options: { minimumIntegerDigits: 1, minimumFractionDigits: 1, maximumFractionDigits: 1, useGrouping: true } },
+  { id: 'two', caption: '2 decimals', options: { minimumIntegerDigits: 1, minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true } },
+];
+const HOOK = /(data-(?:col|row|key)|\.(?:number|negative|positive|zero)\b)/g;
+
+// The style block's rules with their lines, kept until the text changes.
+let preludeCache = { text: null };
+function preludes() {
+  if (preludeCache.text === state.text) return preludeCache;
+  const s = state.scan;
+  const css = s?.style ? state.text.slice(s.style.start, s.style.end) : '';
+  const first = s?.style ? state.text.slice(0, s.style.start).split('\n').length : 1;
+  const section = css.indexOf('/* cssv-editor:');
+  preludeCache = {
+    text: state.text,
+    list: rulePreludes(css).map((p) => ({ ...p, line: p.line + first - 1, editor: section >= 0 && p.offset > section })),
+  };
+  return preludeCache;
+}
+
+const fileOf = (href) => decodeURIComponent((href ?? '').split(/[?#]/)[0].split('/').pop() || 'an imported file');
+
+function ruleCard(entry, where) {
+  const p = where.get(entry.rule);
+  const selector = esc(entry.selector).replace(HOOK, '<span class="hook">$1</span>');
+  let from;
+  if (p) from = `<button type="button" class="rule-where" data-line="${p.line}" title="Show this rule in the source">${p.editor ? 'editor · ' : ''}line ${p.line}</button>`;
+  else if (entry.origin === 'defaults') from = '<span class="rule-where">§8.2 defaults</span>';
+  else if (entry.origin === 'import') from = `<span class="rule-where" title="${esc(entry.href ?? '')}">${esc(fileOf(entry.href))}</span>`;
+  else from = '<span class="rule-where">style block</span>';
+  const tags = [entry.pseudo, entry.condition].filter(Boolean).map((t) => `<span class="rule-tag">${esc(t)}</span>`).join('');
+  const decls = declarations(entry.rule).map(({ name, value, important }) => {
+    const swatch = !value.includes('var(') && CSS.supports('color', value) && !/^(inherit|initial|unset|revert|currentcolor|transparent)$/i.test(value)
+      ? `<span class="sw" style="background:${esc(value)}"></span>` : '';
+    return `<li><span class="p${name.startsWith('--cssv-') ? ' cssv' : ''}">${esc(name)}:</span><span class="v">${swatch}${esc(value)}${important ? ' !important' : ''}</span></li>`;
+  }).join('');
+  return `<div class="rule${p?.editor ? ' editor' : ''}"><div class="rule-head"><span class="rule-sel">${selector}</span>${from}</div>${tags}<ul class="decls">${decls}</ul></div>`;
+}
+
+function formatSection(cell, r, c, lists, where) {
+  const at = r > 0 && cell.tagName === 'TD' ? numberCell() : null;
+  if (!at || at.c !== c) {
+    const why = r === 0 ? 'the column names' : 'this cell, which is text';
+    return `<section class="ins-section ins-format"><h3 class="ins-h">Number format</h3><p class="ins-note">Formats change number cells only (§9.2), not ${why}.</p></section>`;
+  }
+  const value = raw(at.r, at.c);
+  const { options, set } = cellFormat(at.r, at.c);
+  // The rule the format comes from: the cascade's first that sets it, on the
+  // cell, else on its row, else on the table (custom properties inherit).
+  const sets = (x) => !x.pseudo && x.rule.style.getPropertyValue('--cssv-format');
+  const level = set && at.r === r ? lists.findIndex((list) => list.some(sets)) : -1;
+  const source = level >= 0 ? lists[level].find(sets) : null;
+  const line = source && where.get(source.rule)?.line;
+  const how = level > 0 ? `inherited from the ${level === 1 ? 'row' : 'table'}` : 'set';
+  const from = !set ? 'default display (§10.2)' : line ? `${how}, line ${line}` : source?.origin === 'import' ? `${how}, in ${fileOf(source.href)}` : 'set by the style block';
+  const asWritten = { minimumIntegerDigits: 1, minimumFractionDigits: decimalsOf(value), maximumFractionDigits: decimalsOf(value), useGrouping: false };
+  const presets = PRESETS.map((p) => {
+    const on = p.options ? set && sameFormat(options, p.options) : !set;
+    const shown = formatNumber(value, p.options ?? asWritten, state.locale);
+    return `<button type="button" class="preset" data-action="preset-${p.id}" aria-pressed="${on}"><b>${esc(shown)}</b><span>${p.caption}</span></button>`;
+  }).join('');
+  const step = (label, key, value, lo, hi) => `<div class="stepper"><span>${label}</span><span class="step"><button type="button" data-action="${key}-" aria-label="Fewer: ${label}"${value <= lo ? ' disabled' : ''}>−</button><output>${value}</output><button type="button" data-action="${key}+" aria-label="More: ${label}"${value >= hi ? ' disabled' : ''}>+</button></span></div>`;
+  const locales = Array.from(els.locale.options, (o) => `<div><span>${o.value}</span><b>${esc(formatNumber(value, options, o.value))}</b></div>`).join('');
+  const now = scope();
+  const target = targets(now);
+  const writes = target.error ? esc(target.error)
+    : `For ${esc(target.label)}: writes <code>--cssv-format</code> on <code>${esc(target.selectors[0])}</code>${target.selectors.length > 1 ? ` and ${target.selectors.length - 1} more` : ''}.`
+      + (now === 'cells' ? ' Click the column’s letter to format the whole column.' : '');
+  return `<section class="ins-section ins-format">
+    <h3 class="ins-h">Number format <small>${from}</small></h3>
+    <div class="presets">${presets}</div>
+    <div class="steppers">
+      ${step('Min decimals', 'fmt-min', options.minimumFractionDigits, 0, 20)}
+      ${step('Max decimals', 'fmt-max', options.maximumFractionDigits, 0, 20)}
+      ${step('Min digits', 'fmt-int', options.minimumIntegerDigits, 1, 21)}
+      <div class="stepper"><span>Group 1,000s</span><button type="button" class="switch" role="switch" data-action="fmt-group" aria-checked="${options.useGrouping}" aria-label="Group thousands"></button></div>
+    </div>
+    <div class="locales">${locales}</div>
+    <p class="writes">${writes}</p>
+  </section>`;
+}
+
+let lastInspector = '';
+function renderInspector(force = false) {
+  const { r, c } = state.anchor;
+  const table = front.table;
+  const cell = table?.rows[r]?.cells[c];
+  const key = [state.version, r, c, state.locale, scope(), range().r1, range().c1, range().r2, range().c2].join(' ');
+  if (!force && key === lastInspector) return;
+  lastInspector = key;
+  if (!cell || state.broken) {
+    els.inspectorBody.innerHTML = `<section class="ins-section"><p class="ins-note">${state.broken ? 'The file doesn’t parse, so the inspector shows nothing until it does.' : 'Select a cell to see what styles it.'}</p></section>`;
+    return;
+  }
+  const focused = document.activeElement?.closest?.('#inspector-body [data-action]')?.dataset.action;
+  const row = cell.parentElement;
+  const all = styleRules(cell.getRootNode());
+  const where = locateRules(all, preludes().list);
+  const mine = matchingRules(cell, all);
+  const fromRow = matchingRules(row, all).filter((x) => !x.pseudo);
+  const fromTable = matchingRules(table, all).filter((x) => !x.pseudo);
+
+  const name = columnName(c);
+  const chips = [`<code class="chip">${cell.tagName.toLowerCase()}</code>`];
+  for (const cls of cell.classList) chips.push(`<code class="chip hook${cls === 'negative' ? ' negative' : ''}">.${esc(cls)}</code>`);
+  if (cell.hasAttribute('data-col')) chips.push(`<code class="chip hook">data-col="${esc(cell.getAttribute('data-col'))}"</code>`);
+  if (row.hasAttribute('data-key')) chips.push(`<code class="chip hook">data-key="${esc(row.getAttribute('data-key'))}"</code>`);
+  if (row.hasAttribute('data-row')) chips.push(`<code class="chip">data-row="${esc(row.getAttribute('data-row'))}"</code>`);
+  const shown = cell.textContent;
+  const hidden = !cell.getClientRects().length;
+  const { r1, r2, c1, c2 } = range();
+  const count = (r2 - r1 + 1) * (c2 - c1 + 1);
+  const values = r === 0 ? '' : `<dl class="ins-values"><dt>In the file</dt><dd><code>${esc(raw(r, c)) || '<i>empty</i>'}</code></dd>${shown !== raw(r, c) ? `<dt>Shown as</dt><dd><code>${esc(shown)}</code></dd>` : ''}</dl>`;
+  const identity = `<section class="ins-section">
+    <div class="ins-title"><span class="ins-ref">${letter(c)}${r + 1}</span><b>${esc(name || '(no name)')}</b><span>${r === 0 ? 'column name' : `row ${r + 1}`}${count > 1 ? ` · ${count} cells selected` : ''}</span></div>
+    <div class="chips">${chips.join('')}</div>
+    ${values}
+    ${hidden ? '<p class="ins-note">The style block hides this cell.</p>' : ''}
+  </section>`;
+
+  const more = (id, title, list) => (list.length
+    ? `<details class="ins-more" data-more="${id}"${state.more?.[id] ? ' open' : ''}><summary>${title} · ${list.length}</summary>${list.map((x) => ruleCard(x, where)).join('')}</details>`
+    : '');
+  const rules = `<section class="ins-section">
+    <h3 class="ins-h">Rules for this cell <small>most specific first</small></h3>
+    ${mine.length ? mine.map((x) => ruleCard(x, where)).join('') : '<p class="ins-note">No rule matches this cell.</p>'}
+    ${more('row', 'From its row', fromRow)}
+    ${more('table', 'From the table', fromTable)}
+  </section>`;
+
+  els.inspectorBody.innerHTML = identity + formatSection(cell, r, c, [mine, fromRow, fromTable], where) + rules;
+  if (focused) els.inspectorBody.querySelector(`[data-action="${focused}"]`)?.focus({ preventScroll: true });
+}
+
+// The toolbar shows what the active cell has: the editor's rules for bold,
+// italic and alignment in the current scope, and the cell's grouping.
+function updateTools() {
+  const target = targets(scope());
+  const rules = target.error ? null : readRules(state.text, state.scan ?? { style: null });
+  const has = (property, value) => !!rules && target.selectors.every((s) => rules.get(s)?.get(property) === value);
+  const press = (id, on) => $(id).setAttribute('aria-pressed', String(!!on));
+  const decorated = (word) => !!rules && target.selectors.every((s) => (rules.get(s)?.get('text-decoration-line') ?? '').split(/\s+/).includes(word));
+  press('bold', has('font-weight', 'bold'));
+  press('italic', has('font-style', 'italic'));
+  press('underline', decorated('underline'));
+  press('strike', decorated('line-through'));
+  for (const where of ['start', 'center', 'end']) press(`align-${where}`, has('text-align', where));
+  const { r, c } = state.anchor;
+  press('grouping', isNumber(r, c) && cellFormat(r, c).options.useGrouping);
+  const cell = activeCell();
+  updateFontPicker(cell, rules, target);
+  if (document.activeElement !== $('size')) {
+    const size = cell ? parseFloat(getComputedStyle(cell).fontSize) : NaN;
+    $('size').value = Number.isFinite(size) ? String(Math.round(size * 2) / 2) : '';
+  }
+}
+
+// Coalesced to a frame: a drag selects a new cell on every mouse move.
+let inspectorFrame = 0;
+let inspectorForce = false;
+function refreshInspector(force = false) {
+  inspectorForce ||= force;
+  if (inspectorFrame) return;
+  inspectorFrame = requestAnimationFrame(() => {
+    inspectorFrame = 0;
+    if (state.scan) updateTools();
+    updateKeyMode();
+    if (!els.inspector.hidden) renderInspector(inspectorForce);
+    inspectorForce = false;
+  });
+}
+
+function inspectorAction(action) {
+  const at = numberCell();
+  if (!at) return noNumbers();
+  const o = { ...cellFormat(at.r, at.c).options };
+  const preset = PRESETS.find((p) => action === `preset-${p.id}`);
+  if (preset) return setFormat(preset.options, scope(), preset.options ? `Number format: ${preset.caption}` : 'Numbers as written');
+  const bump = { 'fmt-min+': ['minimumFractionDigits', 1], 'fmt-min-': ['minimumFractionDigits', -1], 'fmt-max+': ['maximumFractionDigits', 1], 'fmt-max-': ['maximumFractionDigits', -1], 'fmt-int+': ['minimumIntegerDigits', 1], 'fmt-int-': ['minimumIntegerDigits', -1] }[action];
+  if (bump) {
+    const [k, d] = bump;
+    o[k] = clamp(o[k] + d, k === 'minimumIntegerDigits' ? 1 : 0, k === 'minimumIntegerDigits' ? 21 : 20);
+    if (o.maximumFractionDigits < o.minimumFractionDigits) {
+      if (k === 'minimumFractionDigits') o.maximumFractionDigits = o.minimumFractionDigits;
+      else o.minimumFractionDigits = o.maximumFractionDigits;
+    }
+  } else if (action === 'fmt-group') o.useGrouping = !o.useGrouping;
+  else return Promise.resolve(false);
+  return setFormat(o, scope(), `Number format (${formatNumber(raw(at.r, at.c), o, state.locale)})`);
+}
+
+els.inspectorBody.addEventListener('click', (e) => {
+  const button = e.target.closest('[data-action], [data-line]');
+  if (!button || button.disabled) return;
+  if (button.dataset.line) revealLine(Number(button.dataset.line));
+  else inspectorAction(button.dataset.action);
+});
+els.inspectorBody.addEventListener('toggle', (e) => {
+  const id = e.target.dataset?.more;
+  if (id) state.more = { ...state.more, [id]: e.target.open };
+}, true);
+
+// Selects a line of the file in the source pane, opening it.
+function revealLine(line) {
+  setSourceOpen(true);
+  const lines = state.text.split('\n');
+  let start = 0;
+  for (let i = 0; i < line - 1 && i < lines.length; i++) start += lines[i].length + 1;
+  const end = start + (lines[line - 1] ?? '').replace(/\r$/, '').length;
+  els.source.focus({ preventScroll: true });
+  els.source.setSelectionRange(start, end);
+  const body = els.sourcePanel.querySelector('.source-body');
+  const height = parseFloat(getComputedStyle(els.source).lineHeight) || 19.2;
+  body.scrollTop = Math.max(0, (line - 1) * height - body.clientHeight / 3);
+  body.scrollLeft = 0;
+  say(`Line ${line} of ${state.name}`);
+}
+
+// The inspector's state, like the source pane's, is kept between visits.
+const INSPECTOR_KEY = 'cssv-editor:inspector';
+function setInspectorOpen(open, remember = true) {
+  els.inspector.hidden = !open;
+  $('toggle-inspector').setAttribute('aria-pressed', String(open));
+  if (open) renderInspector(true);
+  if (remember) {
+    try {
+      localStorage.setItem(INSPECTOR_KEY, open ? 'open' : 'closed');
+    } catch {
+      // storage is off; the choice lasts for this page
+    }
+  }
+}
+
+function openFormat() {
+  setInspectorOpen(true);
+  els.inspectorBody.querySelector('.ins-format')?.scrollIntoView({ block: 'nearest' });
+}
+
+// --- Menus --------------------------------------------------------------------------
+
+const MAC = /Mac|iPhone|iPad/.test(navigator.platform);
+const keys = (s) => (MAC ? s.replace('Ctrl+', '⌘').replace('Shift+', '⇧').replace('Alt+', '⌥') : s);
+const focusSheet = () => {
+  if (!document.body.classList.contains('home') && !state.editing && document.activeElement !== els.source) els.viewport.focus({ preventScroll: true });
+};
+
+function selectColumns(c1, c2) {
+  state.anchor = { r: 0, c: c1 };
+  state.focus = { r: lastRow(), c: c2 };
+  drawSelection();
+}
+
+function selectAll() {
+  state.anchor = { r: 0, c: 0 };
+  state.focus = { r: lastRow(), c: lastCol() };
+  drawSelection();
+}
+
+async function copySelection() {
+  try {
+    await navigator.clipboard.writeText(selectionTsv());
+    say('Copied as tab-separated values');
+    return true;
+  } catch {
+    say('The browser blocked clipboard access; use Ctrl+C in the sheet.', 'warn');
+    return false;
+  }
+}
+
+async function cutSelection() {
+  if (await copySelection()) await clearSelection();
+}
+
+async function pasteFromClipboard() {
+  let text;
+  try {
+    text = await navigator.clipboard.readText();
+  } catch {
+    say('The browser blocked reading the clipboard; use Ctrl+V in the sheet.', 'warn');
+    return;
+  }
+  if (text) await pasteValues(parseTsv(text));
+}
+
+async function copyMarkdown() {
+  try {
+    await navigator.clipboard.writeText(front.toMarkdown());
+    say('Copied the table as Markdown, with its alignment, bold and italic');
+  } catch {
+    say('The browser blocked clipboard access.', 'warn');
+  }
+}
+
+// The data section alone: a plain CSV file, for tools that don't know CSSV.
+function downloadCsv() {
+  if (!state.scan) return;
+  download(state.text.slice(state.scan.dataStart), `${state.name.replace(/\.(cssv|csv|txt)$/i, '')}.csv`);
+  say('Downloaded the data without its style block');
+}
+
+function setLocale(locale) {
+  els.locale.value = locale;
+  els.locale.dispatchEvent(new Event('change'));
+}
+
+const keyNames = () => [...new Set(columnIndexes().map(columnName))].filter(Boolean);
+const scopeLabel = () => targets(scope()).label ?? 'nothing';
+
+const MENUS = [
+  {
+    label: 'File',
+    items: () => [
+      { label: 'Open…', run: pickFile },
+      { label: 'All files', run: () => { location.href = './'; } },
+      { separator: true },
+      { label: 'Save', shortcut: keys('Ctrl+S'), run: save },
+      { label: 'Print…', shortcut: keys('Ctrl+P'), run: openPrint, disabled: !front.table },
+      { separator: true },
+      { label: 'Download a copy', run: () => download(state.text) },
+      { label: 'Download the data as CSV', run: downloadCsv, disabled: !state.scan },
+      { label: 'Copy the table as Markdown', run: copyMarkdown, disabled: !front.table },
+    ],
+  },
+  {
+    label: 'Edit',
+    items: () => [
+      { label: 'Undo', shortcut: keys('Ctrl+Z'), run: undo, disabled: !state.undo.length },
+      { label: 'Redo', shortcut: keys('Ctrl+Shift+Z'), run: redo, disabled: !state.redo.length },
+      { separator: true },
+      { label: 'Cut', shortcut: keys('Ctrl+X'), run: cutSelection },
+      { label: 'Copy', shortcut: keys('Ctrl+C'), run: copySelection },
+      { label: 'Paste', shortcut: keys('Ctrl+V'), run: pasteFromClipboard },
+      { label: 'Clear cells', shortcut: 'Delete', run: clearSelection },
+      { separator: true },
+      { label: 'Select all', shortcut: keys('Ctrl+A'), run: selectAll },
+      { label: 'Find…', shortcut: keys('Ctrl+F'), run: () => openFind() },
+      { label: 'Find and replace…', shortcut: keys('Ctrl+H'), run: () => openFind(true) },
+    ],
+  },
+  {
+    label: 'View',
+    items: () => [
+      { label: 'Source', checked: !els.sourcePanel.hidden, run: () => setSourceOpen(els.sourcePanel.hidden) },
+      { label: 'Inspector', checked: !els.inspector.hidden, run: () => setInspectorOpen(els.inspector.hidden) },
+      { heading: 'Show numbers as' },
+      ...Array.from(els.locale.options, (o) => ({ label: o.value, checked: state.locale === o.value, run: () => setLocale(o.value) })),
+    ],
+  },
+  {
+    label: 'Insert',
+    items: () => [
+      { label: 'Row above', run: () => addRow(true) },
+      { label: 'Row below', run: () => addRow() },
+      { separator: true },
+      { label: 'Column left', run: () => insertColumn(true) },
+      { label: 'Column right', run: () => insertColumn() },
+    ],
+  },
+  {
+    label: 'Format',
+    items: () => [
+      { heading: `For ${scopeLabel()}` },
+      { label: 'Bold', shortcut: keys('Ctrl+B'), run: () => toggleStyle('font-weight', 'bold') },
+      { label: 'Italic', shortcut: keys('Ctrl+I'), run: () => toggleStyle('font-style', 'italic') },
+      { label: 'Underline', shortcut: keys('Ctrl+U'), run: () => toggleDecoration('underline', 'Underline') },
+      { label: 'Strikethrough', shortcut: keys('Alt+Shift+5'), run: () => toggleDecoration('line-through', 'Strikethrough') },
+      { label: 'Larger text', run: () => stepSize(1) },
+      { label: 'Smaller text', run: () => stepSize(-1) },
+      { separator: true },
+      { label: 'Align to the start', run: () => align('start') },
+      { label: 'Center', run: () => align('center') },
+      { label: 'Align to the end', run: () => align('end') },
+      { label: 'Align to the top', run: () => setStyle('vertical-align', 'top', 'Aligned to the top') },
+      { label: 'Align to the middle', run: () => setStyle('vertical-align', 'middle', 'Aligned to the middle') },
+      { label: 'Align to the bottom', run: () => setStyle('vertical-align', 'bottom', 'Aligned to the bottom') },
+      { label: 'Wrap text', run: () => setStyle('white-space', 'pre-wrap', 'Wrapped text') },
+      { label: 'Keep text on one line', run: () => setStyle('white-space', 'nowrap', 'One line') },
+      { separator: true },
+      { label: 'All borders', run: () => setBorders('border', '1px solid', 'All borders') },
+      { label: 'Bottom border', run: () => setBorders('border-bottom', '1px solid', 'Bottom border') },
+      { label: 'No borders', run: () => setBorders('border', 'none', 'No borders') },
+      { separator: true },
+      { label: 'More decimal places', run: () => stepDecimals(1) },
+      { label: 'Fewer decimal places', run: () => stepDecimals(-1) },
+      { label: 'Group thousands', checked: $('grouping').getAttribute('aria-pressed') === 'true', run: () => toggleGrouping() },
+      { label: 'Number format…', run: () => openFormat() },
+      { separator: true },
+      keyItem(),
+      { label: 'Clear the editor’s styles', run: unstyle },
+    ],
+  },
+  {
+    label: 'Data',
+    items: () => [
+      { label: `Sort A → Z by ${columnName(state.anchor.c) || letter(state.anchor.c)}`, run: () => sortRows(1) },
+      { label: `Sort Z → A by ${columnName(state.anchor.c) || letter(state.anchor.c)}`, run: () => sortRows(-1) },
+      { separator: true },
+      { label: 'Delete rows', run: deleteRows },
+      { label: 'Delete columns', run: deleteColumns },
+      { label: 'Move columns left', run: () => moveColumns(-1) },
+      { label: 'Move columns right', run: () => moveColumns(1) },
+      { heading: 'Key column (--cssv-key)' },
+      ...['', ...keyNames()].map((name) => ({ label: name || 'none', checked: (currentKey() ?? '') === name, run: () => setKey(name) })),
+    ],
+  },
+  {
+    label: 'Help',
+    items: () => [
+      { label: 'Keyboard shortcuts', shortcut: keys('Ctrl+/'), run: showShortcuts },
+      { label: 'The CSSV specification', run: () => window.open('../spec.html', '_blank', 'noopener') },
+    ],
+  },
+];
+
+function columnMenu(c) {
+  const name = columnName(c);
+  const isKey = !!name && currentKey() === name;
+  const numeric = !!front.table?.rows[0]?.cells[c]?.classList.contains('number');
+  const { c1, c2 } = range();
+  const many = c2 > c1;
+  return [
+    { label: 'Sort A → Z', run: () => sortRows(1, c) },
+    { label: 'Sort Z → A', run: () => sortRows(-1, c) },
+    { separator: true },
+    { label: 'Insert a column left', run: () => insertColumn(true, c) },
+    { label: 'Insert a column right', run: () => insertColumn(false, c) },
+    { label: many ? `Delete ${c2 - c1 + 1} columns` : 'Delete column', run: deleteColumns },
+    { label: 'Move left', run: () => moveColumns(-1), disabled: c1 === 0 },
+    { label: 'Move right', run: () => moveColumns(1), disabled: c2 >= state.width - 1 },
+    { separator: true },
+    { label: 'Rename', run: () => { select(0, c); openEditor(); } },
+    { label: 'Key column', checked: isKey, disabled: !name, run: () => setKey(isKey ? '' : name) },
+    { label: 'Number format…', disabled: !numeric, run: () => openFormat() },
+  ];
+}
+
+function cellMenu() {
+  return [
+    { label: 'Cut', shortcut: keys('Ctrl+X'), run: cutSelection },
+    { label: 'Copy', shortcut: keys('Ctrl+C'), run: copySelection },
+    { label: 'Paste', shortcut: keys('Ctrl+V'), run: pasteFromClipboard },
+    { separator: true },
+    { label: 'Insert a row above', run: () => addRow(true) },
+    { label: 'Insert a row below', run: () => addRow() },
+    { label: 'Insert a column left', run: () => insertColumn(true) },
+    { label: 'Insert a column right', run: () => insertColumn() },
+    { separator: true },
+    { label: 'Delete rows', run: deleteRows },
+    { label: 'Delete columns', run: deleteColumns },
+    { label: 'Clear cells', shortcut: 'Delete', run: clearSelection },
+    { separator: true },
+    { label: `Sort A → Z by ${columnName(state.anchor.c) || letter(state.anchor.c)}`, run: () => sortRows(1) },
+    { label: `Sort Z → A by ${columnName(state.anchor.c) || letter(state.anchor.c)}`, run: () => sortRows(-1) },
+    { separator: true },
+    keyItem(),
+    { label: 'Inspect', run: () => setInspectorOpen(true) },
+  ];
+}
+
+// From the keyboard (Shift+F10 or the menu key), the menu opens at the active cell.
+function openCellMenu(at) {
+  if (!at) {
+    const rect = cellRect(state.anchor.r, state.anchor.c);
+    const base = els.wrap.getBoundingClientRect();
+    at = rect ? { x: base.left + rect.left, y: base.top + rect.bottom } : { x: base.left, y: base.top };
+  }
+  openMenu(els.viewport, cellMenu(), { label: 'Cell', at, focusFirst: true, done: focusSheet });
+}
+
+els.wrap.addEventListener('contextmenu', (e) => {
+  const cell = cellFromEvent(e);
+  if (!cell) return;
+  e.preventDefault();
+  const { r1, r2, c1, c2 } = range();
+  if (cell.r < r1 || cell.r > r2 || cell.c < c1 || cell.c > c2) select(cell.r, cell.c);
+  els.viewport.focus({ preventScroll: true });
+  openMenu(els.viewport, cellMenu(), { label: 'Cell', at: { x: e.clientX, y: e.clientY }, done: focusSheet });
+});
+
+// --- Keyboard shortcuts ----------------------------------------------------------------
+
+const SHORTCUTS = [
+  ['Moving', [['Move', '← → ↑ ↓'], ['Extend the selection', 'Shift+arrows'], ['To the first or last cell', 'Ctrl+arrows'], ['Next cell', 'Tab'], ['A screen up or down', 'Page Up · Page Down']]],
+  ['Editing', [['Edit the cell', 'Enter · F2'], ['Replace the value', 'type'], ['New line in a cell', 'Alt+Enter'], ['Cancel', 'Escape'], ['Clear cells', 'Delete'], ['Undo · redo', 'Ctrl+Z · Ctrl+Shift+Z']]],
+  ['Clipboard', [['Copy · cut · paste', 'Ctrl+C · Ctrl+X · Ctrl+V'], ['Select all', 'Ctrl+A']]],
+  ['Find', [['Find', 'Ctrl+F'], ['Find and replace', 'Ctrl+H'], ['Next · previous match', 'Enter · Shift+Enter']]],
+  ['Styles', [['Bold · italic · underline', 'Ctrl+B · Ctrl+I · Ctrl+U'], ['Strikethrough', 'Alt+Shift+5']]],
+  ['File', [['Print preview, then print', 'Ctrl+P'], ['Save', 'Ctrl+S']]],
+  ['Menus', [['The cell’s menu', 'Shift+F10'], ['This list', 'Ctrl+/']]],
+];
+
+function showShortcuts() {
+  const body = $('shortcuts-body');
+  if (!body.childElementCount) {
+    body.innerHTML = SHORTCUTS.map(([title, list]) => `<h3>${title}</h3>${list.map(([what, how]) => `<span>${what}</span><span>${how.split(' · ').map((k) => `<kbd>${esc(keys(k))}</kbd>`).join(' ')}</span>`).join('')}`).join('');
+  }
+  $('shortcuts').showModal();
+}
+$('shortcuts-close').addEventListener('click', () => $('shortcuts').close());
+$('shortcuts').addEventListener('close', focusSheet);
+
+// --- Text tools: font, size, underline and strikethrough, borders, wrapping ---------
+
+const FONTS = [
+  ['system-ui, sans-serif', 'Sans serif'],
+  ['Georgia, "Times New Roman", serif', 'Serif'],
+  ['ui-monospace, "SF Mono", Menlo, Consolas, monospace', 'Monospace'],
+  ['ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif', 'Rounded'],
+  ['"Iowan Old Style", "Palatino Linotype", Palatino, serif', 'Book'],
+];
+const unquoteFamilies = (v) => v.replace(/["']/g, '').replace(/\s*,\s*/g, ',').trim();
+const activeCell = () => front.table?.rows[state.anchor.r]?.cells[state.anchor.c] ?? null;
+
+// The fonts on offer: the file's own (its @font-face rules, which fonts.js
+// copies to the page), then stacks of fonts every system has.
+function fileFamilies() {
+  const families = new Set();
+  for (const face of document.fonts) families.add(face.family.replace(/^["']|["']$/g, ''));
+  return [...families].sort();
+}
+
+function updateFontPicker(cell, rules, target) {
+  const picker = $('font');
+  const files = fileFamilies();
+  const options = [['', 'From the file'], ...files.map((f) => [`"${f}"`, f]), ...FONTS];
+  if (picker.dataset.list !== files.join('\n')) {
+    // The first option, hidden from the list, names the font the cell shows.
+    const shown = new Option('', 'shown');
+    shown.hidden = true;
+    picker.replaceChildren(shown, ...options.map(([value, label]) => new Option(label, value)));
+    picker.dataset.list = files.join('\n');
+  }
+  const first = cell ? getComputedStyle(cell).fontFamily.split(',')[0].replace(/["']/g, '').trim() : '';
+  picker.options[0].textContent = first || 'Font';
+  const set = target.error ? undefined : target.selectors.map((sel) => rules?.get(sel)?.get('font-family'));
+  const same = set?.length && set.every((v) => v === set[0]) ? set[0] : undefined;
+  picker.value = same && options.some(([v]) => v === same) ? same : 'shown';
+}
+
+function setFont(value) {
+  const label = $('font').selectedOptions[0]?.textContent ?? value;
+  return setStyle('font-family', value || null, value ? `Font: ${label}` : 'Font from the file');
+}
+
+function setSize(px) {
+  const n = Math.round(clamp(Number(px), 6, 96) * 2) / 2;
+  if (!Number.isFinite(n)) return Promise.resolve(false);
+  return setStyle('font-size', `${n}px`, `Text size ${n}px`);
+}
+
+function stepSize(delta) {
+  const cell = activeCell();
+  const now = cell ? parseFloat(getComputedStyle(cell).fontSize) : 13;
+  return setSize(Math.round(now) + delta);
+}
+
+// Underline and strikethrough share text-decoration-line, so each one is a
+// word in its value, added or removed without touching the other.
+function toggleDecoration(word, verb) {
+  if (state.broken) return Promise.resolve(false);
+  const target = targets(scope());
+  if (target.error) {
+    say(target.error, 'warn');
+    return Promise.resolve(false);
+  }
+  const rules = readRules(state.text, state.scan);
+  const words = (sel) => (rules.get(sel)?.get('text-decoration-line') ?? '').split(/\s+/).filter((w) => w && w !== 'none');
+  const on = target.selectors.every((sel) => words(sel).includes(word));
+  for (const sel of target.selectors) {
+    const list = words(sel).filter((w) => w !== word);
+    if (!on) list.push(word);
+    const decls = new Map(rules.get(sel) ?? []);
+    if (list.length) decls.set('text-decoration-line', list.join(' '));
+    else decls.delete('text-decoration-line');
+    rules.set(sel, decls);
+  }
+  return change(writeRules(state.text, state.scan, rules), `${on ? `Removed ${verb.toLowerCase()}` : verb}: ${target.label}`)
+    .then((ok) => {
+      if (ok && !on) verifyStyle(target, 'text-decoration-line', word, verb);
+      return ok;
+    });
+}
+
+// Borders are one rule per scope too: all four sides, the bottom, or none.
+function setBorders(property, value, verb) {
+  if (state.broken) return Promise.resolve(false);
+  const target = targets(scope());
+  if (target.error) {
+    say(target.error, 'warn');
+    return Promise.resolve(false);
+  }
+  const rules = readRules(state.text, state.scan);
+  for (const sel of target.selectors) {
+    const decls = new Map(rules.get(sel) ?? []);
+    decls.delete('border');
+    decls.delete('border-bottom');
+    if (property) decls.set(property, value);
+    rules.set(sel, decls);
+  }
+  return change(writeRules(state.text, state.scan, rules), `${verb}: ${target.label}`)
+    .then((ok) => {
+      if (ok && property) verifyStyle(target, property, value, verb);
+      return ok;
+    });
+}
+
+const computed = (property) => {
+  const cell = activeCell();
+  return cell ? getComputedStyle(cell).getPropertyValue(property) : '';
+};
+
+function bordersMenu() {
+  return [
+    { label: 'All borders', run: () => setBorders('border', '1px solid', 'All borders') },
+    { label: 'Bottom border', run: () => setBorders('border-bottom', '1px solid', 'Bottom border') },
+    { label: 'No borders', run: () => setBorders('border', 'none', 'No borders') },
+    { separator: true },
+    { label: 'Borders from the file', run: () => setBorders(null, null, 'Borders from the file') },
+  ];
+}
+
+function valignMenu() {
+  const now = computed('vertical-align');
+  return [
+    ...[['top', 'Top'], ['middle', 'Middle'], ['bottom', 'Bottom']].map(([v, label]) => ({
+      label, checked: now === v, run: () => setStyle('vertical-align', v, `Aligned to the ${label.toLowerCase()}`),
+    })),
+    { separator: true },
+    { label: 'As the file has it', run: () => setStyle('vertical-align', null, 'Vertical alignment from the file') },
+  ];
+}
+
+function wrapMenu() {
+  const now = computed('white-space');
+  return [
+    { label: 'Wrap text', checked: now === 'pre-wrap' || now === 'normal', run: () => setStyle('white-space', 'pre-wrap', 'Wrapped text') },
+    { label: 'Keep on one line', checked: now === 'nowrap' || now === 'pre', run: () => setStyle('white-space', 'nowrap', 'One line') },
+    { separator: true },
+    { label: 'As the file has it', run: () => setStyle('white-space', null, 'Wrapping from the file') },
+  ];
+}
+
+// --- Every row with a key ---------------------------------------------------------------
+
+const activeKey = () => (state.anchor.r > 0 ? front.table?.rows[state.anchor.r]?.getAttribute('data-key') ?? null : null);
+
+function setByKey(on) {
+  state.byKey = on;
+  updateKeyMode();
+  refreshInspector(true);
+  if (on) say(`Styles now go to every row with key ${activeKey() ?? '(none)'}, until you turn that off in the status bar.`);
+  else say('Styles go to the selection again.');
+}
+
+function updateKeyMode() {
+  $('key-mode').hidden = !state.byKey;
+  $('key-mode-value').textContent = activeKey() ?? '(none on this row)';
+}
+
+function keyItem() {
+  const key = activeKey();
+  return {
+    label: key !== null ? `Style every row with key ${key}` : 'Style every row with this key (needs a key column)',
+    checked: state.byKey,
+    disabled: key === null && !state.byKey,
+    run: () => setByKey(!state.byKey),
+  };
+}
+
+// --- Find and replace ---------------------------------------------------------------
+
+const find = {
+  box: $('find'), text: $('find-text'), count: $('find-count'), replace: $('replace-text'),
+  replaceRow: $('replace-row'), matchCase: $('find-case'), whole: $('find-whole'),
+};
+
+// Values as the file has them: the formula bar's text, not the table's.
+function findMatches() {
+  const q = find.text.value;
+  const out = [];
+  if (!q || !state.scan) return out;
+  const exact = find.matchCase.checked;
+  const needle = exact ? q : q.toLocaleLowerCase();
+  for (let r = 0; r < rowCount(); r++) {
+    for (let c = 0; c < state.width; c++) {
+      const v = exact ? raw(r, c) : raw(r, c).toLocaleLowerCase();
+      if (find.whole.checked ? v === needle : v.includes(needle)) out.push({ r, c });
+    }
+  }
+  return out;
+}
+
+function showFindCount() {
+  const { matches, index } = state.find;
+  find.count.textContent = !find.text.value ? '' : matches.length ? `${index + 1} of ${matches.length}` : 'No matches';
+  find.count.classList.toggle('none', !!find.text.value && !matches.length);
+}
+
+function drawMarks() {
+  if (find.box.hidden || !state.find.matches.length) {
+    els.marks.replaceChildren();
+    return;
+  }
+  els.marks.innerHTML = state.find.matches.slice(0, 2000).map(({ r, c }) => {
+    const x = cellRect(r, c);
+    return x ? `<div class="mark" style="left:${x.left}px;top:${x.top}px;width:${x.right - x.left}px;height:${x.bottom - x.top}px"></div>` : '';
+  }).join('');
+}
+
+function runFind({ jump = true } = {}) {
+  const f = state.find;
+  f.matches = findMatches();
+  const { r, c } = state.anchor;
+  const next = f.matches.findIndex((m) => m.r > r || (m.r === r && m.c >= c));
+  f.index = f.matches.length ? Math.max(0, next) : -1;
+  showFindCount();
+  drawMarks();
+  if (jump && f.index >= 0) goToMatch(f.index);
+}
+
+function goToMatch(i) {
+  const f = state.find;
+  if (!f.matches.length) return;
+  f.index = (i + f.matches.length) % f.matches.length;
+  const m = f.matches[f.index];
+  select(m.r, m.c);
+  showFindCount();
+}
+
+function openFind(replace = false) {
+  if (document.body.classList.contains('home')) return;
+  find.box.hidden = false;
+  if (replace) find.replaceRow.hidden = false;
+  $('find-replace-toggle').setAttribute('aria-pressed', String(!find.replaceRow.hidden));
+  (replace && find.text.value ? find.replace : find.text).focus();
+  find.text.select();
+  if (find.text.value) runFind({ jump: false });
+}
+
+function closeFind() {
+  find.box.hidden = true;
+  drawMarks();
+  focusSheet();
+}
+
+// Replacing writes the new value as typed, like the source pane would. A new
+// column name or key value takes the editor's rules along, as an edit does.
+function writeValues(list, message) {
+  if (state.broken) {
+    say('Fix the source first: the file does not parse.', 'error');
+    return Promise.resolve(false);
+  }
+  let text = applyEdits(state.text, list.map(({ r, c, value }) => fieldEdit(state.scan, r, c, value)));
+  const key = currentKey();
+  for (const { r, c, value } of list) {
+    if (r === 0) text = renameRules(text, raw(0, c), value);
+    else if (key !== null && columnName(c) === key) text = rekeyRules(text, raw(r, c), value);
+  }
+  return change(text, message);
+}
+
+function replaced(value) {
+  if (find.whole.checked) return find.replace.value;
+  const re = new RegExp(find.text.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), find.matchCase.checked ? 'g' : 'gi');
+  return value.replace(re, () => find.replace.value);
+}
+
+async function replaceOne() {
+  const f = state.find;
+  if (f.index < 0) return;
+  const m = f.matches[f.index];
+  // As in spreadsheets, the first press goes to the match, the next replaces it.
+  if (state.anchor.r !== m.r || state.anchor.c !== m.c) return goToMatch(f.index);
+  await writeValues([{ r: m.r, c: m.c, value: replaced(raw(m.r, m.c)) }], `Replaced in ${letter(m.c)}${m.r + 1}`);
+  runFind({ jump: true });
+}
+
+async function replaceAll() {
+  const list = state.find.matches.map(({ r, c }) => ({ r, c, value: replaced(raw(r, c)) })).filter(({ r, c, value }) => value !== raw(r, c));
+  if (!list.length) {
+    say('Nothing to replace.', 'warn');
+    return;
+  }
+  await writeValues(list, `Replaced ${plural(list.length, 'value')}`);
+  runFind({ jump: false });
+}
+
+find.text.addEventListener('input', () => runFind());
+find.matchCase.addEventListener('change', () => runFind());
+find.whole.addEventListener('change', () => runFind());
+find.box.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeFind();
+  } else if (e.key === 'Enter' && e.target === find.text) {
+    e.preventDefault();
+    goToMatch(state.find.index + (e.shiftKey ? -1 : 1));
+  } else if (e.key === 'Enter' && e.target === find.replace) {
+    e.preventDefault();
+    replaceOne();
+  }
+});
+$('find-next').addEventListener('click', () => goToMatch(state.find.index + 1));
+$('find-prev').addEventListener('click', () => goToMatch(state.find.index - 1));
+$('find-close').addEventListener('click', closeFind);
+$('find-replace-toggle').addEventListener('click', () => {
+  find.replaceRow.hidden = !find.replaceRow.hidden;
+  $('find-replace-toggle').setAttribute('aria-pressed', String(!find.replaceRow.hidden));
+  if (!find.replaceRow.hidden) find.replace.focus();
+});
+$('replace-one').addEventListener('click', replaceOne);
+$('replace-all').addEventListener('click', replaceAll);
+$('find-open').addEventListener('click', () => openFind());
+
+// --- Print -----------------------------------------------------------------------------
+
+// Printing prints the table alone (sheet.css), at the paper, scale and
+// margins the preview set. The preview renders a copy of the file in which
+// the style block's @media print rules apply and its screen rules don't, so
+// it shows what the printer gets; width-based media queries still see the
+// window, not the paper. Its pages are columns one page high, so the
+// browser splits the table between them as it does between printed pages.
+const PAPER = { a4: ['A4', 210, 297], letter: ['Letter', 215.9, 279.4] };
+const PX = 96 / 25.4; // CSS pixels per millimeter
+const printer = {
+  view: $('print-view'), sheets: $('sheets'), papers: $('papers'), pages: $('pages'), table: $('print-table'),
+  info: $('print-info'), size: $('print-paper'), orientation: $('print-orientation'),
+  scale: $('print-scale'), margins: $('print-margins'), bg: $('print-bg'),
+};
+const WRAP = CSS.supports('column-wrap', 'wrap') && CSS.supports('column-height', '1px');
+const GAP = 32; // between sheets, in the preview
+const pageRule = document.head.appendChild(document.createElement('style'));
+printer.size.value = /-(US|CA|MX|PH)$/.test(navigator.language) ? 'letter' : 'a4';
+
+// Printing repeats the header row on every page; columns repeat it only
+// when it can't break, so the preview's copy says so, in a layer that the
+// file's own rules override.
+const REPEAT_HEADER = '\n@layer cssv-editor-preview { thead { break-inside: avoid; } }\n';
+
+function printText() {
+  const s = state.scan;
+  if (!s?.style) return `---${s?.eol ?? '\n'}${REPEAT_HEADER}---${s?.eol ?? '\n'}${state.text}`;
+  const css = state.text.slice(s.style.start, s.style.end)
+    .replace(/@media\b[^{;]*/gi, (prelude) => prelude.replace(/\bprint\b/gi, '\0').replace(/\bscreen\b/gi, 'print').replace(/\0/g, 'all'));
+  return state.text.slice(0, s.style.start) + rewriteCssUrls(css, state.base) + REPEAT_HEADER + state.text.slice(s.style.end);
+}
+
+function layoutPreview() {
+  const [name, w0, h0] = PAPER[printer.size.value];
+  const landscape = printer.orientation.value === 'landscape';
+  const [w, h] = (landscape ? [h0, w0] : [w0, h0]).map((mm) => mm * PX);
+  const margin = Number(printer.margins.value) * PX;
+  const width = w - 2 * margin;
+  const height = h - 2 * margin;
+  // One column per page: a page's printable box, at the page's margins.
+  Object.assign(printer.pages.style, {
+    left: `${margin}px`, top: `${margin}px`, width: `${width}px`, columnWidth: `${width}px`,
+    ...(WRAP
+      ? { columnHeight: `${height}px`, columnWrap: 'wrap', rowGap: `${2 * margin + GAP}px`, height: '' }
+      : { height: `${height}px`, columnGap: `${2 * margin + GAP}px` }),
+  });
+  printer.table.style.zoom = '1';
+  const natural = printer.table.table?.getClientRects()[0]?.width ?? width;
+  const zoom = printer.scale.value === 'fit' && natural > width + 0.5 ? width / natural : 1;
+  printer.table.style.zoom = String(zoom);
+  const pages = Math.max(1, printer.table.getClientRects().length);
+  const at = (i) => (WRAP ? { left: 0, top: i * (h + GAP) } : { left: i * (w + GAP), top: 0 });
+  printer.papers.innerHTML = Array.from({ length: pages }, (_, i) => {
+    const { left, top } = at(i);
+    return `<div class="sheet" style="left:${left}px;top:${top}px;width:${w}px;height:${h}px"><span>Page ${i + 1} of ${pages}</span></div>`;
+  }).join('');
+  Object.assign(printer.sheets.style, {
+    width: `${WRAP ? w : pages * w + (pages - 1) * GAP}px`,
+    height: `${WRAP ? pages * h + (pages - 1) * GAP : h}px`,
+    marginBottom: '28px',
+  });
+  printer.info.textContent = `${name}, ${landscape ? 'landscape' : 'portrait'} · ${zoom < 1 ? `scaled to ${Math.round(zoom * 100)}%` : 'actual size'} · ${plural(pages, 'page')}`;
+  // What the print uses.
+  document.documentElement.style.setProperty('--print-zoom', String(zoom));
+  document.documentElement.classList.toggle('print-economy', !printer.bg.checked);
+  pageRule.textContent = `@page { size: ${name} ${landscape ? 'landscape' : 'portrait'}; margin: ${Number(printer.margins.value)}mm; }`;
+}
+
+async function openPrint() {
+  if (document.body.classList.contains('home') || !front.table) return;
+  if (state.editing) await closeEditor(true);
+  closeMenu();
+  printer.view.hidden = false;
+  printer.table.setAttribute('lang', state.locale);
+  await printer.table.update(printText());
+  await nextFrame();
+  layoutPreview();
+  $('print-go').focus();
+}
+
+function closePrint() {
+  printer.view.hidden = true;
+  focusSheet();
+}
+
+for (const control of [printer.size, printer.orientation, printer.scale, printer.margins, printer.bg]) {
+  control.addEventListener('change', layoutPreview);
+}
+$('print-close').addEventListener('click', closePrint);
+$('print-go').addEventListener('click', () => window.print());
+$('print').addEventListener('click', openPrint);
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !printer.view.hidden) {
+    e.preventDefault();
+    closePrint();
+  }
+});
+
+// Ctrl+P previews first, as spreadsheets do; from the preview it prints.
+// Ctrl+F and Ctrl+H open find and replace, except in the source pane, where
+// the browser's own find searches the text.
+addEventListener('keydown', (e) => {
+  if (!(e.ctrlKey || e.metaKey) || e.altKey || document.body.classList.contains('home')) return;
+  const key = e.key.toLowerCase();
+  if (key === 'p') {
+    e.preventDefault();
+    if (printer.view.hidden) openPrint();
+    else window.print();
+  } else if ((key === 'f' || key === 'h') && e.target !== els.source && printer.view.hidden) {
+    e.preventDefault();
+    openFind(key === 'h');
+  }
+}, true);
 
 // --- Status bar --------------------------------------------------------------------
 
@@ -1179,7 +2279,8 @@ $('toggle-source').addEventListener('click', () => setSourceOpen(els.sourcePanel
   } catch {
     // storage is off
   }
-  setSourceOpen(saved ? saved === 'open' : innerWidth >= 1200, false);
+  // The inspector comes first where there's room; the source too on wide windows.
+  setSourceOpen(saved ? saved === 'open' : innerWidth >= 1600, false);
 }
 
 // `label` is what the app bar shows: the repository path, or the file's name.
@@ -1355,10 +2456,10 @@ $('draft-discard').addEventListener('click', () => {
   say('Discarded the unsaved changes');
 });
 
-function download(text) {
+function download(text, name = state.name) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
-  a.download = state.name;
+  a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -1418,15 +2519,44 @@ els.locale.addEventListener('change', async () => {
 });
 
 $('undo').addEventListener('click', undo);
+$('dec-less').addEventListener('click', () => stepDecimals(-1));
+$('font').addEventListener('change', () => {
+  if ($('font').value !== 'shown') setFont($('font').value).then(focusSheet);
+});
+$('size-down').addEventListener('click', () => stepSize(-1));
+$('size-up').addEventListener('click', () => stepSize(1));
+$('size').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    setSize($('size').value).then(focusSheet);
+  } else if (e.key === 'Escape') focusSheet();
+});
+$('size').addEventListener('change', () => setSize($('size').value));
+$('underline').addEventListener('click', () => toggleDecoration('underline', 'Underline'));
+$('strike').addEventListener('click', () => toggleDecoration('line-through', 'Strikethrough'));
+for (const [id, items, label] of [['borders', bordersMenu, 'Borders'], ['valign', valignMenu, 'Vertical alignment'], ['wrapping', wrapMenu, 'Text wrapping']]) {
+  $(id).addEventListener('click', (e) => openMenu(e.currentTarget, items(), { label, done: focusSheet }));
+}
+$('key-mode-off').addEventListener('click', () => setByKey(false));
+$('dec-more').addEventListener('click', () => stepDecimals(1));
+$('grouping').addEventListener('click', () => toggleGrouping());
+for (const where of ['start', 'center', 'end']) $(`align-${where}`).addEventListener('click', () => align(where));
+$('toggle-inspector').addEventListener('click', () => setInspectorOpen(els.inspector.hidden));
+$('inspector-close').addEventListener('click', () => {
+  setInspectorOpen(false);
+  focusSheet();
+});
+menubar($('menubar'), MENUS, { done: focusSheet });
+{
+  let saved = null;
+  try {
+    saved = localStorage.getItem(INSPECTOR_KEY);
+  } catch {
+    // storage is off
+  }
+  setInspectorOpen(saved ? saved === 'open' : innerWidth >= 1100, false);
+}
 $('redo').addEventListener('click', redo);
-$('sort-asc').addEventListener('click', () => sortRows(1));
-$('sort-desc').addEventListener('click', () => sortRows(-1));
-$('row-add').addEventListener('click', addRow);
-$('row-del').addEventListener('click', deleteRows);
-$('col-add').addEventListener('click', insertColumn);
-$('col-del').addEventListener('click', deleteColumns);
-$('col-left').addEventListener('click', () => moveColumns(-1));
-$('col-right').addEventListener('click', () => moveColumns(1));
 $('bold').addEventListener('click', () => toggleStyle('font-weight', 'bold'));
 $('italic').addEventListener('click', () => toggleStyle('font-style', 'italic'));
 $('unstyle').addEventListener('click', unstyle);
@@ -1440,6 +2570,9 @@ for (const [id, property, verb] of [['color', 'color', 'Text color'], ['fill', '
 window.sheet = {
   state, select, sortRows, addRow, deleteRows, insertColumn, deleteColumns, moveColumns, pasteValues, parseTsv,
   undo, redo, setStyle, toggleStyle, normalize, openEditor, closeEditor,
+  setFormat, stepDecimals, toggleGrouping, cellFormat, formatString, align, renderInspector, setInspectorOpen,
+  columnMenu, cellMenu, menus: MENUS, openCellMenu, setKey, revealLine,
+  scope, setByKey, toggleDecoration, setBorders, setFont, setSize, openFind, runFind, replaceAll, openPrint, layoutPreview,
   edit: (value) => commitValue(state.anchor.r, state.anchor.c, value),
   get front() { return front; },
   get geo() { return state.geo; },
