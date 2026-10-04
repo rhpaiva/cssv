@@ -527,7 +527,7 @@ cssv-loadend,event,"Fired when the latest render finishes, whether it succeeded 
       <div class="wrap">
         <p class="eyebrow">For AI agents</p>
         <h2>Teach Claude to write CSSV with one skill.</h2>
-        <p class="lede">Language models already write CSV and CSS. The CSSV skill for Claude Code adds what they can't guess: the fences, the number rules, the table model's hooks, the two CSSV properties and the usual mistakes. Claude loads it whenever you ask for a styled table.</p>
+        <p class="lede">Language models already write CSV and CSS. The CSSV skill for Claude Code adds what they can't guess: the fences, the number rules, the table model's hooks, the two CSSV properties and the usual mistakes. Claude loads it when you mention CSSV or ask for a styled table kept as a plain-text file.</p>
 
         <div class="ai-grid">
           <ol class="steps ai-steps">
@@ -542,11 +542,11 @@ cssv-loadend,event,"Fired when the latest render finishes, whether it succeeded 
               </div>
             </li>
             <li class="step">
-              <div class="step-label"><span class="num">3</span><div><h3>Ask for a table</h3><p>Claude writes a <code>.cssv</code> file and checks it against the skill's list before it finishes.</p></div></div>
+              <div class="step-label"><span class="num">3</span><div><h3>Ask for a table</h3><p>Claude writes a <code>.cssv</code> file, goes through the skill's checklist and, when Node is available, runs the skill's check script before it finishes.</p></div></div>
               <ul class="prompts">
                 <li>Turn <code>sales.csv</code> into a CSSV report: losses in red, the total row in bold.</li>
-                <li>Make a split-flap departures board for these flights.</li>
-                <li>Compare our three plans as a styled table I can embed in the docs page.</li>
+                <li>Make a split-flap departures board for these flights as a <code>.cssv</code> file.</li>
+                <li>Compare our three plans in a CSSV table I can embed in the docs page.</li>
               </ul>
             </li>
           </ol>

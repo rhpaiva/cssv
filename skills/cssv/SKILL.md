@@ -1,6 +1,6 @@
 ---
 name: cssv
-description: Write CSSV files (.cssv), plain-text CSV data with a CSS style block on top that renders as a styled HTML table. Use when the user asks for a styled table, report, comparison, leaderboard or status board as a file or for a web page; asks to turn CSV, spreadsheet or query output into a styled table; mentions CSSV, .cssv or <cssv-table>; or wants a table with colors, highlighted rows or number formats that stays editable as text.
+description: Write CSSV files (.cssv), plain-text CSV data with a CSS style block on top that renders as a styled HTML table. Use when the user mentions CSSV, .cssv or <cssv-table>, or the project already has .cssv files; or when the user wants a styled table (a report, comparison, leaderboard or status board) as one plain-text file that stays editable as text, including CSV, spreadsheet or query output turned into one. Not for tables an app renders from its own components or templates.
 license: MIT
 ---
 
@@ -31,7 +31,7 @@ Write the data as plain CSV and the presentation as CSS. The renderer adds the c
 
 ## The CSV part
 
-- The first record is always the header. Column names are used exactly as written: case and spaces matter in selectors.
+- The first record is always the header. Column names are used exactly as written: case and spaces matter in selectors. Several columns may share a name, as in exports that repeat a column per label; `[data-col="…"]` then selects all of them, and a key column uses the first.
 - The delimiter is `,` or `;`, whichever the header uses more. Use `,` unless the source data uses `;`.
 - Quote a field that contains the delimiter, a `"` or a line break, and double any `"` inside it (`""`). Fields are never trimmed, so write `a,b`, not `a, b`.
 - Give every row as many fields as the header. Shorter rows are padded with empty fields.
@@ -44,12 +44,15 @@ A field is a number only when the whole field matches `-?(0|[1-9][0-9]*)(\.[0-9]
 | In the file | Type | Why |
 | --- | --- | --- |
 | `1200`, `-45.50`, `0.5` | number | |
-| `"1,200"`, `1.200,50` | text | no group separators or comma decimals; unquoted, `1,200` is even two fields |
+| `1.200` | number: 1.2 | the dot is always the decimal point, so a thousand grouped with a dot is read as 1.2, with no error |
+| `"1,200"`, and `1200,50` in a `;` file | text | no group separators or comma decimals |
 | `+5`, `1e6`, `.5`, ` 12` | text | no plus sign, exponent, missing zero or spaces |
 | `007` | text | leading zeros keep IDs and postal codes as text |
 | `12%`, `$5`, `3 kg` | text | put units in the column name or in CSS |
 
-Store raw values such as `1234.5`, even in `;`-delimited files. The renderer shows them in the reader's locale. A value written as `1,234.50` becomes text: it loses its alignment, its sign class and localization.
+In a `,` file an unquoted `1,200` is two fields, and `1.200,50` becomes the numbers 1.2 and 50.
+
+Store raw values such as `1234.5`, even in `;`-delimited files. The renderer shows them in the reader's locale. A value written as `"1,234.50"` becomes text: it loses its alignment, its sign class and localization. When the source writes `1.234,50`, drop the dots and turn the comma into a dot: `1234.50`.
 
 A column whose non-empty fields are all numbers is a number column. Empty fields don't change that.
 
@@ -100,6 +103,8 @@ Every other `--cssv-*` name is reserved, so don't invent one. Your own custom pr
 | A column | `[data-col="amount"]`, or `td[data-col="amount"]` for body cells only |
 | A column's width | `col[data-col="notes"] { width: 20rem; }` |
 | A row by name | `tr[data-key="Total"]` (needs `--cssv-key`) |
+| Rows whose key field is empty | `tbody tr:not([data-key])`, such as summary or system rows |
+| A run of rows with the same key | `tr[data-key="Ana"] + tr[data-key="Ana"]` |
 | A row by position | `tr[data-row="4"]`, `tbody tr:last-child`, `tbody tr:nth-child(even)` |
 | One cell | `tr[data-key="Travel"] > [data-col="diff"]` |
 | Good and bad numbers | `[data-col="diff"].negative`, `[data-col="diff"].positive` |
@@ -108,7 +113,7 @@ Every other `--cssv-*` name is reserved, so don't invent one. Your own custom pr
 | Units and symbols | `td[data-col="price"].number::before { content: "€"; }` |
 | The first line of a two-line field | `td[data-col="item"]::first-line` |
 | Sticky header | `thead th { position: sticky; top: 0; }` |
-| Dark theme | `@media (prefers-color-scheme: dark) { table { … } }` |
+| Dark theme | `table { color-scheme: light dark; color: light-dark(#222, #eee); }`, or `@media (prefers-color-scheme: dark) { table { … } }` |
 | Printed output | `@media print { … }` |
 | One language | `table:lang(de) …` |
 
@@ -117,6 +122,7 @@ Every other `--cssv-*` name is reserved, so don't invent one. Your own custom pr
 - The table inherits the page's font and color. For lines and tints, prefer `currentColor` and `color-mix(in srgb, currentColor 12%, transparent)` so the table works on light and dark pages. Set explicit colors when the design brings its own background.
 - `@import url("…")` must come before every other rule. Relative URLs resolve against the `.cssv` file.
 - Painting is clipped to the table's box: give the table a margin when it has an outer `box-shadow`.
+- To lay the table out as cards, a board or a calendar, change `display` on its parts. With `table { display: grid; }` and `thead, tbody, tr { display: contents; }`, every cell is a grid item. Hide the column group with `colgroup { display: none; }`, or it takes the first grid cell and shifts every cell after it by one.
 - Text from `::before` and `::after` is decoration. Exports such as Markdown use the field values.
 
 When a style depends on something CSS can't see, put it in the data:
@@ -146,6 +152,8 @@ In a web page, load the renderer from a CDN; no build step is needed. With npm, 
 
 - A `key="column"` attribute sets the key column and wins over `--cssv-key`. `lang="de-DE"` sets the display locale; otherwise it comes from the nearest `lang` around the element.
 - Inline text can be indented like the markup around it: the renderer removes the first line's indentation from every line. It can't contain `</script`.
+- To show new data, set the element's `src`, or pass a whole CSSV text to `update(text)`, for example one fetched with credentials. The shown table stays until the new one is ready, and when the columns and imports are the same it's changed in place, so this suits live data and pages of results.
+- `await el.ready` waits for the latest render; `el.errors` then lists its problems as `{ section, message, fatal }`. Each one is also logged with `console.warn` and fired as a `cssv-error` event.
 - Serve `.cssv` files as `text/plain; charset=utf-8`.
 - In Markdown, use a fenced code block with the language `cssv`.
 
@@ -158,8 +166,45 @@ The processor also runs in Node without a DOM: `import { parse, toHtml } from '@
 3. Every row has as many fields as the header, and fields containing the delimiter, quotes or line breaks are quoted.
 4. Numbers are raw: no group separators, currency symbols, percent signs or plus signs.
 5. Selectors use only the hooks above, and every `--cssv-format` uses only the four options.
-6. When Node is available, check the file with `parse()` from the `@rhpaiva/cssv` package (`npm install @rhpaiva/cssv`). It throws on a missing closing fence or an unterminated quoted field:
+6. Run the checks below when you can.
 
-   ```
-   node --input-type=module -e "import { parse } from '@rhpaiva/cssv'; import { readFileSync } from 'node:fs'; const m = parse(readFileSync(process.argv[1], 'utf8')); console.log(m.columns, m.rows.length);" report.cssv
-   ```
+## Checking a file
+
+When Node and a POSIX shell such as bash are available, check the file with the `@rhpaiva/cssv` package (`npm install @rhpaiva/cssv` in the directory you run it from). `parse()` throws on a missing closing fence or an unterminated quoted field. The rest of the script warns about rows with more fields than the header, columns that mix numbers with text such as `1,200`, and `data-col`, `--cssv-key` and `--cssv-format` values in the style block that don't match the data. It doesn't read imported stylesheets. An export kept unchanged on purpose may have warnings that are fine.
+
+```
+node --input-type=module - report.cssv <<'EOF'
+import { parse, parseCssvValue, parseFormat } from '@rhpaiva/cssv';
+import { readFileSync } from 'node:fs';
+
+const m = parse(readFileSync(process.argv[2], 'utf8'));
+const css = (m.style ?? '').replace(/\/\*[\s\S]*?\*\//g, '');
+const problems = new Set();
+for (const r of m.rows) {
+  if (r.fields.some((f, c) => f !== '' && m.columns[c] === '')) {
+    problems.add(`row ${r.number} has more fields than the header: quote fields that contain "${m.delimiter}"`);
+  }
+}
+m.columns.forEach((name, c) => {
+  const text = m.rows.find((r) => r.types[c].type === 'text' && /\d/.test(r.fields[c]));
+  if (text && m.rows.some((r) => r.types[c].type === 'number')) {
+    problems.add(`column "${name}" mixes numbers with text such as "${text.fields[c]}" (row ${text.number})`);
+  }
+});
+for (const [, name] of css.matchAll(/\[data-col\s*=\s*["']([^"']*)["']/g)) {
+  if (!m.columns.includes(name)) problems.add(`no column is named "${name}"`);
+}
+for (const [, raw] of css.matchAll(/--cssv-key\s*:([^;}]*)/g)) {
+  const key = parseCssvValue(raw);
+  if (key === null) problems.add(`invalid --cssv-key: ${raw.trim()}`);
+  else if (key !== undefined && !m.columns.includes(key)) problems.add(`--cssv-key names no column: "${key}"`);
+}
+for (const [, raw] of css.matchAll(/--cssv-format\s*:([^;}]*)/g)) {
+  if (!parseFormat(parseCssvValue(raw))) problems.add(`invalid --cssv-format: ${raw.trim()}`);
+}
+console.log(m.columns, `${m.rows.length} rows`);
+console.log([...problems].join('\n') || 'No problems found.');
+EOF
+```
+
+When you can open a page in a browser, for example with Playwright, render the file in a `<cssv-table>` and read `el.errors` after `await el.ready`. The renderer also reports invalid CSSV properties set in imported stylesheets, a key column that doesn't exist, and imports that failed to load.

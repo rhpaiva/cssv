@@ -114,7 +114,7 @@ The page can style the table with `cssv-table::part(table)`. Wide tables overflo
 The processor (`src/core.js`) has no DOM dependencies and runs in Node:
 
 ```js
-import { parse, toHtml, defaultDisplay, parseFormat, formatNumber } from '@rhpaiva/cssv';
+import { parse, toHtml, defaultDisplay, parseFormat, parseCssvValue, formatNumber } from '@rhpaiva/cssv';
 
 const model = parse(text);                                  // SPEC §3–6
 const html = toHtml(model, { locale: 'de-DE', key: 'id' }); // the §8.3 step 2 table model
@@ -161,7 +161,7 @@ The website lives in `site/`. Like the demo, it loads `../src/` and `../examples
 
 ## Use with AI agents
 
-[skills/cssv/SKILL.md](skills/cssv/SKILL.md) is a Claude Code skill that teaches Claude to write correct CSSV files: the format rules, the table model's hooks, the CSSV properties and a checklist. Save it as `~/.claude/skills/cssv/SKILL.md` for every project, or as `.claude/skills/cssv/SKILL.md` in one:
+[skills/cssv/SKILL.md](skills/cssv/SKILL.md) is a Claude Code skill that teaches Claude to write correct CSSV files: the format rules, the table model's hooks, the CSSV properties, a checklist and a script that checks a file. Save it as `~/.claude/skills/cssv/SKILL.md` for every project, or as `.claude/skills/cssv/SKILL.md` in one:
 
 ```
 curl --create-dirs -o ~/.claude/skills/cssv/SKILL.md https://cssv.dev/skills/cssv/SKILL.md
