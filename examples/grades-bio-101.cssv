@@ -1,0 +1,54 @@
+---
+/* A Canvas gradebook export, ready to print for a parent-teacher meeting.
+   Line 2 is Canvas's "Points Possible" row. An empty score means nothing
+   was handed in; a 0 was handed in and scored zero.
+   Sample rows; the students are invented. */
+table {
+  border-collapse: collapse;
+  color-scheme: light dark;
+  --line: light-dark(#e5e7eb, #34332e);
+  --muted: light-dark(#6b7280, #9ca3af);
+  --red: light-dark(#b91c1c, #fca5a5);
+  background: light-dark(#fff, #1b1b19);
+  font: 13px/1.4 system-ui, sans-serif;
+  color: light-dark(#111827, #e5e7eb);
+}
+@media print { table { color-scheme: light; } }
+:is(th, td):is(:nth-child(2), :nth-child(3), :nth-child(4), :nth-child(5)) { display: none; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); }
+thead th { vertical-align: bottom; font-size: 11px; font-weight: 600; color: var(--muted); text-align: end; }
+thead th:first-child { text-align: start; }
+[data-col="Student"] { font-weight: 600; white-space: nowrap; }
+tbody tr:nth-child(even) { background: light-dark(#f9fafb, #21211e); }
+
+/* Points Possible: out of how much each score is. */
+tr[data-row="2"] td { background: light-dark(#f3f4f6, #282824); color: var(--muted); font-size: 11px; font-weight: 400; }
+tr[data-row="2"] .number::before { content: "/ "; }
+tr[data-row="2"] [data-col="Student"] { font-style: italic; }
+
+/* The assignments are columns 6 to 10. */
+tbody tr:nth-child(n+2) > :nth-child(n+6):nth-child(-n+10):empty::after {
+  content: "missing";
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: light-dark(#fee2e2, #4c1d1d);
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 600;
+}
+tbody tr:nth-child(n+2) > .zero:nth-child(-n+10) { color: var(--red); font-weight: 700; }
+tr:has(> :nth-child(n+6):nth-child(-n+10):empty) [data-col="Student"]::after { content: " ●"; color: #dc2626; }
+
+[data-col="Current Score"] { font-weight: 700; border-left: 2px solid var(--line); }
+tbody tr:nth-child(n+2) [data-col="Current Score"]::after { content: "%"; }
+---
+Student,ID,SIS User ID,SIS Login ID,Section,Lab 1 (48211),Lab 2 (48212),Quiz 1 (48215),Midterm (48220),Lab 3 (48213),Current Score
+    Points Possible,,,,,10,10,20,50,10,(read only)
+"Abara, Chidi",210431,S2026-0412,cabara,BIO 101 Section 2,9,10,18,44,9,90.0
+"Bergström, Elin",210438,S2026-0419,ebergstrom,BIO 101 Section 2,8,,15,39,10,80.0
+"Castillo, Mateo",210440,S2026-0421,mcastillo,BIO 101 Section 2,10,9,20,47,10,96.0
+"Dąbrowska, Zofia",210447,S2026-0428,zdabrowska,BIO 101 Section 2,7,6,0,31,,48.9
+"Haddad, Yusuf",210452,S2026-0433,yhaddad,BIO 101 Section 2,10,10,17,42,8,87.0
+"Ito, Haruka",210459,S2026-0440,hito,BIO 101 Section 2,6,8,14,,7,70.0
+"Ndlovu, Thandi",210463,S2026-0444,tndlovu,BIO 101 Section 2,9,9,19,45,9,91.0
+"O'Brien, Siobhán",210470,S2026-0451,sobrien,BIO 101 Section 2,EX,8,12,36,9,72.2

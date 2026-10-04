@@ -25,6 +25,14 @@ The reference renderer is the `<cssv-table>` custom element, published on npm as
 - [seats.cssv](https://cssv.dev/examples/seats.cssv): a seat map where empty fields are free seats and the row-number column is the aisle
 - [nutrition.cssv](https://cssv.dev/examples/nutrition.cssv): a Nutrition Facts label made from four columns of numbers
 - [Ledger, page 1](https://cssv.dev/examples/ledger/page-1.cssv): pagination, with one .cssv file per page (page-1 to page-5) sharing the imported [ledger.css](https://cssv.dev/examples/ledger/ledger.css)
+- [oslo.cssv](https://cssv.dev/examples/oslo.cssv): an Open-Meteo daily download, unchanged, as a month calendar; its look is the imported [weather.css](https://cssv.dev/examples/weather.css), shared with berlin.cssv and lisbon.cssv
+- [jira-export.cssv](https://cssv.dev/examples/jira-export.cssv): a Jira CSV export as a board, with Status as the key column and repeated column names
+- [whatsapp-chat.cssv](https://cssv.dev/examples/whatsapp-chat.cssv): a WhatsApp group chat as bubbles, with the sender as the key column and WhatsApp's own lines found by their missing data-key
+- [calendar-import.cssv](https://cssv.dev/examples/calendar-import.cssv): a Google Calendar import file laid out as a week, with all-day events found by :empty
+- [grades-bio-101.cssv](https://cssv.dev/examples/grades-bio-101.cssv): a Canvas gradebook, where :empty is a missing assignment and .zero a score of zero
+- [strings.cssv](https://cssv.dev/examples/strings.cssv): a translation sheet whose empty cells are untranslated strings, totalled with CSS counters
+- [git-log.cssv](https://cssv.dev/examples/git-log.cssv): git log output as a changelog, with deletions written as negative numbers
+- [attendees.cssv](https://cssv.dev/examples/attendees.cssv): an attendee list printed as name badges with @media print
 
 ## Optional
 

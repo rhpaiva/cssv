@@ -1,0 +1,63 @@
+---
+/* A Jira CSV export, as a board. Status is the key, so each status gets a
+   lane; dense packing stacks the cards in file order. Jira writes one column
+   per sprint and per label under the same name, so [data-col="Labels"]
+   styles every label column at once.
+   Sample rows in Jira's format, trimmed to fifteen columns. */
+table {
+  --cssv-key: Status;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: 8px 10px;
+  width: 100%;
+  min-width: 640px;
+  contain: inline-size;
+  padding: 14px;
+  border-radius: 12px;
+  color-scheme: light dark;
+  --card: light-dark(#fff, #22272b);
+  --chip: light-dark(#dfe1e6, #2c333a);
+  --muted: light-dark(#5e6c84, #8c9bab);
+  background: light-dark(#f4f5f7, #1d2125);
+  font: 13px/1.4 system-ui, sans-serif;
+  color: light-dark(#172b4d, #b6c2cf);
+}
+colgroup { display: none; }
+thead, thead tr, tbody { display: contents; }
+
+/* The first four column names become the lane titles. */
+th { grid-row: 1; padding: 2px 4px 6px; font-size: 0; text-align: start; }
+th:nth-child(n+5) { display: none; }
+th::after { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+th:nth-child(1)::after { content: "TO DO"; }
+th:nth-child(2)::after { content: "IN PROGRESS"; }
+th:nth-child(3)::after { content: "IN REVIEW"; }
+th:nth-child(4)::after { content: "DONE"; }
+tr[data-key="To Do"]       { grid-column: 1; }
+tr[data-key="In Progress"] { grid-column: 2; }
+tr[data-key="In Review"]   { grid-column: 3; }
+tr[data-key="Done"]        { grid-column: 4; }
+
+/* A card: summary, labels, then the key, the points and the assignee. */
+tbody tr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px; border-radius: 4px; background: var(--card); box-shadow: 0 1px 1px rgb(9 30 66 / 0.25); }
+td { padding: 0; }
+td:is([data-col="Issue id"], [data-col="Issue Type"], [data-col="Status"], [data-col="Priority"], [data-col="Reporter"], [data-col="Created"], [data-col="Updated"], [data-col="Sprint"]), td:empty { display: none; }
+td[data-col="Summary"] { order: -1; flex-basis: 100%; }
+td[data-col="Labels"] { padding: 1px 6px; border-radius: 3px; background: var(--chip); font-size: 11px; font-weight: 600; text-transform: uppercase; }
+td[data-col="Issue key"] { order: 1; margin-right: auto; color: var(--muted); font-size: 12px; }
+td[data-col="Custom field (Story Points)"] { order: 2; min-width: 22px; padding: 0 6px; border-radius: 11px; background: var(--chip); font-size: 12px; text-align: center; }
+td[data-col="Assignee"] { order: 3; color: var(--muted); font-size: 12px; }
+tr[data-key="Done"] td[data-col="Summary"] { color: var(--muted); text-decoration: line-through; }
+---
+Summary,Issue key,Issue id,Issue Type,Status,Priority,Assignee,Reporter,Created,Updated,Sprint,Sprint,Labels,Labels,Custom field (Story Points)
+Checkout fails when the cart has more than 99 items,WEB-214,10482,Bug,In Progress,High,Ana Sousa,Ben Ito,29/Sep/26 9:12 AM,03/Oct/26 4:40 PM,WEB Sprint 14,WEB Sprint 15,checkout,,3
+Add dark mode to the account pages,WEB-209,10470,Story,To Do,Medium,,Caro Diaz,24/Sep/26 2:05 PM,01/Oct/26 10:18 AM,WEB Sprint 15,,design,frontend,5
+Move image uploads to the new storage bucket,WEB-205,10461,Task,In Review,Medium,Dev Patel,Dev Patel,22/Sep/26 11:30 AM,03/Oct/26 1:02 PM,WEB Sprint 15,,infra,,3
+Password reset email goes to spam,WEB-211,10475,Bug,To Do,High,,Ana Sousa,26/Sep/26 8:47 AM,30/Sep/26 9:15 AM,WEB Sprint 15,,email,,2
+Search results page,WEB-198,10442,Story,Done,Medium,Ben Ito,Caro Diaz,15/Sep/26 3:20 PM,30/Sep/26 5:51 PM,WEB Sprint 14,WEB Sprint 15,frontend,,8
+Rate-limit the login endpoint,WEB-207,10466,Task,In Progress,High,Dev Patel,Ben Ito,23/Sep/26 10:00 AM,02/Oct/26 3:33 PM,WEB Sprint 15,,security,infra,2
+Onboarding checklist for new teams,WEB-212,10477,Story,To Do,Low,,Caro Diaz,27/Sep/26 1:14 PM,27/Sep/26 1:14 PM,,,,,8
+Footer links point to the old help center,WEB-203,10457,Bug,Done,Low,Caro Diaz,Ana Sousa,19/Sep/26 9:41 AM,25/Sep/26 11:06 AM,WEB Sprint 15,,content,,1
+Export invoices as PDF,WEB-200,10449,Story,In Review,Medium,Ana Sousa,Ben Ito,17/Sep/26 4:25 PM,03/Oct/26 11:47 AM,WEB Sprint 14,WEB Sprint 15,billing,,5
+Upgrade the payment SDK,WEB-196,10438,Task,Done,Medium,Ben Ito,Dev Patel,12/Sep/26 10:52 AM,24/Sep/26 2:30 PM,WEB Sprint 14,,billing,infra,3

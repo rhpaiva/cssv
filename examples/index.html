@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CSSV examples</title>
-  <meta name="description" content="CSSV examples: trading terminal, solar system, invoice, league table, release notes, periodic table, weather forecast, seat map, nutrition label and a paginated ledger, each one .cssv file rendered by <cssv-table>.">
+  <meta name="description" content="CSSV examples: CSV files people already have, from a Jira export to a WhatsApp chat, and files made to show what a style block can do, from a periodic table to a seat map. Each one is a .cssv file rendered by <cssv-table>.">
   <link rel="canonical" href="https://cssv.dev/examples/">
   <meta property="og:url" content="https://cssv.dev/examples/">
   <meta property="og:title" content="CSSV examples">
-  <meta property="og:description" content="Trading terminal, solar system, invoice, league table, release notes, periodic table, weather forecast, seat map, nutrition label and a paginated ledger, each one .cssv file.">
+  <meta property="og:description" content="CSV files people already have and files made for the gallery, each one CSV with a CSS style block on top.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CSSV">
   <meta property="og:image" content="https://cssv.dev/og.png">
@@ -33,6 +33,7 @@
       --accent: #1c1a17;
       --chip-bg: #fcf3c4;
       --chip-fg: #1c1a17;
+      --stat-bg: #ece8df;
       --mark: #ffe45c;
       --mark-top: 58%;
       --mark-bottom: 94%;
@@ -56,6 +57,7 @@
         --accent: #ece8df;
         --chip-bg: #2a2715;
         --chip-fg: #f0e27a;
+        --stat-bg: #22211e;
         --mark: #e9d54a;
         --mark-top: 0%;
         --mark-bottom: 100%;
@@ -74,17 +76,21 @@
       color: var(--text);
       font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
     }
-    .wrap { max-width: 1480px; margin: 0 auto; padding: 0 16px; }
+    /* The website's container (site/site.css), so the header and the content
+       sit where they do on every other page. */
+    .wrap { --gutter: 24px; max-width: 1180px; margin: 0 auto; padding: 0 var(--gutter); }
+    @media (max-width: 640px) { .wrap { --gutter: 16px; } }
     code, kbd { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 0.9em; }
     a {
       color: var(--accent);
       text-decoration-color: var(--link-line);
       text-decoration-thickness: 2px;
       text-underline-offset: 0.18em;
+      transition: text-decoration-color 0.15s, color 0.15s;
     }
     a:hover { text-decoration-color: currentColor; }
 
-    .hero { padding: 64px 0 28px; }
+    .hero { padding: 64px 0 8px; }
     .eyebrow {
       margin: 0;
       color: var(--accent);
@@ -106,24 +112,212 @@
       box-decoration-break: clone;
       color: var(--mark-text);
     }
-    .lede { margin: 0; max-width: 62ch; color: var(--muted); font-size: 1.08rem; }
+    .lede { margin: 0; max-width: 66ch; color: var(--muted); font-size: 1.08rem; }
+    .lede + .lede { margin-top: 10px; }
 
-    .toolbar {
+    /* The wall: every file at a glance, rendered live by <cssv-table> and
+       scaled down. Each tile renders at --virtual CSS pixels wide and is
+       zoomed to fit, so all tiles keep the same size. */
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    .wall-label {
+      margin: 36px 0 0;
+      color: var(--muted);
+      font: 600 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .wall {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+      gap: 16px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    @media (max-width: 640px) { .wall { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+    .tile {
+      display: block;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      color: inherit;
+      text-decoration: none;
+      transition: translate 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .tile:hover, .tile:focus-visible { translate: 0 -3px; border-color: var(--muted); }
+    .tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .thumb {
+      position: relative;
+      display: block;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      padding: 12px;
+      background-color: var(--stage);
+      background-image: radial-gradient(var(--dots) 1px, transparent 1.5px);
+      background-size: 18px 18px;
+      pointer-events: none;
+    }
+    .thumb cssv-table {
+      width: calc(var(--virtual) * 1px);
+      zoom: var(--zoom, 0.25);
+    }
+    /* The bottom of a tall file fades out. */
+    .thumb::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 34%;
+      background: linear-gradient(transparent, var(--stage));
+    }
+    .raw {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      margin: 0;
+      padding: 12px 14px;
+      overflow: hidden;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font: 10px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      white-space: pre;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .raw .t-head { color: #f7f4ec; font-weight: 700; }
+    .tile:hover .raw, .tile:focus-visible .raw { opacity: 1; }
+    .caption { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 10px 14px 12px; border-top: 1px solid var(--border); }
+    .caption strong { min-width: 0; overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+    .caption .lines { flex: none; color: var(--muted); font: 500 11.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    @media (max-width: 640px) {
+      .caption { flex-direction: column; gap: 4px; padding: 8px 10px 10px; }
+      .caption strong { font-size: 13px; }
+    }
+
+    /* Quick links to the cards; the one in view is marked as you scroll. */
+    .jump {
       position: sticky;
-      top: var(--nav-height, 0px);
+      top: var(--nav-height, 60px);
       z-index: 5;
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px 14px;
-      margin: 0 -16px;
-      padding: 12px 16px;
-      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      gap: 6px;
+      margin: 32px calc(-1 * var(--gutter)) 0;
+      padding: 10px var(--gutter);
+      overflow-x: auto;
+      scrollbar-width: none;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
-    .toolbar .label { color: var(--muted); font-size: 13px; }
+    .jump::-webkit-scrollbar { display: none; }
+    .jump a {
+      flex: none;
+      padding: 7px 13px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font: 600 13px/1 system-ui, sans-serif;
+      text-decoration: none;
+      transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .jump a:hover { border-color: var(--muted); color: var(--text); }
+    .jump a[aria-current="true"] { background: var(--text); border-color: var(--text); color: var(--surface); }
+    .jump .sep { flex: none; width: 1px; margin: 3px 6px; background: var(--border); }
+
+    /* The three groups of cards. The cards' scroll margins clear the sticky
+       bars, whose heights the page script keeps in --jump-height and
+       --toolbar-height. */
+    .group > h2 { margin: 64px 0 6px; font-size: 1.6rem; letter-spacing: -0.015em; }
+    .group > p { margin: 0; max-width: 72ch; color: var(--muted); }
+    .cases { display: grid; gap: 32px; margin: 24px 0 0; }
+    .cases > .example { scroll-margin-top: calc(var(--nav-height, 60px) + var(--jump-height, 50px) + 20px); }
+    #showcase .cases > .example { scroll-margin-top: calc(var(--nav-height, 60px) + var(--jump-height, 50px) + var(--toolbar-height, 50px) + 20px); }
+
+    /* The locale switcher for the showcase files. It sticks under the quick
+       links while those cards are on screen. */
+    .toolbar {
+      position: sticky;
+      top: calc(var(--nav-height, 60px) + var(--jump-height, 50px));
+      z-index: 4;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      margin: 20px calc(-1 * var(--gutter)) 0;
+      padding: 10px var(--gutter);
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .toolbar .label, .toolbar .hint { color: var(--muted); font-size: 13px; }
+
+    .example {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .example > header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px 20px;
+      padding: 20px 22px 16px;
+    }
+    .example > header > div { flex: 1 1 300px; min-width: 0; }
+    .example h3 { margin: 0 0 2px; font-size: 1.2rem; letter-spacing: -0.01em; }
+    .example .file { color: var(--muted); font: 500 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+    .example p { margin: 10px 0 0; max-width: 72ch; color: var(--muted); }
+    .example p strong { color: var(--text); font-weight: 600; }
+    .stats { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; padding: 0; list-style: none; }
+    .stats li {
+      padding: 5px 9px;
+      border-radius: 6px;
+      background: var(--stat-bg);
+      color: var(--text);
+      font: 500 12px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    .stats li.style { background: var(--chip-bg); color: var(--chip-fg); font-weight: 650; }
+    /* The techniques a showcase file uses. */
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+    .chips li {
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font: 500 12px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; color: var(--muted); font-size: 13px; }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 14px;
+      margin-inline-end: 6px;
+      border-radius: 2px;
+      background: var(--swatch);
+      vertical-align: -2px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      padding: 10px 22px;
+      border-top: 1px solid var(--border);
+    }
+    .controls .hint { color: var(--muted); font-size: 13px; }
     .seg {
       display: flex;
       flex-wrap: wrap;
@@ -141,65 +335,31 @@
       color: var(--muted);
       cursor: pointer;
       font: 500 12.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      transition: background-color 0.15s, color 0.15s;
     }
     .seg label:hover { color: var(--text); }
     .seg input:checked + label { background: var(--text); color: var(--surface); }
     .seg input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .toolbar .hint { color: var(--muted); font-size: 13px; }
 
-    .example {
-      margin: 28px 0;
-      overflow: hidden;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-    }
-    .example > header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px 20px;
-      padding: 20px 22px 18px;
-    }
-    .example > header > div { flex: 1 1 320px; min-width: 0; }
-    .example h2, .example h3 { margin: 0 0 4px; font-size: 1.2rem; letter-spacing: -0.01em; }
-    .example h3 { font-size: 1.05rem; }
-    .example .file { margin-inline-start: 8px; color: var(--muted); font-size: 0.78rem; font-weight: 500; }
-    .example p { margin: 0; max-width: 72ch; color: var(--muted); }
-    .example p code { white-space: nowrap; }
-    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
-    .chips li {
-      padding: 5px 8px;
-      border-radius: 6px;
-      background: var(--chip-bg);
-      color: var(--chip-fg);
-      font: 500 12px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    }
-    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; color: var(--muted); font-size: 13px; }
-    .legend span::before {
-      content: "";
-      display: inline-block;
-      width: 4px;
-      height: 14px;
-      margin-inline-end: 6px;
-      border-radius: 2px;
-      background: var(--swatch);
-      vertical-align: -2px;
-    }
     .stage {
+      flex: 1;
+      display: grid;
+      align-content: start;
       padding: 24px;
       border-top: 1px solid var(--border);
       background-color: var(--stage);
       background-image: radial-gradient(var(--dots) 1px, transparent 1.5px);
       background-size: 18px 18px;
     }
+    .stage.cities { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
+    .stage.cities > cssv-table { flex: 1 1 330px; max-width: 420px; }
+    .stage.center { justify-items: center; }
+    .stage.center > cssv-table { max-width: 100%; }
     cssv-table { overflow-x: auto; }
     @media (max-width: 640px) {
       .stage { padding: 12px; }
-      .example > header { padding: 16px; }
-      .toolbar .hint { display: none; }
+      .example > header, .controls { padding-inline: 16px; }
+      .toolbar .label, .toolbar .hint { display: none; }
     }
 
     .source-toggle {
@@ -214,13 +374,12 @@
       color: var(--text);
       cursor: pointer;
       font: 600 13px/1 system-ui, sans-serif;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      transition: background-color 0.15s, color 0.15s, border-color 0.15s;
     }
     .source-toggle:hover { border-color: var(--muted); }
     .source-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .source-toggle[aria-expanded="true"] { background: var(--text); border-color: var(--text); color: var(--surface); }
     .source-toggle svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
     .source { border-top: 1px solid var(--border); background: var(--code-bg); color: var(--code-text); }
     .source:not([hidden]) { animation: reveal 0.22s ease-out; }
     @keyframes reveal { from { opacity: 0; transform: translateY(-6px); } }
@@ -233,12 +392,11 @@
       gap: 8px 16px;
       padding: 10px 16px;
       background: var(--code-bar);
-      border-bottom: 1px solid rgb(255 255 255 / 0.06);
+      border-block: 1px solid rgb(255 255 255 / 0.06);
       color: var(--code-muted);
       font: 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     }
     .source-bar strong { color: var(--code-text); font-weight: 600; }
-    .source-bar a { color: var(--code-text); text-decoration-color: #e9d54a; }
     .source-bar .meta > * + *::before { content: "·"; margin: 0 8px; opacity: 0.6; }
     .source-bar .actions { display: flex; gap: 8px; }
     .source-bar button, .source-bar .open {
@@ -250,11 +408,12 @@
       cursor: pointer;
       font: inherit;
       text-decoration: none;
+      transition: background-color 0.15s;
     }
     .source-bar button:hover, .source-bar .open:hover { background: rgb(255 255 255 / 0.06); }
     .source pre {
       margin: 0;
-      max-height: 560px;
+      max-height: 480px;
       overflow: auto;
       padding: 16px 18px 22px;
       font: 12.5px/1.65 ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
@@ -278,31 +437,6 @@
     .t-quoted  { color: #86efac; }
     .t-text    { color: #e3dfd3; }
 
-    /* Cards side by side. Each card spans three rows of a shared subgrid
-       (header, table, source), so headers and tables line up across a row. */
-    .grid {
-      --card-min: 660px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(var(--card-min), 100%), 1fr));
-      gap: 0 24px;
-      margin: 24px 0 0;
-    }
-    .grid > .example {
-      display: grid;
-      grid-row: span 3;
-      grid-template-rows: subgrid;
-      grid-template-columns: minmax(0, 1fr);
-      margin: 0 0 24px;
-    }
-    .grid > .example > .stage { grid-row: 2 / span 2; padding: 20px; }
-    .grid > .example:has(> .source:not([hidden])) > .stage { grid-row: 2; }
-    .grid > .example > .source { grid-row: 3; }
-    .grid > .example.wide { grid-column: 1 / -1; }
-    .grid.pair { --card-min: 440px; margin-top: 0; }
-    .grid.pair .example > header > div { flex-basis: 160px; }
-    section > h2 { margin: 56px 0 6px; font-size: 1.5rem; letter-spacing: -0.015em; }
-    section > p { margin: 0 0 8px; color: var(--muted); max-width: 70ch; }
-
     .pager {
       display: flex;
       flex-wrap: wrap;
@@ -319,6 +453,7 @@
       color: var(--text);
       cursor: pointer;
       font: 600 13px/1 system-ui, sans-serif;
+      transition: border-color 0.15s, opacity 0.15s;
     }
     .pager > button:hover:not(:disabled) { border-color: var(--muted); }
     .pager > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -348,7 +483,27 @@
       .pager { padding: 12px 16px; }
       .pager .status { margin-inline-start: 0; flex-basis: 100%; }
     }
+
+    section > h2 { margin: 72px 0 6px; font-size: 1.6rem; letter-spacing: -0.015em; }
+    .why { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 16px; margin: 20px 0 0; padding: 0; list-style: none; }
+    .why li { padding: 18px 20px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--muted); }
+    .why strong { display: block; margin-bottom: 4px; color: var(--text); }
+    .limits { margin: 14px 0 0; padding-inline-start: 20px; max-width: 74ch; color: var(--muted); }
+    .limits li + li { margin-top: 8px; }
     footer { margin: 64px 0 40px; color: var(--muted); font-size: 13px; }
+
+    /* The cards rise into place as they scroll into view, as on the home
+       page (site/site.css). The transitions between pages are in nav.css. */
+    @keyframes rise { from { opacity: 0; translate: 0 24px; } }
+    @media screen and (prefers-reduced-motion: no-preference) {
+      @supports (animation-timeline: view()) {
+        .example {
+          animation: rise linear both;
+          animation-timeline: view();
+          animation-range: entry 0% entry 160px;
+        }
+      }
+    }
   </style>
 </head>
 <body>
@@ -373,12 +528,353 @@
 
   <div class="wrap">
     <header class="hero">
-      <p class="eyebrow">CSSV v1 · Comma-Separated Styled Values</p>
-      <h1>Plain text in, <span>styled tables</span> out.</h1>
-      <p class="lede">Each table below is one <code>.cssv</code> file: a CSS style block between <code>---</code> fences, then ordinary CSV. <code>&lt;cssv-table&gt;</code> renders the data as a fixed HTML table and applies the file's styles to it. The page adds no styles of its own to the tables. Use <strong>View source</strong> to see each file.</p>
+      <p class="eyebrow">CSSV v1 · Examples</p>
+      <h1>The CSV you already have, <span>worth looking at.</span></h1>
+      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first eight start from files people already have. The next eight were made for this page, to show how far a style block goes. The last two show other ways to put a table in a page.</p>
+      <p class="lede">Each tile below is the file itself, rendered live and scaled down. Point at one to see its plain CSV; click it for the full card. In a card, the yellow figure is the size of the style block, and <strong>View source</strong> shows the whole file.</p>
     </header>
 
-    <section id="showcase">
+    <p class="wall-label" id="wall-real">Files you already have</p>
+    <ul class="wall" aria-labelledby="wall-real">
+      <li>
+        <a class="tile" href="#weather" data-src="oslo.cssv" style="--virtual: 420">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="oslo.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Weather download</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#jira" data-src="jira-export.cssv" style="--virtual: 640">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="jira-export.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Jira export</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#whatsapp" data-src="whatsapp-chat.cssv" style="--virtual: 420">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="whatsapp-chat.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>WhatsApp chat</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#calendar" data-src="calendar-import.cssv" style="--virtual: 600">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="calendar-import.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Calendar import</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#gradebook" data-src="grades-bio-101.cssv" style="--virtual: 820">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="grades-bio-101.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Canvas gradebook</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#translations" data-src="strings.cssv" style="--virtual: 720">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="strings.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Translation sheet</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#git-log" data-src="git-log.cssv" style="--virtual: 900">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="git-log.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong><code>git log</code></strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#badges" data-src="attendees.cssv" style="--virtual: 720">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="attendees.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Attendee list</strong><span class="lines"></span></span>
+        </a>
+      </li>
+    </ul>
+    <p class="wall-label" id="wall-showcase">Made for the gallery</p>
+    <ul class="wall" aria-labelledby="wall-showcase">
+      <li>
+        <a class="tile" href="#elements" data-src="elements.cssv" style="--virtual: 900">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="elements.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Periodic table</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#markets" data-src="markets.cssv" style="--virtual: 680">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="markets.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Market close</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#planets" data-src="planets.cssv" style="--virtual: 760">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="planets.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Solar system</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#invoice" data-src="invoice.cssv" style="--virtual: 720">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="invoice.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Invoice</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#league" data-src="league.cssv" style="--virtual: 720">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="league.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>League table</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#forecast" data-src="forecast.cssv" style="--virtual: 760">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="forecast.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Weather forecast</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#seats" data-src="seats.cssv" style="--virtual: 600">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="seats.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Seat map</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#nutrition" data-src="nutrition.cssv" style="--virtual: 420">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="nutrition.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Nutrition Facts</strong><span class="lines"></span></span>
+        </a>
+      </li>
+    </ul>
+
+    <nav class="jump" aria-label="Examples">
+      <a href="#weather">Weather</a>
+      <a href="#jira">Jira board</a>
+      <a href="#whatsapp">WhatsApp</a>
+      <a href="#calendar">Calendar</a>
+      <a href="#gradebook">Gradebook</a>
+      <a href="#translations">Translations</a>
+      <a href="#git-log">git log</a>
+      <a href="#badges">Badges</a>
+      <span class="sep" aria-hidden="true"></span>
+      <a href="#elements">Periodic table</a>
+      <a href="#markets">Markets</a>
+      <a href="#planets">Solar system</a>
+      <a href="#invoice">Invoice</a>
+      <a href="#league">League table</a>
+      <a href="#forecast">Forecast</a>
+      <a href="#seats">Seat map</a>
+      <a href="#nutrition">Nutrition</a>
+      <span class="sep" aria-hidden="true"></span>
+      <a href="#release-notes">Release notes</a>
+      <a href="#pagination">Pagination</a>
+    </nav>
+
+    <section class="group" id="real">
+      <h2>Files you already have</h2>
+      <p>Each card starts from a file people already have: a download, an export, a command's output. The data stays exactly as it was exported; the two that print text rather than CSV, WhatsApp and <code>git log</code>, go through a few lines of Node first. <strong>As exported</strong> shows what you started with.</p>
+      <div class="cases">
+      <article class="example" id="weather" data-shared="weather.css">
+      <header>
+        <div>
+          <h3>A weather download</h3>
+          <div class="file">oslo.cssv · berlin.cssv · lisbon.cssv · weather.css</div>
+          <p><strong>Who has it:</strong> anyone who pulls data from an open-data portal or API. These are real: January 2026, daily, from Open-Meteo's archive, saved as CSV and left untouched, preamble and all.</p>
+          <p><strong>What the style does:</strong> each file is one <code>@import</code>; the calendar lives in <code>weather.css</code>, written once. The sign of each value says what kind of day it was: a negative minimum is a frosty night, a negative maximum a day below zero, a positive snowfall a snow day. The download's two location lines are found by <code>data-row</code> and become the caption.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: the download, unchanged</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-weather" id="v-weather-s" value="styled" checked><label for="v-weather-s">Styled</label>
+          <input type="radio" name="v-weather" id="v-weather-r" value="raw"><label for="v-weather-r">As exported</label>
+        </div>
+        <span class="hint">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> (CC BY 4.0).</span>
+      </div>
+      <div class="stage cities">
+        <cssv-table src="oslo.cssv"></cssv-table>
+        <cssv-table src="berlin.cssv"></cssv-table>
+        <cssv-table src="lisbon.cssv"></cssv-table>
+      </div>
+      </article>
+
+      <article class="example" id="jira">
+      <header>
+        <div>
+          <h3>A Jira export, as a board</h3>
+          <div class="file">jira-export.cssv</div>
+          <p><strong>Who has it:</strong> anyone who has clicked "Export CSV" in Jira to share a sprint with someone who has no account. The export repeats a column for every sprint and every label, all under the same name.</p>
+          <p><strong>What the style does:</strong> <code>--cssv-key: Status</code> sends each issue to its lane with one rule per status, and dense packing stacks the cards. Status is text, which v1 can't style by value; as the key it can. The repeated columns are no problem: <code>[data-col="Labels"]</code> styles both label columns.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows in Jira's format</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-jira" id="v-jira-s" value="styled" checked><label for="v-jira-s">Styled</label>
+          <input type="radio" name="v-jira" id="v-jira-r" value="raw"><label for="v-jira-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="jira-export.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="whatsapp">
+      <header>
+        <div>
+          <h3>A WhatsApp group chat</h3>
+          <div class="file">whatsapp-chat.cssv</div>
+          <p><strong>Who has it:</strong> anyone in a WhatsApp chat, through "Export chat" in the chat's menu. The export is a text file with a line per message; a few lines of Node turn each message into a CSV line: date, time, sender, message.</p>
+          <p><strong>What the style does:</strong> <code>--cssv-key: sender</code> puts the messages of Sam, who exported the chat, on the right and gives everyone else a color. WhatsApp's own lines, like "Ana added you", have no sender, so they get no <code>data-key</code>, and <code>tr:not([data-key])</code> centers them. A message with line breaks is one quoted field, and the renderer keeps the breaks.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample chat; the people are invented</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-chat" id="v-chat-s" value="styled" checked><label for="v-chat-s">Styled</label>
+          <input type="radio" name="v-chat" id="v-chat-r" value="raw"><label for="v-chat-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="whatsapp-chat.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="calendar">
+      <header>
+        <div>
+          <h3>A Google Calendar import</h3>
+          <div class="file">calendar-import.cssv</div>
+          <p><strong>Who has it:</strong> anyone who has put a term schedule, a shift rota or a fixture list into a spreadsheet to bulk-import it into Google Calendar, which reads CSV with exactly these column names.</p>
+          <p><strong>What the style does:</strong> <code>--cssv-key: "Start Date"</code> and five rules put each date in its column of a week, and a day's events stack in time order. The format leaves the times empty for all-day events, so <code>:empty</code> turns those into solid banners. The same file still imports.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows in Google Calendar's format</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-calendar" id="v-calendar-s" value="styled" checked><label for="v-calendar-s">Styled</label>
+          <input type="radio" name="v-calendar" id="v-calendar-r" value="raw"><label for="v-calendar-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="calendar-import.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="gradebook">
+      <header>
+        <div>
+          <h3>A Canvas gradebook</h3>
+          <div class="file">grades-bio-101.cssv</div>
+          <p><strong>Who has it:</strong> every teacher on Canvas. Line 2 isn't a student: it's the "Points Possible" row, indented with four spaces.</p>
+          <p><strong>What the style does:</strong> <code>tr[data-row="2"]</code> styles that row as "out of", without moving it. An empty score (<code>:empty</code>) is a missing assignment and says so; a <code>0</code> (<code>.zero</code>) was handed in and scored zero. Students with something missing get a red dot. The ID columns are hidden.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows in Canvas's format</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-grades" id="v-grades-s" value="styled" checked><label for="v-grades-s">Styled</label>
+          <input type="radio" name="v-grades" id="v-grades-r" value="raw"><label for="v-grades-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="grades-bio-101.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="translations">
+      <header>
+        <div>
+          <h3>A translation sheet</h3>
+          <div class="file">strings.cssv</div>
+          <p><strong>Who has it:</strong> any team that ships an app in more than one language. Translation tools import and export this CSV, and it often lives in the repository.</p>
+          <p><strong>What the style does:</strong> every empty cell is an untranslated string, so <code>td:empty</code> marks it in place, and a CSS counter per language totals them under the table. Reviewers see the gaps in the file itself, not in a separate report.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample strings</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-strings" id="v-strings-s" value="styled" checked><label for="v-strings-s">Styled</label>
+          <input type="radio" name="v-strings" id="v-strings-r" value="raw"><label for="v-strings-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="strings.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="git-log">
+      <header>
+        <div>
+          <h3><code>git log</code>, as a changelog</h3>
+          <div class="file">git-log.cssv</div>
+          <p><strong>Who has it:</strong> anyone with a terminal. Any command that prints CSV can print a report. These are the last 18 commits of this repository, from <code>git log --shortstat</code>.</p>
+          <p><strong>What the style does:</strong> deleted lines are written as negative numbers, so <code>.positive</code> and <code>.negative</code> color the additions and deletions, and <code>.zero</code> fades the commits that only added.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: this repository's history</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-git" id="v-git-s" value="styled" checked><label for="v-git-s">Styled</label>
+          <input type="radio" name="v-git" id="v-git-r" value="raw"><label for="v-git-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="git-log.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="badges">
+      <header>
+        <div>
+          <h3>An attendee list, printed as name badges</h3>
+          <div class="file">attendees.cssv</div>
+          <p><strong>Who has it:</strong> anyone running a meetup or a conference, the night before. Usually this is a mail merge in a word processor.</p>
+          <p><strong>What the style does:</strong> each row becomes a 9 × 5.5 cm badge, and <code>@media print</code> lays them out two to a row for an A4 page. The ticket type is the key, so <code>tr[data-key="Speaker"]</code> gets its own color. The order number, email and check-in columns are hidden; they stay in the file for the door.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows; the people are invented</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-badges" id="v-badges-s" value="styled" checked><label for="v-badges-s">Styled</label>
+          <input type="radio" name="v-badges" id="v-badges-r" value="raw"><label for="v-badges-r">As exported</label>
+        </div>
+        <span class="hint">On paper, the file's <code>@media print</code> rules make a sheet two badges wide, ready to cut.</span>
+      </div>
+      <div class="stage"><cssv-table src="attendees.cssv"></cssv-table></div>
+      </article>
+      </div>
+    </section>
+
+    <section class="group" id="showcase">
+      <h2>Made for the gallery</h2>
+      <p>These files were written for this page, to show how far a style block goes. Each is still a plain table, one record per row; the style block turns it into a grid of tiles, a trading terminal, a week stood on its side, a cabin or a food label.</p>
       <div class="toolbar">
         <span class="label" id="locale-label">Display numbers in</span>
         <div class="seg" id="locale" role="radiogroup" aria-labelledby="locale-label">
@@ -390,94 +886,250 @@
         </div>
         <span class="hint">Files store <code>1234.5</code>; the reader's locale decides how it looks.</span>
       </div>
-
-      <div class="grid">
-      <article class="example">
-        <header>
-          <div>
-            <h2>Market close <span class="file">markets.cssv</span></h2>
-            <p>A trading terminal built from sign classes. Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>, which drives the arrows, the colors, the pill tints and the row highlights. No value is repeated in the CSS.</p>
-            <ul class="chips">
-              <li>.positive / .negative / .zero</li>
-              <li>tr:has(.negative)</li>
-              <li>--cssv-format per column</li>
-              <li>tr[data-key="QBIT"]</li>
-              <li>@keyframes</li>
-            </ul>
+      <div class="cases">
+      <article class="example" id="elements">
+      <header>
+        <div>
+          <h3>The periodic table</h3>
+          <div class="file">elements.cssv</div>
+          <p>118 records in atomic-number order. The style block makes <code>tbody</code> an 18-column grid, so <code>tr:nth-child(26)</code> is iron: most elements flow into place, and five rules move the rest. <code>--cssv-key: category</code> names every row by its category, and each category sets one color. Masses keep the digits written in the file; switch to de-DE for decimal commas.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: the 118 elements</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>tbody { display: grid }</li>
+            <li>:nth-child(n+57):nth-child(-n+71)</li>
+            <li>--cssv-key</li>
+            <li>tbody::after</li>
+            <li>@container</li>
+          </ul>
+          <div class="legend">
+            <span style="--swatch: #ff6b6b">Alkali metal</span>
+            <span style="--swatch: #ff922b">Alkaline earth metal</span>
+            <span style="--swatch: #fcc419">Transition metal</span>
+            <span style="--swatch: #94d82d">Post-transition metal</span>
+            <span style="--swatch: #20c997">Metalloid</span>
+            <span style="--swatch: #4dabf7">Nonmetal</span>
+            <span style="--swatch: #748ffc">Halogen</span>
+            <span style="--swatch: #b197fc">Noble gas</span>
+            <span style="--swatch: #f783ac">Lanthanide</span>
+            <span style="--swatch: #e599f7">Actinide</span>
+            <span style="--swatch: #868e96">Unknown</span>
           </div>
-        </header>
-        <div class="stage"><cssv-table src="markets.cssv"></cssv-table></div>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-elements" id="v-elements-s" value="styled" checked><label for="v-elements-s">Styled</label>
+          <input type="radio" name="v-elements" id="v-elements-r" value="raw"><label for="v-elements-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="elements.cssv"></cssv-table></div>
       </article>
 
-      <article class="example">
-        <header>
-          <div>
-            <h2>The solar system <span class="file">planets.cssv</span></h2>
-            <p><code>--cssv-key: planet</code> names every row, and each row sets a few custom properties (<code>--orb</code>, <code>--size</code>, <code>--glow</code>) that one shared rule draws. The file stores <code>0.387</code>, and <code>--cssv-format</code> rounds it to 0.39 for display.</p>
-            <ul class="chips">
-              <li>--cssv-key</li>
-              <li>custom properties per row</li>
-              <li>::before / ::after</li>
-              <li>rounding: halfExpand</li>
-              <li>grouping by locale</li>
-            </ul>
-          </div>
-        </header>
-        <div class="stage"><cssv-table src="planets.cssv"></cssv-table></div>
+      <article class="example" id="markets">
+      <header>
+        <div>
+          <h3>Market close</h3>
+          <div class="file">markets.cssv</div>
+          <p>A trading terminal built from sign classes. Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>, which drives the arrows, the colors, the pill tints and the row highlights. No value is repeated in the CSS.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: invented tickers</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>.positive / .negative / .zero</li>
+            <li>tr:has(.negative)</li>
+            <li>--cssv-format per column</li>
+            <li>tr[data-key="QBIT"]</li>
+            <li>@keyframes</li>
+          </ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-markets" id="v-markets-s" value="styled" checked><label for="v-markets-s">Styled</label>
+          <input type="radio" name="v-markets" id="v-markets-r" value="raw"><label for="v-markets-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="markets.cssv"></cssv-table></div>
       </article>
 
-      <article class="example">
-        <header>
-          <div>
-            <h2>Invoice <span class="file">invoice.cssv</span></h2>
-            <p>SKUs like <code>0042</code> stay text because of the leading zero. Quoted fields span two lines, and <code>::first-line</code> bolds the title. Summary rows have no SKU, so they get no <code>data-key</code> and <code>tr:not([data-key])</code> selects them. Switch to de-DE or fr-FR to move the € sign after the amount with <code>:lang()</code>.</p>
-            <ul class="chips">
-              <li>text IDs</li>
-              <li>multi-line fields</li>
-              <li>tr:not([data-key])</li>
-              <li>:lang(de)</li>
-              <li>@media print</li>
-            </ul>
-          </div>
-        </header>
-        <div class="stage"><cssv-table src="invoice.cssv"></cssv-table></div>
+      <article class="example" id="planets">
+      <header>
+        <div>
+          <h3>The solar system</h3>
+          <div class="file">planets.cssv</div>
+          <p><code>--cssv-key: planet</code> names every row, and each row sets a few custom properties (<code>--orb</code>, <code>--size</code>, <code>--glow</code>) that one shared rule draws. The file stores <code>0.387</code>, and <code>--cssv-format</code> rounds it to 0.39 for display.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: the eight planets</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>--cssv-key</li>
+            <li>custom properties per row</li>
+            <li>::before / ::after</li>
+            <li>rounding: halfExpand</li>
+            <li>grouping by locale</li>
+          </ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-planets" id="v-planets-s" value="styled" checked><label for="v-planets-s">Styled</label>
+          <input type="radio" name="v-planets" id="v-planets-r" value="raw"><label for="v-planets-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="planets.cssv"></cssv-table></div>
       </article>
 
-      <article class="example">
-        <header>
-          <div>
-            <h2>League table <span class="file">league.cssv</span></h2>
-            <p>A semicolon-delimited spreadsheet export, detected from the header. Ranks come from a CSS counter, and crests come from two colors set per club by name. Zones are selected by position. The style block switches palettes with <code>prefers-color-scheme</code>.</p>
-            <ul class="chips">
-              <li>; delimiter</li>
-              <li>counter(rank)</li>
-              <li>:nth-child zones</li>
-              <li>prefers-color-scheme</li>
-            </ul>
-            <div class="legend">
-              <span style="--swatch: #3b82f6">Title race</span>
-              <span style="--swatch: #06b6d4">Cup qualifier</span>
-              <span style="--swatch: #ef4444">Relegation</span>
-            </div>
-          </div>
-        </header>
-        <div class="stage"><cssv-table src="league.cssv"></cssv-table></div>
+      <article class="example" id="invoice">
+      <header>
+        <div>
+          <h3>Invoice</h3>
+          <div class="file">invoice.cssv</div>
+          <p>SKUs like <code>0042</code> stay text because of the leading zero. Quoted fields span two lines, and <code>::first-line</code> bolds the title. Summary rows have no SKU, so they get no <code>data-key</code> and <code>tr:not([data-key])</code> selects them. Switch to de-DE or fr-FR to move the € sign after the amount with <code>:lang()</code>.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented invoice</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>text IDs</li>
+            <li>multi-line fields</li>
+            <li>tr:not([data-key])</li>
+            <li>:lang(de)</li>
+            <li>@media print</li>
+          </ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-invoice" id="v-invoice-s" value="styled" checked><label for="v-invoice-s">Styled</label>
+          <input type="radio" name="v-invoice" id="v-invoice-r" value="raw"><label for="v-invoice-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="invoice.cssv"></cssv-table></div>
       </article>
 
-      <article class="example wide">
-        <header>
-          <div>
-            <h2>Release notes <span class="file">inline &lt;script type="text/cssv"&gt;</span></h2>
-            <p>This file sits inline in the page instead of being loaded with <code>src</code>. Prefix selectors on the key (<code>[data-key^="feat-"]</code>) color each entry, and the timeline is drawn with pseudo-elements. Colors are mixed from <code>currentColor</code>, so the table follows the page's light or dark theme.</p>
-            <ul class="chips">
-              <li>inline &lt;script&gt;</li>
-              <li>[data-key^="break-"]</li>
-              <li>color-mix(currentColor)</li>
-              <li>::first-line</li>
-            </ul>
+      <article class="example" id="league">
+      <header>
+        <div>
+          <h3>League table</h3>
+          <div class="file">league.cssv</div>
+          <p>A semicolon-delimited spreadsheet export, detected from the header. Ranks come from a CSS counter, and crests come from two colors set per club by name. Zones are selected by position. The style block switches palettes with <code>prefers-color-scheme</code>.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented league</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>; delimiter</li>
+            <li>counter(rank)</li>
+            <li>:nth-child zones</li>
+            <li>prefers-color-scheme</li>
+          </ul>
+          <div class="legend">
+            <span style="--swatch: #3b82f6">Title race</span>
+            <span style="--swatch: #06b6d4">Cup qualifier</span>
+            <span style="--swatch: #ef4444">Relegation</span>
           </div>
-        </header>
-        <div class="stage">
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-league" id="v-league-s" value="styled" checked><label for="v-league-s">Styled</label>
+          <input type="radio" name="v-league" id="v-league-r" value="raw"><label for="v-league-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="league.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="forecast">
+      <header>
+        <div>
+          <h3>A week of weather</h3>
+          <div class="file">forecast.cssv</div>
+          <p>Each record is a day, and the style block stands the table on its side: every <code>tr</code> becomes a column of the table's grid, sharing its rows through <code>subgrid</code>, and the header row becomes the labels. The condition is the key column, and each condition paints its own sky and icon with gradients. Friday's low of −0.3 rounds to 0 but keeps <code>.negative</code>, so it stays frost blue. Try ar-EG.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented week</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>grid-template-rows: subgrid</li>
+            <li>rows as columns</li>
+            <li>tr[data-key="storm"]</li>
+            <li>.negative</li>
+            <li>colgroup { display: none }</li>
+          </ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-forecast" id="v-forecast-s" value="styled" checked><label for="v-forecast-s">Styled</label>
+          <input type="radio" name="v-forecast" id="v-forecast-r" value="raw"><label for="v-forecast-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="forecast.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="seats">
+      <header>
+        <div>
+          <h3>Seat map</h3>
+          <div class="file">seats.cssv</div>
+          <p>A booking export: initials where a seat is taken, an empty field where it's free, so <code>:empty</code> draws the free seats. The row number is the middle column, which puts it in the aisle, and the key column, so <code>tr[data-key="12"]</code> is an exit row and one rule finds your seat by row and column. There is no row 13.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: invented bookings</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>:empty</li>
+            <li>tr[data-key="17"] td[data-col="D"]</li>
+            <li>:nth-child(-n+3)</li>
+            <li>@keyframes</li>
+          </ul>
+          <div class="legend">
+            <span style="--swatch: #2f9e44">Free</span>
+            <span style="--swatch: #94a3b8">Taken</span>
+            <span style="--swatch: #1c7ed6">Your seat</span>
+            <span style="--swatch: #e03131">Exit</span>
+          </div>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-seats" id="v-seats-s" value="styled" checked><label for="v-seats-s">Styled</label>
+          <input type="radio" name="v-seats" id="v-seats-r" value="raw"><label for="v-seats-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="seats.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="nutrition">
+      <header>
+        <div>
+          <h3>Nutrition Facts</h3>
+          <div class="file">nutrition.cssv</div>
+          <p>Four columns: nutrient, amount, unit and % Daily Value. Every row is a flex line, and the nutrient, the key column, styles it by name: the heavy rules, the indents, the <code>order</code> that makes "Includes 10g Added Sugars", and the title and footnote as generated content. Empty % cells disappear with <code>:empty</code>.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented label</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>tr { display: flex }</li>
+            <li>order</li>
+            <li>::before / ::after</li>
+            <li>:empty</li>
+          </ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-nutrition" id="v-nutrition-s" value="styled" checked><label for="v-nutrition-s">Styled</label>
+          <input type="radio" name="v-nutrition" id="v-nutrition-r" value="raw"><label for="v-nutrition-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="nutrition.cssv"></cssv-table></div>
+      </article>
+      </div>
+    </section>
+
+    <section class="group" id="embedding">
+      <h2>On a page</h2>
+      <p>The cards above load their files with <code>src</code>. These two show the other ways in: a file written inline in the page, and a table that pages through a server's results.</p>
+      <div class="cases">
+      <article class="example" id="release-notes">
+      <header>
+        <div>
+          <h3>Release notes</h3>
+          <div class="file">inline &lt;script type="text/cssv"&gt;</div>
+          <p>This file sits inline in the page instead of being loaded with <code>src</code>. Prefix selectors on the key (<code>[data-key^="feat-"]</code>) color each entry, and the timeline is drawn with pseudo-elements. Colors are mixed from <code>currentColor</code>, so the table follows the page's light or dark theme.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: invented releases</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>inline &lt;script&gt;</li>
+            <li>[data-key^="break-"]</li>
+            <li>color-mix(currentColor)</li>
+            <li>::first-line</li>
+          </ul>
+        </div>
+      </header>
+      <div class="stage">
           <cssv-table>
             <script type="text/cssv">
 ---
@@ -596,140 +1248,96 @@ Follows the system setting unless someone picks a theme.",mara
 The date picker uses each locale's first day of the week.",tomas
             </script>
           </cssv-table>
+      </div>
+      </article>
+
+      <article class="example" id="pagination" data-shared="ledger/ledger.css" data-per="page">
+      <header>
+        <div>
+          <h3>Account activity, a page at a time</h3>
+          <div class="file" id="ledger-file">ledger/page-1.cssv</div>
+          <p>A server can send <code>.cssv</code> where it would send JSON. This site is static, so the five pages are files; a real endpoint would take <code>?page=2</code> and report the total, for example in a response header. The page script sets the table's <code>src</code> and listens for its loading events.</p>
+          <p>Each page's style block is a comment and <code>@import url("ledger.css")</code>. The shared stylesheet sets the key column and the number format and styles the rows, so a page carries only its records and the browser can cache the styles. The current page stays on screen while the next one loads, and <code>cssv-loadstart</code> and <code>cssv-loadend</code> drive the spinner; throttle the network in your browser's developer tools to see it. Click ahead quickly and only the last page you asked for is shown.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: invented transactions</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>table.src = …</li>
+            <li>cssv-loadstart / cssv-loadend</li>
+            <li>shared @import</li>
+            <li>.positive::before</li>
+          </ul>
         </div>
-      </article>
-      </div>
-
-      <h2>Tables that don't look like tables</h2>
-      <p>Each of these files is still a plain table, one record per row. The style block lays it out as a grid of tiles, turns its rows into columns, draws a cabin around it or sets it as a food label.</p>
-      <div class="grid">
-      <article class="example wide">
-        <header>
-          <div>
-            <h2>The periodic table <span class="file">elements.cssv</span></h2>
-            <p>118 records in atomic-number order. The style block makes <code>tbody</code> an 18-column grid, so <code>tr:nth-child(26)</code> is iron: most elements flow into place, and five rules move the rest. <code>--cssv-key: category</code> names every row by its category, and each category sets one color. Masses keep the digits written in the file; switch to de-DE for decimal commas.</p>
-            <ul class="chips">
-              <li>tbody { display: grid }</li>
-              <li>:nth-child(n+57):nth-child(-n+71)</li>
-              <li>--cssv-key</li>
-              <li>tbody::after</li>
-              <li>@container</li>
-            </ul>
-            <div class="legend">
-              <span style="--swatch: #ff6b6b">Alkali metal</span>
-              <span style="--swatch: #ff922b">Alkaline earth metal</span>
-              <span style="--swatch: #fcc419">Transition metal</span>
-              <span style="--swatch: #94d82d">Post-transition metal</span>
-              <span style="--swatch: #20c997">Metalloid</span>
-              <span style="--swatch: #4dabf7">Nonmetal</span>
-              <span style="--swatch: #748ffc">Halogen</span>
-              <span style="--swatch: #b197fc">Noble gas</span>
-              <span style="--swatch: #f783ac">Lanthanide</span>
-              <span style="--swatch: #e599f7">Actinide</span>
-              <span style="--swatch: #868e96">Unknown</span>
-            </div>
-          </div>
-        </header>
-        <div class="stage"><cssv-table src="elements.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example wide">
-        <header>
-          <div>
-            <h2>A week of weather <span class="file">forecast.cssv</span></h2>
-            <p>Each record is a day, and the style block stands the table on its side: every <code>tr</code> becomes a column of the table's grid, sharing its rows through <code>subgrid</code>, and the header row becomes the labels. The condition is the key column, and each condition paints its own sky and icon with gradients. Friday's low of −0.3 rounds to 0 but keeps <code>.negative</code>, so it stays frost blue. Try ar-EG.</p>
-            <ul class="chips">
-              <li>grid-template-rows: subgrid</li>
-              <li>rows as columns</li>
-              <li>tr[data-key="storm"]</li>
-              <li>.negative</li>
-              <li>colgroup { display: none }</li>
-            </ul>
-          </div>
-        </header>
-        <div class="stage"><cssv-table src="forecast.cssv"></cssv-table></div>
-      </article>
-      </div>
-
-      <div class="grid pair">
-      <article class="example">
-        <header>
-          <div>
-            <h2>Seat map <span class="file">seats.cssv</span></h2>
-            <p>A booking export: initials where a seat is taken, an empty field where it's free, so <code>:empty</code> draws the free seats. The row number is the middle column, which puts it in the aisle, and the key column, so <code>tr[data-key="12"]</code> is an exit row and one rule finds your seat by row and column. There is no row 13.</p>
-            <ul class="chips">
-              <li>:empty</li>
-              <li>tr[data-key="17"] td[data-col="D"]</li>
-              <li>:nth-child(-n+3)</li>
-              <li>@keyframes</li>
-            </ul>
-            <div class="legend">
-              <span style="--swatch: #2f9e44">Free</span>
-              <span style="--swatch: #94a3b8">Taken</span>
-              <span style="--swatch: #1c7ed6">Your seat</span>
-              <span style="--swatch: #e03131">Exit</span>
-            </div>
-          </div>
-        </header>
-        <div class="stage"><cssv-table src="seats.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example">
-        <header>
-          <div>
-            <h2>Nutrition Facts <span class="file">nutrition.cssv</span></h2>
-            <p>Four columns: nutrient, amount, unit and % Daily Value. Every row is a flex line, and the nutrient, the key column, styles it by name: the heavy rules, the indents, the <code>order</code> that makes "Includes 10g Added Sugars", and the title and footnote as generated content. Empty % cells disappear with <code>:empty</code>.</p>
-            <ul class="chips">
-              <li>tr { display: flex }</li>
-              <li>order</li>
-              <li>::before / ::after</li>
-              <li>:empty</li>
-            </ul>
-          </div>
-        </header>
-        <div class="stage"><cssv-table src="nutrition.cssv"></cssv-table></div>
+      </header>
+      <div class="stage"><cssv-table id="ledger" src="ledger/page-1.cssv"></cssv-table></div>
+      <nav class="pager" id="ledger-pager" aria-label="Ledger pages">
+        <button type="button" data-step="-1" disabled>Previous</button>
+        <div class="seg" role="radiogroup" aria-label="Page">
+          <input type="radio" name="ledger-page" id="ledger-p1" value="1" checked><label for="ledger-p1">1</label>
+          <input type="radio" name="ledger-page" id="ledger-p2" value="2"><label for="ledger-p2">2</label>
+          <input type="radio" name="ledger-page" id="ledger-p3" value="3"><label for="ledger-p3">3</label>
+          <input type="radio" name="ledger-page" id="ledger-p4" value="4"><label for="ledger-p4">4</label>
+          <input type="radio" name="ledger-page" id="ledger-p5" value="5"><label for="ledger-p5">5</label>
+        </div>
+        <button type="button" data-step="1">Next</button>
+        <span class="status"><span class="spinner" aria-hidden="true"></span><span aria-live="polite">Page 1 of 5 · records 1–12 of 60</span></span>
+      </nav>
       </article>
       </div>
     </section>
 
     <section>
-      <h2>Paginated data</h2>
-      <p>A server can send <code>.cssv</code> where it would send JSON. This site is static, so the five pages are files; a real endpoint would take <code>?page=2</code> and report the total, for example in a response header. The page script sets the table's <code>src</code> and listens for its loading events.</p>
-      <article class="example">
-        <header>
-          <div>
-            <h3>Account activity <span class="file" id="ledger-file">ledger/page-1.cssv</span></h3>
-            <p>Each page's style block is a comment and <code>@import url("ledger.css")</code>. The shared stylesheet sets the key column and the number format and styles the rows, so a page carries only its records and the browser can cache the styles. The current page stays on screen while the next one loads, and <code>cssv-loadstart</code> and <code>cssv-loadend</code> drive the spinner; throttle the network in your browser's developer tools to see it. Click ahead quickly and only the last page you asked for is shown.</p>
-            <ul class="chips">
-              <li>table.src = …</li>
-              <li>cssv-loadstart / cssv-loadend</li>
-              <li>shared @import</li>
-              <li>.positive::before</li>
-            </ul>
-          </div>
-        </header>
-        <div class="stage"><cssv-table id="ledger" src="ledger/page-1.cssv"></cssv-table></div>
-        <nav class="pager" id="ledger-pager" aria-label="Ledger pages">
-          <button type="button" data-step="-1" disabled>Previous</button>
-          <div class="seg" role="radiogroup" aria-label="Page">
-            <input type="radio" name="ledger-page" id="ledger-p1" value="1" checked><label for="ledger-p1">1</label>
-            <input type="radio" name="ledger-page" id="ledger-p2" value="2"><label for="ledger-p2">2</label>
-            <input type="radio" name="ledger-page" id="ledger-p3" value="3"><label for="ledger-p3">3</label>
-            <input type="radio" name="ledger-page" id="ledger-p4" value="4"><label for="ledger-p4">4</label>
-            <input type="radio" name="ledger-page" id="ledger-p5" value="5"><label for="ledger-p5">5</label>
-          </div>
-          <button type="button" data-step="1">Next</button>
-          <span class="status"><span class="spinner" aria-hidden="true"></span><span aria-live="polite">Page 1 of 5 · records 1–12 of 60</span></span>
-        </nav>
-      </article>
+      <h2>Why a style block, and not a script or a spreadsheet</h2>
+      <ul class="why">
+        <li><strong>The file stays a CSV.</strong> Delete the lines down to the second <code>---</code> and it's the export again. Spreadsheets, pandas and translation tools keep reading the data, and a diff shows a change to the data or to the looks, never both mixed up.</li>
+        <li><strong>The values are the hooks.</strong> Numbers get <code>.negative</code>, <code>.zero</code> and <code>.positive</code>, empty cells match <code>:empty</code>, every cell knows its column and row. Nobody writes markup or code to connect the data to the styles.</li>
+        <li><strong>Write the look once.</strong> An <code>@import</code> gives next month's download, next term's gradebook or next year's attendee list the same look, with one line each.</li>
+        <li><strong>Nothing to install.</strong> One <code>&lt;cssv-table src="…"&gt;</code> tag and a browser render it. The <a href="../site/editor/">editor</a> opens it too.</li>
+      </ul>
     </section>
 
-    <footer>Rendered by <code>src/cssv-table.js</code>. The format is defined in <a href="../SPEC.md">SPEC.md</a>. · <a href="../site/imprint.html">Imprint</a> · <a href="../site/privacy.html">Privacy</a></footer>
+    <section>
+      <h2>What these files ran into</h2>
+      <ul class="limits">
+        <li><strong>Text values can't be styled by value.</strong> WhatsApp's <code>&lt;Media omitted&gt;</code> and <code>This message was deleted</code>, and Loop Habit Tracker's checkmarks (<code>YES_MANUAL</code>, <code>NO</code>) are words, and v1 gives classes only to numbers. An opt-in list of words, like the <code>--cssv-tag</code> candidate in <a href="../site/spec.html">Appendix D</a>, would cover both.</li>
+        <li><strong>Rows can't be compared with the row before.</strong> A run of messages from one person is grouped with <code>[data-key="Ana"] + [data-key="Ana"]</code>, a pair for every person in the chat, and a date line between two days would need a rule per date.</li>
+        <li><strong>Comma decimals are text.</strong> Many European bank exports write <code>-45,50</code>, which v1 reads as text, so the sign classes don't apply.</li>
+        <li><strong>CSS can't compare numbers.</strong> A grade under 50% or a day above 30° can't be picked out in every browser yet; these cards use signs, empty cells and the key instead.</li>
+      </ul>
+    </section>
+
+    <footer>Rendered by <code>src/cssv-table.js</code>. The format is defined in <a href="../site/spec.html">the spec</a>. · <a href="../site/imprint.html">Imprint</a> · <a href="../site/privacy.html">Privacy</a></footer>
   </div>
 
   <script type="module">
+    // The quick links: the sticky bars' heights go to CSS for the cards'
+    // scroll margins, and the link of the card that fills the middle of the
+    // window is marked.
+    const root = document.documentElement;
+    const jump = document.querySelector('.jump');
+    const toolbar = document.querySelector('.toolbar');
+    const bars = new ResizeObserver(() => {
+      root.style.setProperty('--jump-height', `${jump.offsetHeight}px`);
+      root.style.setProperty('--toolbar-height', `${toolbar.offsetHeight}px`);
+    });
+    bars.observe(jump);
+    bars.observe(toolbar);
+
+    const links = new Map([...jump.querySelectorAll('a')].map((a) => [a.hash.slice(1), a]));
+    const spy = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        for (const link of links.values()) link.removeAttribute('aria-current');
+        const link = links.get(entry.target.id);
+        link.setAttribute('aria-current', 'true');
+        // Keep the marked link in view on narrow screens, without touching the page's scroll.
+        jump.scrollTo({ left: link.offsetLeft - jump.offsetLeft - (jump.clientWidth - link.offsetWidth) / 2 });
+      }
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    for (const card of document.querySelectorAll('.cases > .example')) spy.observe(card);
+  </script>
+
+  <script type="module">
     // Locale switcher: sets lang on the showcase tables, which re-render (SPEC 10.1).
-    const showcase = document.querySelectorAll('#showcase cssv-table');
+    const showcase = document.querySelectorAll('#showcase .example cssv-table');
     document.getElementById('locale').addEventListener('change', (event) => {
       for (const table of showcase) table.setAttribute('lang', event.target.value);
     });
@@ -783,231 +1391,193 @@ The date picker uses each locale's first day of the week.",tomas
   </script>
 
   <script type="module">
-    // "View source": shows each example's CSSV text, read from the same src
-    // or inline script the table renders, with light syntax highlighting.
+    // Each card: the files its tables render, a Styled / As exported switch,
+    // the style block's size, and "View source". The wall: each tile zooms
+    // its live table to fit, and keeps the file's first lines of CSV for
+    // when it's pointed at.
+    import { highlightCssv } from '../site/highlight.js';
     import { inlineText } from '../src/core.js';
 
-    const NUMBER = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/; // SPEC 6.1
-    const FENCE = /^﻿?---[ \t]*\r?\n?$/;     // SPEC 3.4
-    const HOOK = /(data-(?:col|row|key)|\.(?:number|negative|positive|zero)\b)/;
-    const CSS_TOKEN = /\/\*[\s\S]*?(?:\*\/|$)|"(?:[^"\\\n]|\\[\s\S])*"?|'(?:[^'\\\n]|\\[\s\S])*'?|[{};:]|[^{};:"'/]+|\//g;
-    const NESTING_AT_RULE = /^\s*@(?:media|supports|layer|container|keyframes|scope|document)\b/;
+    const FENCE = /^﻿?---[ \t]*$/; // SPEC 3.4
+    const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>';
+    const files = new Map();
 
-    function span(cls, text) {
-      const el = document.createElement('span');
-      el.className = cls;
-      el.textContent = text;
-      return el;
+    function read(path) {
+      if (!files.has(path)) {
+        files.set(path, fetch(path).then((res) => {
+          if (!res.ok) throw new Error(`Could not load ${path} (HTTP ${res.status}).`);
+          return res.text();
+        }));
+      }
+      return files.get(path);
     }
 
-    // Selectors, with the table model's hooks (data-* and the four classes) marked.
-    function selector(text, out) {
-      text.split(HOOK).forEach((part, i) => {
-        if (part) out.append(span(i % 2 ? 't-hook' : 't-sel', part));
-      });
+    // A table's file: its src, or its inline script, normalized the way the
+    // renderer normalizes it (SPEC Appendix C).
+    async function sourceOf(table) {
+      const src = table.getAttribute('src');
+      if (src !== null) return { name: src, text: await read(src), url: new URL(src, document.baseURI).href };
+      const script = table.querySelector(':scope > script[type="text/cssv"]');
+      return { name: 'inline <script type="text/cssv">', text: inlineText(script?.textContent ?? ''), url: null };
     }
 
-    function highlightCss(css, out) {
-      const stack = ['rules'];
-      let prelude = '';
-      let inValue = false;
-      for (const [tok] of css.matchAll(CSS_TOKEN)) {
-        const isString = tok[0] === '"' || tok[0] === "'";
-        if (tok.startsWith('/*')) { out.append(span('t-comment', tok)); continue; }
-        if (tok === '{' || tok === '}' || tok === ';') {
-          if (tok === '{') stack.push(stack.at(-1) === 'rules' && NESTING_AT_RULE.test(prelude) ? 'rules' : 'decls');
-          if (tok === '}' && stack.length > 1) stack.pop();
-          prelude = '';
-          inValue = false;
-          out.append(span('t-punct', tok));
-          continue;
-        }
-        if (stack.at(-1) === 'rules') {
-          prelude += tok;
-          if (isString) out.append(span('t-str', tok));
-          else if (prelude.trimStart().startsWith('@')) {
-            tok.split(/(@[\w-]+)/).forEach((part, i) => { if (part) out.append(span(i % 2 ? 't-at' : 't-atp', part)); });
-          } else selector(tok, out);
-          continue;
-        }
-        if (tok === ':' && !inValue) { inValue = true; out.append(span('t-punct', tok)); continue; }
-        if (isString) { out.append(span('t-str', tok)); continue; }
-        if (inValue) { out.append(span('t-val', tok)); continue; }
-        const name = tok.trim();
-        out.append(span(name.startsWith('--cssv-') ? 't-cssv' : name.startsWith('--') ? 't-var' : 't-prop', tok));
+    // The style block and the data section, split at the fences.
+    function split(text) {
+      const lines = text.split('\n');
+      if (!FENCE.test(lines[0])) return { style: '', data: text };
+      const end = lines.findIndex((line, i) => i > 0 && FENCE.test(line));
+      return { style: lines.slice(1, end).join('\n'), data: lines.slice(end + 1).join('\n') };
+    }
+
+    // Lines of CSS, not counting comments or blank lines.
+    function cssLines(css) {
+      return css.replace(/\/\*[\s\S]*?\*\//g, '').split('\n').filter((line) => line.trim()).length;
+    }
+
+    function plural(n, word) {
+      return `${n} ${word}${n === 1 ? '' : 's'}`;
+    }
+
+    async function describe(example, tables) {
+      const count = example.querySelector('[data-count]');
+      const own = cssLines(split((await sourceOf(tables[0])).text).style);
+      const shared = example.dataset.shared;
+      count.textContent = shared
+        ? `style: ${plural(own, 'line')} per ${example.dataset.per ?? 'file'} + ${shared.split('/').pop()}, ${plural(cssLines(await read(shared)), 'line')}, shared`
+        : `style block: ${plural(own, 'line')} of CSS`;
+    }
+
+    function view(tables, raw) {
+      for (const table of tables) {
+        sourceOf(table).then(({ text }) => table.update(raw ? split(text).data : text));
       }
     }
 
-    function highlightCsv(data, out) {
-      // SPEC 5.1: the delimiter is whichever of , and ; the header uses more.
-      let quoted = false, commas = 0, semicolons = 0;
-      for (const ch of data) {
-        if (ch === '"') quoted = !quoted;
-        else if (quoted) continue;
-        else if (ch === '\n' || ch === '\r') break;
-        else if (ch === ',') commas++;
-        else if (ch === ';') semicolons++;
-      }
-      const delimiter = semicolons > commas ? ';' : ',';
-      let pos = 0, record = 0, lineHasField = false;
-      while (pos < data.length) {
-        const ch = data[pos];
-        if (ch === delimiter) { out.append(span('t-delim', ch)); pos++; lineHasField = true; continue; }
-        if (ch === '\r' || ch === '\n') {
-          const end = data.startsWith('\r\n', pos) ? pos + 2 : pos + 1;
-          out.append(data.slice(pos, end));
-          if (lineHasField) record++;
-          lineHasField = false;
-          pos = end;
-          continue;
-        }
-        let end = pos;
-        if (ch === '"') {
-          end++;
-          while (end < data.length) {
-            if (data[end] !== '"') end++;
-            else if (data[end + 1] === '"') end += 2;
-            else { end++; break; }
-          }
-        }
-        while (end < data.length && data[end] !== delimiter && data[end] !== '\n' && data[end] !== '\r') end++;
-        const field = data.slice(pos, end);
-        const cls = record === 0 ? 't-head' : ch === '"' ? 't-quoted' : NUMBER.test(field) ? 't-num' : 't-text';
-        out.append(span(cls, field));
-        lineHasField = true;
-        pos = end;
-      }
-    }
-
-    function highlight(text) {
-      const out = document.createDocumentFragment();
-      const lines = text.split(/(?<=\n)/);
-      let i = 0;
-      if (lines.length && FENCE.test(lines[0])) {
-        out.append(span('t-fence', lines[i++]));
-        let css = '';
-        while (i < lines.length && !FENCE.test(lines[i])) css += lines[i++];
-        highlightCss(css, out);
-        if (i < lines.length) out.append(span('t-fence', lines[i++]));
-      }
-      highlightCsv(lines.slice(i).join(''), out);
+    function highlightCss(css) {
+      // The site's highlighter reads CSSV, so the CSS goes between fences
+      // that are then taken out again.
+      const out = highlightCssv(`---\n${css.endsWith('\n') ? css : `${css}\n`}---\n`);
+      out.firstChild.remove();
+      out.lastChild.remove();
       return out;
     }
 
-    async function readSource(table) {
-      const src = table.getAttribute('src');
-      if (src !== null) {
-        const url = new URL(src, document.baseURI);
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Could not load ${src} (HTTP ${res.status}).`);
-        return { text: await res.text(), name: src, url: res.url };
+    // One file in a source panel: a bar with its name, its size and the
+    // actions, then its text.
+    function pane(source, model) {
+      const bar = document.createElement('div');
+      bar.className = 'source-bar';
+      const info = document.createElement('div');
+      info.className = 'meta';
+      const name = document.createElement('strong');
+      name.textContent = source.name;
+      info.append(name);
+      if (model) {
+        const size = document.createElement('span');
+        size.textContent = `${plural(model.rows.length, 'record')} × ${plural(model.columns.length, 'column')}`;
+        info.append(size);
+        if (model.delimiter === ';') {
+          const delimiter = document.createElement('span');
+          delimiter.textContent = 'semicolon-delimited';
+          info.append(delimiter);
+        }
       }
-      // Same normalization as the renderer (SPEC Appendix C).
-      const script = table.querySelector(':scope > script[type="text/cssv"]');
-      return { text: inlineText(script?.textContent ?? ''), name: 'inline <script type="text/cssv">', url: null };
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.textContent = 'Copy';
+      copy.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(source.text);
+          copy.textContent = 'Copied';
+        } catch {
+          copy.textContent = 'Copy failed';
+        }
+        setTimeout(() => { copy.textContent = 'Copy'; }, 1400);
+      });
+      actions.append(copy);
+      if (source.url) {
+        const open = document.createElement('a');
+        open.className = 'open';
+        open.href = source.url;
+        open.target = '_blank';
+        open.textContent = 'Open file';
+        actions.append(open);
+      }
+      bar.append(info, actions);
+      const pre = document.createElement('pre');
+      const code = document.createElement('code');
+      code.append(source.name.endsWith('.css') ? highlightCss(source.text) : highlightCssv(source.text));
+      pre.append(code);
+      return [bar, pre];
     }
 
-    function meta(model, source) {
-      const items = [];
-      if (!model) return items;
-      items.push(model.style === null ? 'no style block' : `${model.style.split('\n').length} lines of CSS`);
-      items.push(`${model.rows.length} records × ${model.columns.length} columns`);
-      if (model.delimiter === ';') items.push('semicolon-delimited');
-      for (const [, href] of (model.style ?? '').matchAll(/@import\s+(?:url\(\s*)?["']([^"']+)["']/g)) {
-        const a = document.createElement('a');
-        a.href = new URL(href, source.url ?? document.baseURI).href;
-        a.textContent = `imports ${href}`;
-        a.target = '_blank';
-        items.push(a);
-      }
-      return items;
-    }
-
+    // A card's source panel: every file its tables render, then the
+    // stylesheet they share.
     let panels = 0;
-    async function buildPanel(example, table) {
+    async function buildPanel(example, tables) {
       const panel = document.createElement('div');
       panel.className = 'source';
       panel.id = `source-${++panels}`;
-      panel.hidden = true;
-      const bar = document.createElement('div');
-      bar.className = 'source-bar';
-      const pre = document.createElement('pre');
-      const code = document.createElement('code');
-      pre.append(code);
-      panel.append(bar, pre);
-      example.append(panel);
-      try {
-        const source = await readSource(table);
+      const shared = example.dataset.shared;
+      const jobs = tables.map(async (table) => {
+        const source = await sourceOf(table);
         await table.ready;
-        const info = document.createElement('div');
-        info.className = 'meta';
-        const name = document.createElement('strong');
-        name.textContent = source.name;
-        info.append(name);
-        for (const item of meta(table.model, source)) {
-          const el = typeof item === 'string' ? document.createElement('span') : item;
-          if (typeof item === 'string') el.textContent = item;
-          info.append(el);
+        return pane(source, table.model);
+      });
+      if (shared) jobs.push(read(shared).then((text) => pane({ name: shared, text, url: new URL(shared, document.baseURI).href })));
+      for (const job of jobs) {
+        try {
+          panel.append(...await job);
+        } catch (error) {
+          const bar = document.createElement('div');
+          bar.className = 'source-bar';
+          bar.textContent = error.message;
+          panel.append(bar);
         }
-        const actions = document.createElement('div');
-        actions.className = 'actions';
-        const copy = document.createElement('button');
-        copy.type = 'button';
-        copy.textContent = 'Copy';
-        copy.addEventListener('click', async () => {
-          try {
-            await navigator.clipboard.writeText(source.text);
-            copy.textContent = 'Copied';
-          } catch {
-            copy.textContent = 'Copy failed';
-          }
-          setTimeout(() => { copy.textContent = 'Copy'; }, 1400);
-        });
-        actions.append(copy);
-        if (source.url) {
-          const open = document.createElement('a');
-          open.className = 'open';
-          open.href = source.url;
-          open.target = '_blank';
-          open.textContent = 'Open file';
-          actions.append(open);
-        }
-        bar.append(info, actions);
-        code.append(highlight(source.text));
-      } catch (error) {
-        bar.textContent = error.message;
       }
       return panel;
     }
 
-    const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>';
-    for (const example of document.querySelectorAll('.example')) {
-      const table = example.querySelector('cssv-table');
+    for (const example of document.querySelectorAll('.cases > .example')) {
+      const tables = [...example.querySelectorAll('cssv-table')];
+      describe(example, tables);
+      example.querySelector('.controls .seg')?.addEventListener('change', (event) => view(tables, event.target.value === 'raw'));
+
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'source-toggle';
       button.setAttribute('aria-expanded', 'false');
       button.innerHTML = `${ICON}<span>View source</span>`;
       example.querySelector(':scope > header').append(button);
-      // A panel shows one file. When the table's src changes (the paginated
-      // example), the panel is replaced with one for the new file.
+
+      // The panel shows the files the tables render. When a table's src
+      // changes (the paginated card), it is built again for the new file.
       let panel = null;
-      let panelSrc = null;
+      let shown = '';
+      let building = 0;
+      const srcs = () => tables.map((table) => table.getAttribute('src')).join('\n');
       async function sync() {
-        const src = table.getAttribute('src');
-        if (panel && panelSrc !== src) {
-          panel.then((el) => el.remove());
+        const open = button.getAttribute('aria-expanded') === 'true';
+        if (panel && shown !== srcs()) {
+          panel.remove();
           panel = null;
+          button.removeAttribute('aria-controls');
         }
-        if (!panel) {
-          panelSrc = src;
-          panel = buildPanel(example, table);
+        if (panel || !open) {
+          if (panel) panel.hidden = !open;
+          return;
         }
-        const current = panel;
-        const el = await current;
-        if (current !== panel) return;
+        const run = ++building;
+        const now = srcs();
+        const el = await buildPanel(example, tables);
+        if (run !== building) return;
+        panel = el;
+        shown = now;
+        example.append(el);
         button.setAttribute('aria-controls', el.id);
-        el.hidden = button.getAttribute('aria-expanded') !== 'true';
+        sync();
       }
       button.addEventListener('click', () => {
         const open = button.getAttribute('aria-expanded') !== 'true';
@@ -1015,12 +1585,33 @@ The date picker uses each locale's first day of the week.",tomas
         button.lastElementChild.textContent = open ? 'Hide source' : 'View source';
         sync();
       });
-      table.addEventListener('cssv-load', () => {
-        if (!panel || panelSrc === table.getAttribute('src')) return;
-        if (button.getAttribute('aria-expanded') === 'true') return sync();
-        panel.then((el) => el.remove()); // closed: rebuild when next opened
-        panel = null;
-        button.removeAttribute('aria-controls');
+      for (const table of tables) table.addEventListener('cssv-load', sync);
+    }
+
+    const zoomable = CSS.supports('zoom', '0.5');
+    const fitTile = new ResizeObserver((entries) => {
+      for (const { target } of entries) {
+        const table = target.querySelector('cssv-table');
+        const virtual = parseFloat(getComputedStyle(target.closest('.tile')).getPropertyValue('--virtual'));
+        const scale = (target.clientWidth - 24) / virtual;
+        if (zoomable) table.style.setProperty('--zoom', scale);
+        else Object.assign(table.style, { zoom: 'normal', transform: `scale(${scale})`, transformOrigin: '0 0' });
+      }
+    });
+    for (const tile of document.querySelectorAll('.tile')) {
+      const thumb = tile.querySelector('.thumb');
+      fitTile.observe(thumb);
+      read(tile.dataset.src).then((text) => {
+        const { style, data } = split(text);
+        const [head, ...rows] = data.split('\n').slice(0, 24);
+        const strong = document.createElement('span');
+        strong.className = 't-head';
+        strong.textContent = head;
+        tile.querySelector('.raw').append(strong, `\n${rows.join('\n')}`);
+        const lines = tile.querySelector('.lines');
+        const imported = style.match(/@import\s+url\(\s*["']([^"']+\.css)["']/);
+        if (!imported) lines.textContent = plural(cssLines(style), 'line');
+        else read(imported[1]).then((css) => { lines.textContent = `${cssLines(style)} + ${plural(cssLines(css), 'line')}`; });
       });
     }
   </script>

@@ -1,0 +1,70 @@
+---
+/* A WhatsApp group chat. "Export chat" writes a text file with a line per
+   message (date, time, sender, text); a few lines of Node turned each
+   message into a CSV line. Sam exported it, so Sam's messages go right.
+   Lines with no sender (the encryption notice, "Ana added you") are
+   WhatsApp's own, and get no data-key. Sample chat; the people are invented. */
+table {
+  --cssv-key: sender;
+  display: block;
+  width: min(100%, 420px);
+  min-width: 300px;
+  margin: 0 auto;
+  contain: inline-size;
+  padding: 10px 18px 16px;
+  border-radius: 12px;
+  color-scheme: light dark;
+  --in: light-dark(#fff, #202c33);
+  --chip: light-dark(#fff, #182229);
+  --muted: light-dark(#667781, #8696a0);
+  background: light-dark(#efeae2, #0b141a);
+  font: 14px/1.35 system-ui, sans-serif;
+  color: light-dark(#111b21, #e9edef);
+}
+colgroup, thead, [data-col="date"] { display: none; }
+tbody { display: flex; flex-direction: column; align-items: flex-start; }
+
+/* A message: a bubble with a tail, the sender on top, the time in the corner. */
+tr { position: relative; max-width: 80%; margin-top: 10px; padding: 6px 8px 8px 9px; border-radius: 0 8px 8px; background: var(--in); box-shadow: 0 1px 0.5px rgb(11 20 26 / 0.13); }
+tr::before { content: ""; display: var(--first, block); position: absolute; top: 0; left: -8px; width: 8px; height: 13px; background: inherit; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+td { display: block; padding: 0; }
+[data-col="sender"] { display: var(--first, block); font-size: 13px; font-weight: 600; color: var(--who); }
+[data-col="message"] { display: inline; overflow-wrap: anywhere; }
+[data-col="message"]::after { content: ""; display: inline-block; width: 42px; }
+[data-col="time"] { position: absolute; right: 8px; bottom: 4px; font-size: 11px; color: var(--muted); }
+
+/* One color per person; Sam is "you". */
+[data-key="Ana"]   { --who: light-dark(#1d6fd6, #53bdeb); }
+[data-key="Ben"]   { --who: light-dark(#c2410c, #fb923c); }
+[data-key="Chloé"] { --who: light-dark(#a3237a, #f472b6); }
+[data-key="Sam"] { --muted: light-dark(#667781, #ffffff99); align-self: flex-end; border-radius: 8px 0 8px 8px; background: light-dark(#d9fdd3, #005c4b); }
+[data-key="Sam"]::before { left: auto; right: -8px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+[data-key="Sam"] [data-col="sender"] { display: none; }
+
+/* A run of messages from one person: no name, no tail, closer together. */
+:is([data-key="Ana"] + [data-key="Ana"], [data-key="Ben"] + [data-key="Ben"], [data-key="Chloé"] + [data-key="Chloé"], [data-key="Sam"] + [data-key="Sam"]) { --first: none; margin-top: 2px; border-radius: 8px; }
+
+/* WhatsApp's own lines, centered; the first one shows the day above it. */
+tr:not([data-key]) { --first: none; align-self: center; max-width: 90%; padding: 5px 12px; border-radius: 8px; background: var(--chip); color: var(--muted); font-size: 12.5px; text-align: center; }
+tr:not([data-key]) [data-col="time"], tr:not([data-key]) [data-col="message"]::after { display: none; }
+tr[data-row="2"] { margin-top: 46px; background: light-dark(#ffeecd, #182229); color: light-dark(#54656f, #ffd279); }
+tr[data-row="2"] [data-col="date"] { display: block; position: absolute; top: -36px; left: 50%; translate: -50%; padding: 5px 12px; border-radius: 8px; background: var(--chip); color: var(--muted); }
+---
+date,time,sender,message
+04/10/2026,08:02,,"Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them. Learn more."
+04/10/2026,08:02,,"Ana created group ""Saturday hike"""
+04/10/2026,08:02,,Ana added you
+04/10/2026,08:03,Ana,"Morning! The trail is dry, sunny until 3"
+04/10/2026,08:03,Ana,Meet at the station at 9:30?
+04/10/2026,08:05,Ben,I'm in 🙌
+04/10/2026,08:06,Sam,Same. Who's bringing what?
+04/10/2026,08:07,Chloé,"I can do sandwiches
+cheese, ham, one vegan"
+04/10/2026,08:08,Ana,<Media omitted>
+04/10/2026,08:08,Ana,"The route: 14 km, about 4 hours"
+04/10/2026,08:10,Sam,"Water and the first-aid kit, then"
+04/10/2026,08:10,Sam,"And snacks, obviously"
+04/10/2026,08:12,Ben,This message was deleted
+04/10/2026,08:13,Ben,"Running 10 min late, start without me and I'll catch up at the bridge"
+04/10/2026,08:14,Chloé,"""Start without me"" 😂 We'll wait"
+04/10/2026,08:15,Sam,See you all at 9:30

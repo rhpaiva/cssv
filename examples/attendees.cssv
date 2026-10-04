@@ -1,0 +1,53 @@
+---
+/* A ticketing export, printed as name badges: 9 × 5.5 cm, two across on
+   paper. The ticket type is the key and colors the band.
+   Sample rows; the people are invented. */
+table {
+  --cssv-key: "Ticket Type";
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(9cm, 100%), 9cm));
+  gap: 12px;
+  width: 100%;
+  contain: inline-size;
+  font: 14px/1.3 system-ui, sans-serif;
+  color-scheme: light dark;
+  color: light-dark(#111827, #f3f4f6);
+}
+colgroup, thead { display: none; }
+tbody { display: contents; }
+tr {
+  --band: #4b5563;
+  display: flex;
+  flex-direction: column;
+  height: 5.5cm;
+  padding: 0 0.6cm 0.5cm;
+  border: 1px solid light-dark(#d1d5db, #3a3935);
+  border-radius: 8px;
+  background: light-dark(#fff, #1f1f1d);
+  overflow: hidden;
+}
+td { padding: 0; }
+:is([data-col="Order #"], [data-col="Email"], [data-col="Checked In"]) { display: none; }
+[data-col="First Name"] { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+[data-col="Last Name"] { font-size: 16px; }
+[data-col="Company"] { margin-top: auto; color: light-dark(#6b7280, #a1a1aa); }
+[data-col="Ticket Type"] { order: -1; margin: 0 -0.6cm 0.5cm; padding: 8px 0.6cm; background: var(--band); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+tr[data-key="Speaker"] { --band: #b91c1c; }
+tr[data-key="Sponsor"] { --band: #a16207; }
+tr[data-key="Volunteer"] { --band: #15803d; }
+
+@media print {
+  table { grid-template-columns: repeat(2, 9cm); gap: 0; color-scheme: light; }
+  tr { border-radius: 0; break-inside: avoid; }
+  [data-col="Ticket Type"] { print-color-adjust: exact; }
+}
+---
+Order #,First Name,Last Name,Email,Ticket Type,Company,Checked In
+4471-0012,Amara,Okonkwo,amara@example.org,Speaker,Lagos Data Lab,No
+4471-0013,Lukas,Brandt,lukas@example.org,Attendee,Freelance,No
+4471-0015,Priya,Raghunathan,priya@example.org,Attendee,Northwind Health,No
+4471-0019,Sofía,Herrera,sofia@example.org,Volunteer,,No
+4471-0021,Kenji,Watanabe,kenji@example.org,Sponsor,Tabular Inc.,No
+4471-0024,Noor,Al-Sayed,noor@example.org,Attendee,City of Rotterdam,No
+4471-0030,Tomasz,Wiśniewski,tomasz@example.org,Speaker,Plain Text Society,No
+4471-0031,Grace,Mensah,grace@example.org,Attendee,Open Books Co-op,No

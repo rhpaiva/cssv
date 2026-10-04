@@ -1,0 +1,58 @@
+---
+/* An app's translation sheet, the CSV that translation tools import and
+   export. Empty cells are strings nobody has translated yet: they're marked
+   in place and counted per language. */
+table {
+  counter-reset: de fr es pt;
+  /* A grid rather than a table layout, so the columns share the page's
+     width and long sentences wrap. */
+  display: grid;
+  grid-template-columns: max-content repeat(5, minmax(0, 1fr));
+  width: 100%;
+  min-width: 720px;
+  contain: inline-size;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  color-scheme: light dark;
+  --paper: light-dark(#fff, #1b1b19);
+  --line: light-dark(#e5e7eb, #34332e);
+  --red: light-dark(#b91c1c, #fca5a5);
+  background: var(--paper);
+  font: 13px/1.45 system-ui, sans-serif;
+  color: light-dark(#1f2937, #e5e7eb);
+}
+colgroup { display: none; }
+thead, tbody, tr { display: contents; }
+th, td { padding: 6px 10px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+thead th { background: light-dark(#f3f4f6, #282824); text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+[data-col="key"] { font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace; color: light-dark(#6b7280, #9ca3af); white-space: nowrap; }
+[data-col="en"] { font-weight: 600; }
+
+td:empty { background: repeating-linear-gradient(135deg, light-dark(#fef2f2, #3a1c1c) 0 6px, light-dark(#fee2e2, #452020) 6px 12px); }
+td:empty::after { content: "missing"; color: var(--red); font-size: 11px; font-weight: 600; }
+td[data-col="de"]:empty { counter-increment: de; }
+td[data-col="fr"]:empty { counter-increment: fr; }
+td[data-col="es"]:empty { counter-increment: es; }
+td[data-col="pt-BR"]:empty { counter-increment: pt; }
+table::after {
+  grid-column: 1 / -1;
+  padding: 10px;
+  background: var(--paper);
+  content: "Missing — de: " counter(de) " · fr: " counter(fr) " · es: " counter(es) " · pt-BR: " counter(pt);
+  color: var(--red);
+  font-weight: 600;
+}
+---
+key,en,de,fr,es,pt-BR
+app.title,Field Notes,Feldnotizen,Notes de terrain,Notas de campo,Notas de campo
+action.save,Save,Speichern,Enregistrer,Guardar,Salvar
+action.cancel,Cancel,Abbrechen,Annuler,Cancelar,Cancelar
+action.delete,Delete,Löschen,Supprimer,Eliminar,Excluir
+action.share,Share,Teilen,Partager,Compartir,Compartilhar
+notes.empty,No notes yet. Tap + to write one.,"Noch keine Notizen. Tippe auf +, um eine zu schreiben.",Aucune note pour l'instant. Touchez + pour en écrire une.,Aún no hay notas. Toca + para escribir una.,
+notes.count,{count} notes,{count} Notizen,{count} notes,,{count} notas
+sync.offline,You're offline. Changes will sync when you reconnect.,"Du bist offline. Änderungen werden synchronisiert, sobald du wieder verbunden bist.",,Estás sin conexión. Los cambios se sincronizarán cuando vuelvas a conectarte.,Você está offline. As alterações serão sincronizadas quando você se reconectar.
+settings.theme,Theme,Design,Thème,Tema,Tema
+settings.language,Language,Sprache,Langue,Idioma,Idioma
+error.network,Couldn't connect. Check your connection and try again.,,Connexion impossible. Vérifiez votre connexion et réessayez.,No se pudo conectar. Comprueba tu conexión e inténtalo de nuevo.,Não foi possível conectar. Verifique sua conexão e tente novamente.
+welcome.title,"Welcome, {name}!","Willkommen, {name}!","Bienvenue, {name} !",,"Boas-vindas, {name}!"

@@ -1,0 +1,75 @@
+/* A month of Open-Meteo's daily CSV as a calendar. The download is used as
+   it comes: a line of location names and a line of values, an empty line,
+   the real column names, then one line per day. The first line is the
+   header record, so data columns go by position: 1 date, 2 max, 3 min,
+   4 rain, 5 snow. */
+table {
+  --cssv-format: "minimumFractionDigits: 1, maximumFractionDigits: 1";
+  color-scheme: light dark;
+  --muted: light-dark(#6b7280, #9a968d);
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  width: 100%;
+  contain: inline-size;
+  padding: 14px;
+  border-radius: 12px;
+  background: light-dark(#fff, #1b1b19);
+  counter-reset: day;
+  font: 12px/1.25 system-ui, sans-serif;
+  color: light-dark(#1f2937, #e7e5e0);
+}
+colgroup, thead { display: none; }
+tbody { display: contents; }
+td { padding: 0; }
+
+/* Line 2 (the values under latitude, longitude, ...) names the place. */
+tr[data-row="2"] { grid-column: 1 / -1; display: flex; gap: 10px; align-items: baseline; margin-bottom: 6px; color: var(--muted); }
+tr[data-row="2"] > :is(:nth-child(3), :nth-child(4), :nth-child(6)) { display: none; }
+tr[data-row="2"] > :nth-child(5) { order: -1; color: inherit; font-size: 15px; font-weight: 700; }
+tr[data-row="2"] > :is(:nth-child(1), :nth-child(2))::after { content: "°"; }
+
+/* Line 3 holds the column names; its cells become the weekdays. */
+tr[data-row="3"] { display: contents; }
+tr[data-row="3"] > td { font-size: 0; text-align: center; }
+tr[data-row="3"] > td::after, tr[data-row="3"]::after { font-size: 10px; color: var(--muted); }
+tr[data-row="3"] > :nth-child(1)::after { content: "Mon"; }
+tr[data-row="3"] > :nth-child(2)::after { content: "Tue"; }
+tr[data-row="3"] > :nth-child(3)::after { content: "Wed"; }
+tr[data-row="3"] > :nth-child(4)::after { content: "Thu"; }
+tr[data-row="3"] > :nth-child(5)::after { content: "Fri"; }
+tr[data-row="3"] > :nth-child(6)::after { content: "Sat"; }
+tr[data-row="3"]::after { content: "Sun"; text-align: center; }
+
+/* Every later line is a day. 1 January 2026 was a Thursday. */
+tr:nth-child(n+3) { counter-increment: day; display: grid; align-content: start; min-height: 56px; padding: 4px; border-radius: 6px; background: light-dark(#fdf3d8, #302a1d); }
+tr[data-row="4"] { grid-column-start: 4; }
+tr:nth-child(n+3) > :nth-child(1) { font-size: 0; }
+tr:nth-child(n+3) > :nth-child(1)::after { content: counter(day); font-size: 10px; color: var(--muted); }
+tr:nth-child(n+3) > :nth-child(2) { font-size: 12px; font-weight: 650; letter-spacing: -0.03em; }
+tr:nth-child(n+3) > :nth-child(3) { color: var(--muted); }
+tr:nth-child(n+3) > :is(:nth-child(2), :nth-child(3))::after { content: "°"; }
+tr:nth-child(n+3) > :is(:nth-child(4), :nth-child(5), :nth-child(6)) { display: none; }
+tr:nth-child(n+3) > :nth-child(4).positive { display: block; margin-top: 2px; font-size: 10px; color: light-dark(#0369a1, #7cc4f0); }
+
+/* The sign of each value says what kind of day it was. */
+tr:nth-child(n+3):has(> :nth-child(3).negative) { background: light-dark(#dbeafe, #1d2c47); }    /* frost at night */
+tr:nth-child(n+3):has(> :nth-child(2).negative) { --muted: #bfdbfe; background: light-dark(#1e3a8a, #3451b2); color: #fff; } /* below 0 all day */
+tr:nth-child(n+3):has(> :nth-child(5).positive) > :nth-child(4) { display: none; }
+tr:nth-child(n+3) > :nth-child(5).positive { display: block; margin-top: 2px; font-size: 10px; color: inherit; }
+tr:nth-child(n+3) > :nth-child(5).positive::before { content: "❄ "; }
+
+@media (max-width: 480px) {
+  table { padding: 8px; gap: 2px; }
+  tr:nth-child(n+3) { padding: 3px; }
+  tr:nth-child(n+3) > :nth-child(2) { font-size: 11px; letter-spacing: -0.04em; }
+  tr:nth-child(n+3) > :nth-child(n+3) { font-size: 9.5px; letter-spacing: -0.03em; }
+}
+
+table::after {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  content: "Tinted: frost at night · solid blue: below 0° all day · blue figure: rain in mm · ❄ snow in cm";
+  color: var(--muted);
+  font-size: 11px;
+}

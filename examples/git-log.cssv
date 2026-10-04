@@ -1,0 +1,44 @@
+---
+/* git log, as a changelog card. Made with:
+   git log -18 --shortstat --format='%ad%x09%h%x09%s' --date=short
+   and a few lines of Node that write one CSV line per commit, with the
+   deleted lines as a negative number. */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color-scheme: light dark;
+  --muted: light-dark(#9ca3af, #8a8780);
+  background: light-dark(#fff, #1b1b19);
+  font: 13px/1.45 system-ui, sans-serif;
+  color: light-dark(#1f2937, #e5e7eb);
+}
+thead { display: none; }
+td { padding: 7px 8px; border-bottom: 1px solid light-dark(#eef0f3, #2c2b27); vertical-align: baseline; }
+[data-col="date"] { color: var(--muted); font-size: 12px; white-space: nowrap; }
+[data-col="commit"] { font: 12px ui-monospace, Menlo, Consolas, monospace; color: light-dark(#6d28d9, #c4b5fd); }
+.number { white-space: nowrap; }
+[data-col="files"]::after { content: " files"; color: var(--muted); }
+[data-col="added"].positive { color: light-dark(#15803d, #4ade80); font-weight: 600; }
+[data-col="added"].positive::before { content: "+"; }
+[data-col="removed"].negative { color: light-dark(#b91c1c, #f87171); font-weight: 600; }
+.zero { color: light-dark(#d1d5db, #4b4a45); }
+---
+date,commit,subject,files,added,removed
+2026-10-04,ddfd6c7,0.2.0,2,3,-3
+2026-10-04,554f33d,Point the CDN links at 0.2,4,5,-5
+2026-10-04,b3f547b,Let the browser tests use an existing Chrome through CHROME_PATH,5,17,-10
+2026-10-04,92d35b8,Add a link-preview image to the website's pages,5,84,0
+2026-10-04,b085753,Keep the shown table on screen until the next one is ready,4,79,-19
+2026-10-04,63f21e8,Add and remove rows in place when updating,3,79,-34
+2026-10-04,bdedcfd,"Add update() to show new text, changing the table in place",4,343,-28
+2026-10-02,53760b8,Replace the website's violet with ink and a highlighter,10,164,-129
+2026-10-02,fb107fc,0.1.1,2,3,-3
+2026-10-02,a5a0b7a,Say that key values are the one cell value copied into attributes,3,4,-4
+2026-10-02,a209e75,Let inline text be indented like the markup around it,13,122,-39
+2026-10-02,10e55ce,Hyphenate the name: Comma-Separated Styled Values,7,11,-11
+2026-10-02,36139dd,Add an imprint and a privacy policy,6,167,-1
+2026-10-02,8d65e07,Add an animated demo of the departures board to the README,3,1222,0
+2026-10-02,00cc7de,Show an example agent prompt above the homepage playground,2,37,0
+2026-10-02,37d6d40,"Position CSSV as styled tables in one file, not a CSV viewer",4,17,-8
+2026-10-02,7f51b18,Describe the examples gallery as it is now,1,1,-1
+2026-10-02,a1297b4,Serve marked from the site instead of a CDN,3,127,-1
