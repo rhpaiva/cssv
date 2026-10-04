@@ -186,7 +186,9 @@ h3.sub { margin: 56px 0 16px; font-size: 1.3rem; }
   background: var(--accent);
   vertical-align: 2px;
 }
-/* A prompt for the playground's file, so it reads as request, source, result. */
+/* The prompt that would write the playground's file. It sits under the
+   playground, so the board is above the fold on laptops: source, result,
+   then the request that makes them. */
 .ask {
   display: flex;
   flex-wrap: wrap;
@@ -199,7 +201,7 @@ h3.sub { margin: 56px 0 16px; font-size: 1.3rem; }
   background: var(--surface);
   box-shadow: var(--shadow);
 }
-.ask + .playground { margin-top: 12px; }
+.playground + .ask { margin-top: 16px; }
 .ask-intro { display: grid; gap: 4px; }
 .ask-intro p { margin: 0; }
 .ask-intro a { font-size: 14px; font-weight: 600; }
