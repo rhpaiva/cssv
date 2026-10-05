@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSSV experiments</title>
+  <meta name="description" content="Six .cssv files used in ways CSSV wasn't made for: a film, a solar system, a skyline, a lava lamp, a music visualizer and a league table that plays its season. Each one is rendered by <cssv-table> and leans on something the format already does.">
+  <link rel="canonical" href="https://cssv.dev/examples/experiments.html">
+  <link rel="icon" href="../site/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../site/apple-touch-icon.png">
+  <link rel="stylesheet" href="../site/nav.css">
+  <script type="module" src="../src/cssv-table.js"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f3ee;
+      --surface: #fffdf9;
+      --stage: #ece8df;
+      --text: #1c1a17;
+      --muted: #625c52;
+      --border: #e3ded3;
+      --accent: #1c1a17;
+      --chip-bg: #fcf3c4;
+      --chip-fg: #1c1a17;
+      --stat-bg: #ece8df;
+      --mark: #ffe45c;
+      --mark-top: 58%;
+      --mark-bottom: 94%;
+      --mark-text: var(--text);
+      --link-line: #806400;
+      --shadow: 0 1px 2px rgb(40 30 10 / 0.04), 0 10px 30px -14px rgb(40 30 10 / 0.18);
+      --code-bg: #15140f;
+      --code-text: #e3dfd3;
+      --code-muted: #8a8478;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d0d0c;
+        --surface: #161614;
+        --stage: #11110f;
+        --text: #ece8df;
+        --muted: #a39d91;
+        --border: #2a2924;
+        --accent: #ece8df;
+        --chip-bg: #2a2715;
+        --chip-fg: #f0e27a;
+        --stat-bg: #22211e;
+        --mark: #e9d54a;
+        --mark-top: 0%;
+        --mark-bottom: 100%;
+        --mark-text: #15140f;
+        --link-line: var(--mark);
+        --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 14px 34px -16px rgb(0 0 0 / 0.6);
+        --code-bg: #0b0b0a;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .wrap { --gutter: 24px; max-width: 1180px; margin: 0 auto; padding: 0 var(--gutter); }
+    @media (max-width: 640px) { .wrap { --gutter: 16px; } }
+    code { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; font-size: 0.9em; }
+    a {
+      color: var(--accent);
+      text-decoration-color: var(--link-line);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration-color: currentColor; }
+
+    .hero { padding: 56px 0 8px; }
+    .eyebrow {
+      margin: 0;
+      font: 600 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 14px 0 12px;
+      font-size: clamp(2.1rem, 6vw, 3.4rem);
+      line-height: 1.04;
+      letter-spacing: -0.025em;
+    }
+    h1 span {
+      padding: 0 0.08em;
+      border-radius: 2px;
+      background: linear-gradient(transparent var(--mark-top), var(--mark) 0 var(--mark-bottom), transparent 0);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      color: var(--mark-text);
+    }
+    .lede { margin: 0; max-width: 68ch; color: var(--muted); font-size: 1.08rem; }
+    .lede + .lede { margin-top: 10px; }
+
+    .jump { display: flex; flex-wrap: wrap; gap: 6px; margin: 28px 0 0; }
+    .jump a {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font: 600 13px/1 system-ui, sans-serif;
+      text-decoration: none;
+    }
+    .jump a:hover { border-color: var(--muted); color: var(--text); }
+
+    /* One card per experiment: what it is and the trick it leans on, the
+       file running on its stage, then its controls. */
+    .experiments { display: grid; gap: 28px; margin: 32px 0 0; }
+    .experiment {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      scroll-margin-top: calc(var(--nav-height) + 16px);
+      /* Off screen, an experiment isn't drawn, so its animations cost nothing. */
+      content-visibility: auto;
+      contain-intrinsic-size: auto 900px;
+    }
+    .experiment > header { display: flex; flex-wrap: wrap; gap: 14px 32px; padding: 22px 24px 18px; }
+    .experiment > header > div { flex: 1 1 340px; min-width: 0; }
+    .experiment > header > pre { flex: 1 1 380px; }
+    .experiment .number { margin: 0; color: var(--muted); font: 600 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 0.12em; }
+    .experiment h2 { margin: 6px 0 2px; font-size: 1.45rem; letter-spacing: -0.015em; }
+    .experiment .file { color: var(--muted); font: 500 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .experiment p { margin: 10px 0 0; max-width: 68ch; color: var(--muted); }
+    .experiment p strong { color: var(--text); font-weight: 600; }
+    .stats, .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; padding: 0; list-style: none; }
+    .stats li {
+      padding: 5px 9px;
+      border-radius: 6px;
+      background: var(--stat-bg);
+      font: 500 12px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    .stats li.style { background: var(--chip-bg); color: var(--chip-fg); font-weight: 650; }
+    .chips { margin-top: 8px; }
+    .chips li {
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font: 500 12px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    /* The few lines of the style block that do the trick. */
+    .trick {
+      align-self: flex-start;
+      margin: 0;
+      padding: 12px 14px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font: 12.5px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    .trick .c { color: var(--code-muted); }
+    .stage { padding: 20px; border-top: 1px solid var(--border); background: var(--stage); }
+    .stage cssv-table { display: block; }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      padding: 12px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .controls > button {
+      min-width: 6.5em;
+      padding: 8px 16px;
+      border: 1px solid var(--text);
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      cursor: pointer;
+      font: 600 13px/1 system-ui, sans-serif;
+    }
+    .controls > button.quiet { border-color: var(--border); background: var(--surface); color: var(--text); }
+    .controls > button.quiet:hover { border-color: var(--muted); }
+    .seg {
+      display: flex;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+    }
+    .seg input { position: absolute; opacity: 0; pointer-events: none; }
+    .seg label {
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: var(--muted);
+      cursor: pointer;
+      font: 500 12.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    .seg label:hover { color: var(--text); }
+    .seg input:checked + label { background: var(--text); color: var(--surface); }
+    .seg input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .readout { color: var(--muted); font: 500 12.5px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+    @media (max-width: 640px) {
+      .experiment > header, .controls { padding-inline: 16px; }
+      .stage { padding: 12px; }
+    }
+
+    /* 01, the film: a black theater, and the frame on screen as text. */
+    #film .stage { background: #000; }
+    #film .stage.plain cssv-table { max-height: 70vh; overflow: auto; background: var(--surface); color: var(--text); font-size: 11px; }
+    .excerpt { padding: 0 24px 22px; }
+    .excerpt p { margin: 0 0 6px; font-size: 13px; }
+    .excerpt pre {
+      margin: 0;
+      padding: 14px 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font: 12px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      white-space: pre;
+    }
+    .excerpt pre .gap { color: var(--code-muted); }
+    @media (max-width: 640px) { .excerpt { padding-inline: 16px; } }
+
+    footer { margin: 64px 0 40px; color: var(--muted); font-size: 13px; }
+    footer p { margin: 0 0 6px; max-width: 86ch; }
+
+    #skyline .stage { background: #070a1c; }
+    /* 04, the lava lamp: a dark room on either theme. */
+    #lava .stage { background: #0b0612; }
+    #lava .stage.plain { background: var(--stage); }
+    /* 05, the visualizer: a dark stage, light again for the plain CSV. */
+    #visualizer .stage { background: #07060c; }
+    #visualizer .stage.plain { background: var(--stage); }
+    #visualizer .stage.plain cssv-table { max-height: 60vh; overflow: auto; font-size: 12px; }
+    /* 06, the season: a real table, which scrolls sideways on a phone. */
+    #season .stage cssv-table { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="../site/" aria-label="CSSV home">
+        <img src="../site/favicon.svg" alt="" width="30" height="30">
+        <span>CSSV</span>
+      </a>
+      <nav aria-label="Site">
+        <a href="../site/#why">Why</a>
+        <a class="wide-only" href="../site/#how">How it works</a>
+        <a href="./">Examples</a>
+        <a class="phone-hidden" href="experiments.html" aria-current="page">Experiments</a>
+        <a class="phone-hidden" href="../site/editor/">Editor</a>
+        <a href="../site/#start">Get started</a>
+        <a class="wide-only" href="../site/#ai">AI</a>
+        <a href="../site/spec.html">Spec</a>
+        <a class="gh" href="https://github.com/rhpaiva/cssv" aria-label="CSSV on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <header class="hero">
+      <p class="eyebrow">CSSV v1 · Examples · Experiments</p>
+      <h1>Not what it's for. <span>It works anyway.</span></h1>
+      <p class="lede">CSSV is for tables: a CSV file with a CSS style block on top. Five of the six files on this page aren't tables in any useful sense: a film, a solar system, a skyline, a lava lamp and a music visualizer. The sixth is a league table that plays its whole season. Each is still an ordinary <code>.cssv</code> file rendered by <code>&lt;cssv-table&gt;</code>, with no other markup, and each leans on something the format already does.</p>
+      <p class="lede">Nobody should build a film this way. The point is that the pieces hold: field types work as selectors, typed <code>attr()</code> reads the key column as a number, <code>sibling-index()</code> gives every row a place, and <code>update()</code> patches a live table fast enough to animate.</p>
+      <nav class="jump" aria-label="Experiments">
+        <a href="#film">01 Film</a>
+        <a href="#orrery">02 Solar system</a>
+        <a href="#skyline">03 Skyline</a>
+        <a href="#lava">04 Lava lamp</a>
+        <a href="#visualizer">05 Visualizer</a>
+        <a href="#season">06 League season</a>
+      </nav>
+    </header>
+
+    <div class="experiments">
+      <section class="experiment" id="film" aria-labelledby="film-title">
+        <header>
+          <div>
+            <p class="number">01</p>
+            <h2 id="film-title">A film in a spreadsheet</h2>
+            <div class="file">cinema.cssv</div>
+            <p>Every frame is a CSV file: 45 records of 80 fields, one field per pixel. The page hands each frame to the table with <code>update()</code>, 24 times a second. Each frame has the same columns and style block as the last, so the table isn't built again: its 3,600 cells stay, and only the fields that changed get a new class. A field's type is its shade, and the <code>scene</code> column is the key column, so <code>tr[data-key="fire"]</code> picks the palette and <code>table:has(tr[data-key="horse"])</code> starts the iris. The last record is the subtitle.</p>
+            <ul class="stats"><li class="style" data-count="cinema.cssv"></li><li>data: 648 frames, drawn by the page</li></ul>
+            <ul class="chips" aria-label="Techniques">
+              <li>:empty / .negative / .zero / .positive</li>
+              <li>--cssv-key: scene</li>
+              <li>table:has(tr[data-key])</li>
+              <li>table.update()</li>
+            </ul>
+          </div>
+          <pre class="trick"><code>td          { background: var(--p4); } <span class="c">/* x  */</span>
+td.positive { background: var(--p3); } <span class="c">/* 1  */</span>
+td.zero     { background: var(--p2); } <span class="c">/* 0  */</span>
+td.negative { background: var(--p1); } <span class="c">/* -1 */</span>
+td:empty    { background: var(--p0); } <span class="c">/* "" */</span>
+
+tr[data-key="fire"] { --p1: #5e0b00; <span class="c">…</span> }
+table:has(tr[data-key="horse"]) {
+  animation: iris-in 1.6s ease-out;
+}</code></pre>
+        </header>
+        <div class="stage" id="theater"><cssv-table src="cinema.cssv"></cssv-table></div>
+        <div class="controls">
+          <button type="button" id="film-play">Play</button>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <input type="radio" name="film-view" id="film-styled" value="styled" checked><label for="film-styled">Styled</label>
+            <input type="radio" name="film-view" id="film-plain" value="plain"><label for="film-plain">Plain CSV</label>
+          </div>
+          <span class="readout" id="film-readout">27 seconds, 648 frames. Press play.</span>
+        </div>
+        <section class="excerpt" aria-label="The frame on screen">
+          <p>The frame on screen, as the text <code>update()</code> was given: lines 1 and 20 to 30 of 47, cut at 72 characters. In Plain CSV the horse is the gap where the fields are empty.</p>
+          <pre id="film-excerpt"></pre>
+        </section>
+      </section>
+
+      <section class="experiment" id="orrery" aria-labelledby="orrery-title">
+        <header>
+          <div>
+            <p class="number">02</p>
+            <h2 id="orrery-title">A solar system that runs itself</h2>
+            <div class="file">orrery.cssv</div>
+            <p>Eight records, one per planet, with NASA's figures. The key column is the orbital period in days, and typed <code>attr()</code> reads it as a number. That number becomes the orbit's <code>animation-duration</code>: one Earth year takes 8 seconds, so Mercury laps every 1.9 seconds and Neptune takes 22 minutes. The same number sets the orbit's size, because by Kepler's third law <code>log()</code> of the period is a logarithmic scale of distance. That's why the gap between Mars and Jupiter shows. <strong>The data sets the speeds and the sizes.</strong> No script runs: after the table renders, nothing calls <code>update()</code>. Each planet is a CSS animation along its orbit, and the orbits stay still, so a frame repaints only a few small boxes.</p>
+            <ul class="stats"><li class="style" data-count="orrery.cssv"></li><li>data: NASA Planetary Fact Sheet</li></ul>
+            <ul class="chips" aria-label="Techniques">
+              <li>--cssv-key: "orbit (days)"</li>
+              <li>attr(data-key type(&lt;number&gt;))</li>
+              <li>animation-duration</li>
+              <li>log()</li>
+              <li>offset-path</li>
+              <li>transform-style: preserve-3d</li>
+            </ul>
+          </div>
+          <pre class="trick"><code>tbody tr {
+  --period: attr(data-key type(&lt;number&gt;));
+  --t: calc(var(--period) / 365.2 * var(--year, 8s));
+  width: calc(2 * log(var(--period) / 40) * var(--unit));
+}
+td[data-col="planet"] {
+  offset-path: circle(closest-side);
+  animation: orbit var(--t) linear infinite;
+}
+@keyframes orbit {
+  from { offset-distance: 100%; } to { offset-distance: 0%; }
+}</code></pre>
+        </header>
+        <div class="stage"><cssv-table src="orrery.cssv"></cssv-table></div>
+        <div class="controls">
+          <div class="seg" role="radiogroup" aria-label="Speed">
+            <input type="radio" name="orrery-speed" id="orrery-2" value="2s"><label for="orrery-2">1 year = 2 s</label>
+            <input type="radio" name="orrery-speed" id="orrery-8" value="8s" checked><label for="orrery-8">8 s</label>
+            <input type="radio" name="orrery-speed" id="orrery-30" value="30s"><label for="orrery-30">30 s</label>
+          </div>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <input type="radio" name="orrery-view" id="orrery-styled" value="styled" checked><label for="orrery-styled">Styled</label>
+            <input type="radio" name="orrery-view" id="orrery-plain" value="plain"><label for="orrery-plain">Plain CSV</label>
+          </div>
+          <span class="readout" id="orrery-readout">The speed buttons set <code>--year</code> on the element. Custom properties inherit into the table.</span>
+        </div>
+      </section>
+
+      <section class="experiment" id="skyline" aria-labelledby="skyline-title">
+        <header>
+          <div>
+            <p class="number">03</p>
+            <h2 id="skyline-title">A skyline that grows</h2>
+            <div class="file">skyline.cssv</div>
+            <p>The CSV of buildings is the city. Every record is one of the 43 buildings of 400 m or more on Wikipedia's list, tallest first, and every row is a tower. Its place in the file gives it a plot on a sunflower spiral, so the tallest stands in the middle. The height is the key column, and typed <code>attr()</code> turns it into the tower's height. The row's six cells are its faces: the name on the front, the city and the country on the sides, the floors at the back, the height on the roof and the year as its shadow. Play the years and the page hands the table the same file with every building not yet finished left without a height; each year, the new ones rise out of their plots.</p>
+            <ul class="stats"><li class="style" data-count="skyline.cssv"></li><li>data: Wikipedia, List of tallest buildings</li></ul>
+            <ul class="chips" aria-label="Techniques">
+              <li>attr(data-key type(&lt;number&gt;))</li>
+              <li>sibling-index() spiral</li>
+              <li>transform-style: preserve-3d</li>
+              <li>cells as faces</li>
+              <li>table.update()</li>
+            </ul>
+          </div>
+          <pre class="trick"><code>tbody tr {                            <span class="c">/* a tower */</span>
+  --H: calc(attr(data-key type(&lt;number&gt;), 0) * var(--m));
+  --a: calc(sibling-index() * 137.508deg);
+  --r: calc(sqrt(sibling-index() - 1) * 4.6cqw);
+  translate: calc(cos(var(--a)) * var(--r))
+             calc(sin(var(--a)) * var(--r));
+}
+td[data-col="building"] {             <span class="c">/* its front wall */</span>
+  height: var(--H);
+  transform: translateY(calc(var(--w) / 2)) rotateX(-90deg);
+  transition: height 1.6s;
+}</code></pre>
+        </header>
+        <div class="stage" id="skyline-stage"><cssv-table src="skyline.cssv"></cssv-table></div>
+        <div class="controls">
+          <button type="button" id="skyline-play">Play 1930 to today</button>
+          <span class="readout" id="skyline-readout">43 buildings of 400 m or more, as of 2026.</span>
+        </div>
+      </section>
+
+      <section class="experiment" id="lava" aria-labelledby="lava-title">
+        <header>
+          <div>
+            <p class="number">04</p>
+            <h2 id="lava-title">A lava lamp</h2>
+            <div class="file">lava.cssv</div>
+            <p>Thirteen records, one per blob of wax, and the key column is each blob's volume in millilitres. Typed <code>attr()</code> reads it and a cube root turns it into the blob's size. <code>sibling-index()</code> gives every blob its own path and pace, and a blur plus a contrast filter melts them into one liquid. Every three seconds the page moves a little wax from blob to blob, keeping the total, and hands the table the new volumes with <code>update()</code>. The rows stay, their sizes change with a transition, and the liquid flows into its new shape. The records are the wax.</p>
+            <ul class="stats"><li class="style" data-count="lava.cssv"></li><li>data: 13 blobs of invented wax</li></ul>
+            <ul class="chips" aria-label="Techniques">
+              <li>--cssv-key: "wax (ml)"</li>
+              <li>attr(data-key type(&lt;number&gt;))</li>
+              <li>pow(…, 1 / 3)</li>
+              <li>sibling-index()</li>
+              <li>filter: blur() contrast()</li>
+              <li>table.update()</li>
+            </ul>
+          </div>
+          <pre class="trick"><code><span class="c">/* the glass: blur, then full contrast */</span>
+tbody { filter: blur(7px) contrast(22); }
+
+<span class="c">/* a blob: its volume sets its size */</span>
+tbody tr {
+  scale: calc(pow(attr(data-key type(&lt;number&gt;)), 1 / 3) / 2.9);
+  transition: scale 2.6s ease-in-out;
+  animation: rise calc((11 + mod(sibling-index() * 7, 9)) * 1s)
+    ease-in-out infinite alternate;
+}</code></pre>
+        </header>
+        <div class="stage"><cssv-table src="lava.cssv"></cssv-table></div>
+        <div class="controls">
+          <button type="button" id="lava-switch">Switch off</button>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <input type="radio" name="lava-view" id="lava-styled" value="styled" checked><label for="lava-styled">Styled</label>
+            <input type="radio" name="lava-view" id="lava-plain" value="plain"><label for="lava-plain">Plain CSV</label>
+          </div>
+          <span class="readout" id="lava-readout" aria-live="off">13 blobs, 62.5 ml of wax.</span>
+        </div>
+      </section>
+
+      <section class="experiment" id="visualizer" aria-labelledby="visualizer-title">
+        <header>
+          <div>
+            <p class="number">05</p>
+            <h2 id="visualizer-title">A music visualizer</h2>
+            <div class="file">visualizer.cssv</div>
+            <p>A spectrum is a table: 32 frequency bands, one record each, with the band's center in Hz and its level from 0 to 100. Press play and the page plays a song with Web Audio, reads its spectrum and hands the table the next 32 records with <code>update()</code>, 15 times a second. The level is the key column, so typed <code>attr()</code> turns it into the length of each bar, and <code>sibling-index()</code> gives every band its angle and its color. A 0.13-second transition on <code>scale</code> fills the gaps between updates, so 15 updates a second move like 60 frames. The song is a CSV too: <a href="visualizer-song.csv">visualizer-song.csv</a>, one record per note, played by oscillators.</p>
+            <ul class="stats"><li class="style" data-count="visualizer.cssv"></li><li>data: 32 records, 15 times a second</li></ul>
+            <ul class="chips" aria-label="Techniques">
+              <li>--cssv-key: level</li>
+              <li>attr(data-key type(&lt;number&gt;))</li>
+              <li>sibling-index()</li>
+              <li>transition: scale</li>
+              <li>table.update()</li>
+            </ul>
+          </div>
+          <pre class="trick"><code>tbody tr {
+  rotate: calc((sibling-index() - 0.5)
+    / sibling-count() * 1turn);
+}
+tbody tr::before { <span class="c">/* the bar */</span>
+  scale: 1 calc(0.04
+    + attr(data-key type(&lt;number&gt;), 0) / 104);
+  transition: scale 0.13s ease-out;
+}</code></pre>
+        </header>
+        <div class="stage" id="visualizer-stage"><cssv-table src="visualizer.cssv"></cssv-table></div>
+        <div class="controls">
+          <button type="button" id="visualizer-play">Play</button>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <input type="radio" name="visualizer-view" id="visualizer-styled" value="styled" checked><label for="visualizer-styled">Styled</label>
+            <input type="radio" name="visualizer-view" id="visualizer-plain" value="plain"><label for="visualizer-plain">Plain CSV</label>
+          </div>
+          <span class="readout" id="visualizer-readout">A 9.6-second loop in A minor, with sound. Press play.</span>
+        </div>
+      </section>
+      <section class="experiment" id="season" aria-labelledby="season-title">
+        <header>
+          <div>
+            <p class="number">06</p>
+            <h2 id="season-title">A league table that plays its season</h2>
+            <div class="file">season.cssv</div>
+            <p>The one real table on this page: standings from a semicolon-delimited spreadsheet export, with the clubs in alphabetical order. <code>Pos</code> is the key column, so typed <code>attr()</code> reads each row's rank, and <code>translate</code> moves the row from its place in the file, which <code>sibling-index()</code> gives, to its rank. Each time the file loads, the rows slide from alphabetical order into the standings. Play the season and the page works out the standings after each matchday from the 90 results in <a href="season-results.csv">season-results.csv</a> and hands them to the table with <code>update()</code>. The rows stay the same elements, so their transition slides them to their new places, and <code>z-index</code> from the rank puts a club moving up over the club it overtakes. The lines and the zones stay where they are. The season ends at the gallery's <a href="./#league">League table</a>.</p>
+            <ul class="stats"><li class="style" data-count="season.cssv"></li><li>data: an invented league, 90 results</li></ul>
+            <ul class="chips" aria-label="Techniques">
+              <li>; delimiter</li>
+              <li>--cssv-key: Pos</li>
+              <li>attr(data-key type(&lt;number&gt;))</li>
+              <li>sibling-index()</li>
+              <li>transition: translate</li>
+              <li>table.update()</li>
+            </ul>
+          </div>
+          <pre class="trick"><code>tbody tr {             <span class="c">/* from its place to its rank */</span>
+  translate: 0 calc((attr(data-key type(&lt;number&gt;), sibling-index())
+    - sibling-index()) * var(--step));
+  z-index: calc(100 - attr(data-key type(&lt;integer&gt;), 0));
+  transition: translate 1s cubic-bezier(.65, 0, .35, 1);
+}</code></pre>
+        </header>
+        <div class="stage" id="season-stage"><cssv-table src="season.cssv"></cssv-table></div>
+        <div class="controls">
+          <button type="button" id="season-play">Play the season</button>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <input type="radio" name="season-view" id="season-styled" value="styled" checked><label for="season-styled">Styled</label>
+            <input type="radio" name="season-view" id="season-plain" value="plain"><label for="season-plain">Plain CSV</label>
+          </div>
+          <span class="readout" id="season-readout">18 matchdays, one every 1.6 seconds.</span>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <p>Footage in 01: <a href="https://commons.wikimedia.org/wiki/File:Muybridge_race_horse_animated.gif">Sallie Gardner at a Gallop</a>, Eadweard Muybridge, 1878. Public domain. The film's other scenes are drawn by <a href="cinema.js">cinema.js</a>, and the horse is <a href="cinema-horse.csv">cinema-horse.csv</a>, 15 frames of 45 records.</p>
+      <p>Planets in 02: <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/">Planetary Fact Sheet</a>, NASA Goddard Space Flight Center: orbital period, distance from the Sun and diameter.</p>
+      <p>Buildings in 03: <a href="https://en.wikipedia.org/wiki/List_of_tallest_buildings">List of tallest buildings</a>, Wikipedia, revision 1376498189, retrieved 5 October 2026: every building of 400 m or more, with the heights as the list gives them, to the tip of any spire or antenna. Text under CC BY-SA 4.0.</p>
+    </footer>
+  </main>
+
+  <script type="module">
+    // Every card's "style block: N lines" chip: lines of CSS in the file's
+    // style block, not counting comments or blank lines.
+    for (const chip of document.querySelectorAll('[data-count]')) {
+      fetch(chip.dataset.count).then((res) => res.text()).then((text) => {
+        const lines = text.split('\n');
+        const end = lines.indexOf('---', 1);
+        const css = lines.slice(1, end).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+        const n = css.split('\n').filter((line) => line.trim()).length;
+        chip.textContent = `style block: ${n} lines of CSS`;
+      });
+    }
+  </script>
+
+  <script type="module">
+    // 01. The projectionist: on every animation frame, the frame for the
+    // time that has passed goes to the table with update(). While one
+    // update() is still running, frames are skipped rather than queued, so
+    // a slow machine shows fewer frames at the right speed.
+    import { film as makeFilm, FPS } from './cinema.js';
+
+    const theater = document.getElementById('theater');
+    const screen = theater.querySelector('cssv-table');
+    const button = document.getElementById('film-play');
+    const readout = document.getElementById('film-readout');
+    const excerpt = document.getElementById('film-excerpt');
+    const plain = document.getElementById('film-plain');
+    let loaded = null;
+    let playing = false;
+    let origin = 0;     // performance.now() at the film's 0 s
+    let seconds = 0;    // where the film is
+    let shown = -1;     // the frame number on screen
+    let busy = false;
+    let file = '';
+    const stamps = [];  // when recent frames reached the screen
+
+    const data = (text) => text.slice(text.indexOf('\n---\n') + 5);
+    async function load() {
+      const [text, reel] = await Promise.all([screen.getAttribute('src'), 'cinema-horse.csv']
+        .map((path) => fetch(path).then((res) => res.text())));
+      file = text;
+      return { film: makeFilm(reel), style: text.slice(0, text.indexOf('\n---\n') + 5) };
+    }
+
+    const pad = (n) => String(n).padStart(3, '0');
+    function show(frame, scene) {
+      busy = true;
+      const started = performance.now();
+      screen.update(plain.checked ? frame : loaded.style + frame).then(() => {
+        busy = false;
+        const now = performance.now();
+        stamps.push(now);
+        while (stamps[0] < now - 1000) stamps.shift();
+        if (playing) readout.textContent = `frame ${pad(shown + 1)} of ${loaded.film.frames} · ${scene} · ${stamps.length} fps · update() ${(now - started).toFixed(1)} ms`;
+      });
+      quote(frame);
+    }
+
+    // Lines 1, 20 to 30 and 47 of a data section, cut at 72 characters.
+    function quote(frame) {
+      const lines = frame.split('\n');
+      const cut = (line) => (line.length > 72 ? `${line.slice(0, 72)}…` : line);
+      excerpt.replaceChildren(
+        [lines[0], ...lines.slice(19, 30)].map(cut).join('\n') + '\n',
+        Object.assign(document.createElement('span'), { className: 'gap', textContent: '⋮\n' }),
+        cut(lines[46]),
+      );
+    }
+
+    function tick(now) {
+      if (!playing) return;
+      requestAnimationFrame(tick);
+      if (busy) return;
+      seconds = (now - origin) / 1000;
+      const n = Math.floor(seconds * FPS) % loaded.film.frames;
+      if (n === shown) return;
+      shown = n;
+      const { scene, data: frame } = loaded.film.at(n / FPS);
+      show(frame, scene);
+    }
+
+    function pause() {
+      if (!playing) return;
+      playing = false;
+      button.textContent = 'Play';
+      readout.textContent = `Paused at frame ${pad(shown + 1)}.`;
+    }
+
+    button.addEventListener('click', async () => {
+      if (playing) return pause();
+      loaded ??= await load();
+      playing = true;
+      button.textContent = 'Pause';
+      origin = performance.now() - seconds * 1000;
+      requestAnimationFrame(tick);
+    });
+
+    // Scrolled out of view, the film pauses.
+    new IntersectionObserver(([entry]) => { if (!entry.isIntersecting) pause(); }).observe(theater);
+
+    // Plain CSV shows the same frame without its style block.
+    document.querySelector('#film .seg').addEventListener('change', async () => {
+      theater.classList.toggle('plain', plain.checked);
+      if (shown >= 0) {
+        if (!playing) show(loaded.film.at(shown / FPS).data, '');
+        return;
+      }
+      file ||= await fetch(screen.getAttribute('src')).then((res) => res.text());
+      screen.update(plain.checked ? data(file) : file);
+    });
+
+    // Before the film starts, the excerpt shows the frame in the file.
+    fetch(screen.getAttribute('src')).then((res) => res.text()).then((text) => {
+      file = text;
+      if (shown < 0) quote(data(text));
+    });
+  </script>
+
+  <script type="module">
+    // 02. The speed buttons set --year on <cssv-table>. Custom properties
+    // inherit into the table, so the style block's var(--year, 8s) picks it
+    // up and every orbit's duration changes at once. Plain CSV shows the
+    // file without its style block.
+    import { parse } from '../src/core.js';
+
+    const card = document.getElementById('orrery');
+    const table = card.querySelector('cssv-table');
+    const readout = document.getElementById('orrery-readout');
+    const plain = document.getElementById('orrery-plain');
+    const file = fetch(table.getAttribute('src')).then((res) => res.text());
+
+    // How long the fastest and the slowest planet take at this speed.
+    async function describe(year) {
+      const { columns, rows } = parse(await file);
+      const period = (row) => Number(row.fields[columns.indexOf('orbit (days)')]);
+      const time = (days) => {
+        const s = (days / 365.2) * year;
+        return s < 90 ? `${s.toFixed(1)} s` : `${(s / 60).toFixed(1)} min`;
+      };
+      const [first, last] = [rows[0], rows.at(-1)];
+      readout.textContent = `${first.fields[0]} laps in ${time(period(first))}, ${last.fields[0]} in ${time(period(last))}.`;
+    }
+
+    card.querySelector('[aria-label="Speed"]').addEventListener('change', (event) => {
+      table.style.setProperty('--year', event.target.value);
+      describe(parseFloat(event.target.value));
+    });
+    card.querySelector('[aria-label="View"]').addEventListener('change', async () => {
+      const text = await file;
+      table.update(plain.checked ? text.slice(text.indexOf('\n---\n') + 5) : text);
+    });
+  </script>
+
+  <script type="module">
+    // 03. The years: the same file, year after year, with the height left
+    // empty for every building finished later. The rows stay in the same
+    // order, so update() only changes heights, and the towers that get one
+    // rise with the file's own transition.
+    import { parse } from '../src/core.js';
+
+    const stage = document.getElementById('skyline-stage');
+    const city = stage.querySelector('cssv-table');
+    const button = document.getElementById('skyline-play');
+    const readout = document.getElementById('skyline-readout');
+    const FIRST = 1930, LAST = new Date().getFullYear(), STEP = 280; // ms a year
+    let file = null;
+    let year = FIRST - 1;
+    let timer = 0;
+
+    async function load() {
+      const text = await fetch(city.getAttribute('src')).then((res) => res.text());
+      const fence = text.indexOf('\n---\n') + 5;
+      const lines = text.slice(fence).trimEnd().split('\n');
+      const { columns, rows } = parse(text);
+      const at = (name) => columns.indexOf(name);
+      return {
+        style: text.slice(0, fence),
+        header: lines[0],
+        buildings: rows.map(({ fields }, i) => ({
+          line: lines[i + 1],
+          name: fields[at('building')],
+          height: Number(fields[at('height (m)')]),
+          built: Number(fields[at('built')]),
+        })),
+      };
+    }
+
+    // The file as it would have been at the end of `y`: a building finished
+    // later keeps its record but loses its height.
+    function render(y) {
+      const standing = [];
+      const lines = file.buildings.map((b) => {
+        if (b.built <= y) { standing.push(b); return b.line; }
+        const fields = b.line.split(',');
+        fields[3] = '';
+        return fields.join(',');
+      });
+      city.update(`${file.style}${file.header}\n${lines.join('\n')}\n`);
+      const tallest = standing[0];
+      readout.textContent = tallest
+        ? `${y} · ${standing.length} of ${file.buildings.length} standing · tallest: ${tallest.name}, ${tallest.height} m`
+        : `${y} · no building of 400 m yet`;
+    }
+
+    function tick() {
+      year++;
+      render(year);
+      if (year >= LAST) stop('Play again');
+    }
+
+    function stop(label) {
+      clearInterval(timer);
+      timer = 0;
+      button.textContent = label;
+    }
+
+    button.addEventListener('click', async () => {
+      if (timer) return stop('Resume');
+      file ??= await load();
+      if (timer) return;
+      if (year >= LAST) year = FIRST - 1;
+      if (year < FIRST) { year = FIRST; render(year); }
+      button.textContent = 'Pause';
+      timer = setInterval(tick, STEP);
+    });
+
+    // Scrolled out of view, the years stop.
+    new IntersectionObserver(([entry]) => { if (!entry.isIntersecting && timer) stop('Resume'); }).observe(stage);
+  </script>
+
+  <script type="module">
+    // 04. The wax: every three seconds the page moves a little wax from blob
+    // to blob and hands the table the new volumes with update(). The total
+    // stays the same. Only the key column changes, so only those cells are
+    // patched, and the blobs' transitions do the rest. The lamp runs while
+    // the card is on screen, unless it's switched off or motion is reduced.
+    import { parse } from '../src/core.js';
+
+    const card = document.getElementById('lava');
+    const screen = card.querySelector('.stage cssv-table');
+    const button = document.getElementById('lava-switch');
+    const readout = document.getElementById('lava-readout');
+    const plain = document.getElementById('lava-plain');
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
+    let lamp = null;     // the file's style block, header and blobs, volumes in tenths of a ml
+    let loading = null;
+    let on = true;
+    let visible = false;
+    let timer = 0;
+    let moved = 0;       // tenths of a ml moved by the last update
+
+    async function load() {
+      const text = await fetch(screen.getAttribute('src')).then((res) => res.text());
+      const { columns, rows } = parse(text);
+      return {
+        style: text.slice(0, text.indexOf('\n---\n') + 5),
+        header: columns.join(','),
+        blobs: rows.map(({ fields }) => ({ name: fields[0], tenths: Math.round(Number(fields[1]) * 10) })),
+      };
+    }
+
+    function show() {
+      const data = [lamp.header, ...lamp.blobs.map((b) => `${b.name},${(b.tenths / 10).toFixed(1)}`)].join('\n') + '\n';
+      const started = performance.now();
+      screen.update(plain.checked ? data : lamp.style + data).then(() => {
+        const total = lamp.blobs.reduce((sum, b) => sum + b.tenths, 0) / 10;
+        readout.textContent = `${lamp.blobs.length} blobs · ${total.toFixed(1)} ml of wax · ${(moved / 10).toFixed(1)} ml moved · update() ${(performance.now() - started).toFixed(1)} ms`;
+      });
+    }
+
+    // A few pours of 0.5 to 2.4 ml from one blob to another; no blob gets
+    // smaller than 1 ml or bigger than 12.
+    function flow() {
+      moved = 0;
+      const pick = () => lamp.blobs[Math.floor(Math.random() * lamp.blobs.length)];
+      for (let i = 0; i < 4; i++) {
+        const from = pick(), to = pick(), pour = 5 + Math.floor(Math.random() * 20);
+        if (from === to || from.tenths - pour < 10 || to.tenths + pour > 120) continue;
+        from.tenths -= pour;
+        to.tenths += pour;
+        moved += pour;
+      }
+      show();
+    }
+
+    function run() {
+      const go = on && visible && lamp && !still.matches;
+      if (go && !timer) timer = setInterval(flow, 3000);
+      if (!go && timer) { clearInterval(timer); timer = 0; }
+    }
+
+    new IntersectionObserver(async ([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) lamp ??= await (loading ??= load());
+      run();
+    }).observe(screen);
+    still.addEventListener('change', run);
+
+    // Switched off, the wax stops where it is and the glow fades.
+    button.addEventListener('click', () => {
+      on = !on;
+      screen.style.setProperty('--play', on ? 'running' : 'paused');
+      screen.style.setProperty('--on', on ? '1' : '0');
+      button.textContent = on ? 'Switch off' : 'Switch on';
+      run();
+    });
+
+    // Plain CSV shows the same volumes without the style block.
+    card.querySelector('.seg').addEventListener('change', async () => {
+      card.querySelector('.stage').classList.toggle('plain', plain.checked);
+      lamp ??= await (loading ??= load());
+      show();
+    });
+  </script>
+
+  <script type="module">
+    // 05. While the song plays, its spectrum goes to the table with
+    // update() 15 times a second. Stopped, or scrolled out of view, the
+    // song ends and the table gets the spectrum in the file again, so the
+    // bars settle back to it.
+    import { play, readSong, spectrum } from './visualizer.js';
+
+    const stage = document.getElementById('visualizer-stage');
+    const table = stage.querySelector('cssv-table');
+    const button = document.getElementById('visualizer-play');
+    const readout = document.getElementById('visualizer-readout');
+    const plain = document.getElementById('visualizer-plain');
+    const hint = readout.textContent;
+    const RATE = 15; // updates a second
+    let file = null; // the file's style block and data section
+    let notes = null;
+    let player = null;
+    let last = 0;
+    let busy = false;
+    const stamps = []; // when recent updates finished
+
+    const read = (path) => fetch(path).then((res) => res.text());
+    async function load() {
+      const [text, song] = await Promise.all([read(table.getAttribute('src')), read('visualizer-song.csv')]);
+      const end = text.indexOf('\n---\n') + 5;
+      file = { style: text.slice(0, end), data: text.slice(end) };
+      notes = readSong(song);
+    }
+    const show = (data) => table.update(plain.checked ? data : file.style + data);
+
+    function frame(now) {
+      if (!player) return;
+      requestAnimationFrame(frame);
+      if (busy || now - last < 1000 / RATE - 4) return;
+      last = now;
+      busy = true;
+      const started = performance.now();
+      show(spectrum(player.analyser)).then(() => {
+        busy = false;
+        const done = performance.now();
+        stamps.push(done);
+        while (stamps[0] < done - 1000) stamps.shift();
+        if (player) readout.textContent = `beat ${String(Math.floor(player.beat()) + 1).padStart(2)} of ${player.loop} · ${stamps.length} updates a second · update() ${(done - started).toFixed(1)} ms`;
+      });
+    }
+
+    function stop() {
+      if (!player) return;
+      player.stop();
+      player = null;
+      button.textContent = 'Play';
+      readout.textContent = hint;
+      show(file.data);
+    }
+
+    button.addEventListener('click', async () => {
+      if (player) return stop();
+      if (!file) await load();
+      player = play(notes);
+      button.textContent = 'Stop';
+      requestAnimationFrame(frame);
+    });
+
+    new IntersectionObserver(([entry]) => { if (!entry.isIntersecting) stop(); }).observe(stage);
+
+    // Plain CSV shows the same records without the style block.
+    document.querySelector('#visualizer .seg').addEventListener('change', async () => {
+      stage.classList.toggle('plain', plain.checked);
+      if (!file) await load();
+      if (!player) show(file.data);
+    });
+  </script>
+  <script type="module">
+    // 06. The season: every 1.6 seconds the table gets the standings after
+    // the next matchday with update(). The rows on screen stay, so the
+    // table's transitions slide them to their new places. Switching between
+    // Styled and Plain CSV loads the file again and ends the season.
+    import { parse } from '../src/core.js';
+    import { dataSection, readResults, standings } from './season.js';
+
+    const stage = document.getElementById('season-stage');
+    const league = stage.querySelector('cssv-table');
+    const button = document.getElementById('season-play');
+    const readout = document.getElementById('season-readout');
+    const plain = document.getElementById('season-plain');
+    const hint = readout.textContent;
+    let file = '';
+    let season = null;
+    let loading = null;
+    let matchday = -1;
+    let timer = 0;
+
+    async function load() {
+      const [text, results] = await Promise.all([league.getAttribute('src'), 'season-results.csv']
+        .map((path) => fetch(path).then((res) => res.text())));
+      const { columns, rows } = parse(text);
+      const matches = readResults(results);
+      file = text;
+      return {
+        style: text.slice(0, text.indexOf('\n---\n') + 5),
+        clubs: rows.map(({ fields }) => fields[columns.indexOf('club')]),
+        matches,
+        last: Math.max(...matches.map((m) => m.matchday)),
+      };
+    }
+
+    function render() {
+      const data = dataSection(standings(season.matches, season.clubs, matchday));
+      league.update(plain.checked ? data : season.style + data);
+      const date = season.matches.find((m) => m.matchday === matchday)?.date;
+      readout.textContent = date
+        ? `Matchday ${matchday} of ${season.last}, ${new Date(date).toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}`
+        : 'Before the first matchday';
+    }
+
+    function tick() {
+      matchday++;
+      render();
+      if (matchday === season.last) stop('Play again');
+    }
+
+    function stop(label) {
+      clearInterval(timer);
+      timer = 0;
+      button.textContent = label;
+    }
+
+    button.addEventListener('click', async () => {
+      if (timer) return stop('Resume');
+      season ??= await (loading ??= load());
+      if (timer) return;
+      if (matchday < 0 || matchday === season.last) {
+        matchday = 0;
+        render();
+      }
+      button.textContent = 'Pause';
+      timer = setInterval(tick, 1600);
+    });
+
+    // Scrolled out of view, the season pauses.
+    new IntersectionObserver(([entry]) => { if (!entry.isIntersecting && timer) stop('Resume'); }).observe(stage);
+
+    // Plain CSV shows the file without its style block, from matchday 18.
+    document.querySelector('#season .seg').addEventListener('change', async () => {
+      stop('Play the season');
+      matchday = -1;
+      readout.textContent = hint;
+      file ||= await fetch(league.getAttribute('src')).then((res) => res.text());
+      league.update(plain.checked ? file.slice(file.indexOf('\n---\n') + 5) : file);
+    });
+  </script>
+</body>
+</html>

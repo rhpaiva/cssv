@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://cssv.dev/</loc></url>
   <url><loc>https://cssv.dev/examples/</loc></url>
+  <url><loc>https://cssv.dev/examples/experiments.html</loc></url>
   <url><loc>https://cssv.dev/editor/</loc></url>
   <url><loc>https://cssv.dev/spec.html</loc></url>
   <url><loc>https://cssv.dev/spec.html?doc=conformance</loc></url>

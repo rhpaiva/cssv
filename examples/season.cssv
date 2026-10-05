@@ -1,0 +1,146 @@
+---
+/* Standings from a spreadsheet export: semicolons, and the clubs in
+   alphabetical order. (The gallery's league.cssv is the same table, sorted
+   by rank.) Pos is the key column, so each row knows its rank,
+   and slides there: typed attr() reads the rank and sibling-index() the
+   row's place in the file. Give the table the next matchday's export with
+   update() and the rows glide to their new places. */
+table {
+  --cssv-key: Pos;
+  --h: 2.9em;                    /* a row */
+  --step: calc(var(--h) + 1px);  /* a row and the line under it */
+  --bg: light-dark(#ffffff, #0f172a);
+  --fg: light-dark(#0f172a, #e2e8f0);
+  --muted: light-dark(#64748b, #94a3b8);
+  --line: light-dark(#e2e8f0, #1e293b);
+  --head: light-dark(#f1f5f9, #0b1222);
+  --win: light-dark(#15803d, #4ade80);
+  --loss: light-dark(#dc2626, #f87171);
+  --top: light-dark(#2563eb, #60a5fa);
+  --cup: light-dark(#0891b2, #22d3ee);
+  --drop: light-dark(#dc2626, #f87171);
+  color-scheme: light dark;
+  display: grid;
+  grid-template-columns: 3em minmax(12em, 1fr) repeat(9, 3.2em);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  font: 14px/1.4 system-ui, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+colgroup { display: none; }
+thead, tbody, tr { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; }
+thead { grid-auto-rows: 2.6em; background: var(--head); }
+tbody { grid-auto-rows: var(--h); row-gap: 1px; position: relative; }
+th, td { align-content: center; padding: 0 0.6em; white-space: nowrap; }
+thead th {
+  color: var(--muted);
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Each row moves from its place in the file to its rank, over the rows
+   going down. Without typed attr() or sibling-index(), the file's order. */
+tbody tr {
+  translate: 0 calc((attr(data-key type(<number>), sibling-index()) - sibling-index()) * var(--step));
+  z-index: calc(100 - attr(data-key type(<integer>), 0));
+  background-color: var(--bg);
+  transition: translate 1s cubic-bezier(.65, 0, .35, 1), background-color 0.6s;
+}
+tbody tr:hover { background-color: color-mix(in srgb, var(--fg) 4%, var(--bg)); }
+@media (prefers-reduced-motion: reduce) { tbody tr, td { transition: none; } }
+
+/* The lines and zones stay put while the rows pass: lines in the gaps under
+   the rows, and bars at the edge for the title race, the cup and relegation. */
+tbody {
+  background:
+    repeating-linear-gradient(90deg, var(--muted) 0 4px, var(--bg) 0 8px) 0 calc(4 * var(--step) - 1px) / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--muted) 0 4px, var(--bg) 0 8px) 0 calc(8 * var(--step) - 1px) / 100% 1px no-repeat,
+    repeating-linear-gradient(var(--bg) 0 var(--h), var(--line) 0 var(--step));
+}
+tbody::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--top) 0 0) 0 0 / 4px calc(3 * var(--step) - 1px),
+    linear-gradient(var(--cup) 0 0) 0 calc(3 * var(--step)) / 4px var(--h),
+    linear-gradient(var(--drop) 0 0) 0 calc(8 * var(--step)) / 4px calc(2 * var(--step) - 1px);
+  background-repeat: no-repeat;
+}
+tr:is([data-key="1"], [data-key="2"], [data-key="3"]) { --zone: var(--top); }
+tr[data-key="4"] { --zone: var(--cup); }
+tr:is([data-key="9"], [data-key="10"]) { --zone: var(--drop); }
+tbody tr[data-key="1"] { background-color: color-mix(in srgb, var(--top) 9%, var(--bg)); }
+td[data-col="Pos"] {
+  text-align: center;
+  font-weight: 700;
+  color: var(--zone, var(--muted));
+  transition: color 0.6s;
+}
+th[data-col="Pos"] { text-align: center; }
+
+/* The crest: two colors per club. The file keeps the clubs in one order,
+   so each club is always the same row. */
+td[data-col="club"] {
+  position: relative;
+  padding-inline-start: 2.5em;
+  font-weight: 600;
+}
+td[data-col="club"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.6em;
+  width: 1.1em;
+  height: 1.3em;
+  translate: 0 -50%;
+  border-radius: 0.2em 0.2em 50% 50% / 0.2em 0.2em 70% 70%;
+  background: linear-gradient(135deg, var(--c1, var(--muted)) 0 50%, var(--c2, var(--line)) 50%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18);
+}
+tbody tr:nth-child(1)  { --c1: #ea580c; --c2: #1e3a8a; } /* Dynamo Kestrel */
+tbody tr:nth-child(2)  { --c1: #16a34a; --c2: #ffffff; } /* FC Ostmark */
+tbody tr:nth-child(3)  { --c1: #38bdf8; --c2: #0c4a6e; } /* Harbor City */
+tbody tr:nth-child(4)  { --c1: #f59e0b; --c2: #111827; } /* Kingsport Athletic */
+tbody tr:nth-child(5)  { --c1: #c8102e; --c2: #ffffff; } /* Northbridge FC */
+tbody tr:nth-child(6)  { --c1: #475569; --c2: #e2e8f0; } /* Port Saline */
+tbody tr:nth-child(7)  { --c1: #7c3aed; --c2: #fde047; } /* Real Valmonte */
+tbody tr:nth-child(8)  { --c1: #1d4ed8; --c2: #f8fafc; } /* Riverside Rovers */
+tbody tr:nth-child(9)  { --c1: #0f766e; --c2: #99f6e4; } /* Sporting Alba */
+tbody tr:nth-child(10) { --c1: #be185d; --c2: #fbcfe8; } /* Union Lindenau */
+
+td[data-col="GD"].positive { color: var(--win); }
+td[data-col="GD"].positive::before { content: "+"; }
+td[data-col="GD"].negative { color: var(--loss); }
+td[data-col="GD"].zero     { color: var(--muted); }
+
+td:is([data-col="P"], [data-col="GF"], [data-col="GA"]) { color: var(--muted); }
+th[data-col="Pts"] { background: color-mix(in srgb, var(--top) 14%, var(--head)); color: var(--top); }
+td[data-col="Pts"] {
+  background-color: color-mix(in srgb, var(--top) 6%, transparent);
+  font-size: 1.1em;
+  font-weight: 800;
+}
+td[data-col="xG"] {
+  --cssv-format: "minimumFractionDigits: 1, maximumFractionDigits: 1";
+  color: var(--muted);
+  font-style: italic;
+}
+---
+Pos;club;P;W;D;L;GF;GA;GD;Pts;xG
+10;Dynamo Kestrel;18;1;3;14;12;44;-32;6;14.2
+5;FC Ostmark;18;7;6;5;26;24;2;27;27.8
+2;Harbor City;18;12;4;2;36;17;19;40;33.9
+4;Kingsport Athletic;18;9;4;5;29;22;7;31;27.2
+1;Northbridge FC;18;13;3;2;40;14;26;42;38.4
+9;Port Saline;18;2;5;11;16;36;-20;11;17.9
+3;Real Valmonte;18;10;5;3;33;19;14;35;34.7
+7;Riverside Rovers;18;5;4;9;21;27;-6;19;23.1
+6;Sporting Alba;18;6;5;7;24;24;0;23;22.6
+8;Union Lindenau;18;4;3;11;20;30;-10;15;18.5

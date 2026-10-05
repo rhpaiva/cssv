@@ -1,0 +1,133 @@
+---
+/* A spectrum: one record per frequency band, its center in Hz, and its
+   level from 0 to 100. The level is the key column, so typed attr() reads
+   it as a number and sets the length of the band's bar, and
+   sibling-index() turns the band's place in the file into its angle and
+   its color. Give the table the next spectrum with update() and the bars'
+   transitions fill in between, so 15 updates a second move like 60 frames.
+   The fourth band, 70 to 85 Hz, is where the kick drum is: it also lights
+   the core. */
+table {
+  --cssv-key: level;
+  --ring: 20cqmin;  /* where the bars start */
+  --reach: 27cqmin; /* a bar at level 100 */
+  --bar: 2.5cqmin;
+  color: oklch(70% 0.24 300); /* what a band's bars inherit if its own hue fails */
+  display: block;
+  position: relative;
+  aspect-ratio: 16 / 10;
+  container-type: size;
+  overflow: hidden;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle, transparent calc(var(--ring) - 0.6cqmin), rgb(255 255 255 / 0.14) calc(var(--ring) - 0.35cqmin), transparent var(--ring)),
+    repeating-radial-gradient(circle, transparent 0 7.7cqmin, rgb(255 255 255 / 0.035) 7.7cqmin 7.9cqmin),
+    radial-gradient(circle, oklch(30% 0.1 305) 0, oklch(17% 0.06 285) 36%, oklch(9% 0.025 270) 72%);
+}
+@media (width < 640px) { table { aspect-ratio: 1; } }
+colgroup, thead, td { display: none; }
+
+/* The ring turns slowly; each band sits at its own angle on it. */
+tbody { display: block; position: absolute; inset: 0; animation: turn 48s linear infinite; }
+@keyframes turn { to { rotate: 1turn; } }
+tbody tr {
+  --level: attr(data-key type(<number>), 0);
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  rotate: calc((sibling-index() - 0.5) / sibling-count() * 1turn);
+  /* The band's color, on the row so its bars can use currentColor. A
+     browser that can't work out the hue keeps the violet before it. */
+  color: oklch(70% 0.24 300);
+  color: oklch(70% 0.25 calc(335deg - sibling-index() * 4.6deg));
+}
+
+/* The bar, outward from the ring, and its reflection, inward. Hue runs
+   from pink in the bass to cyan in the treble. */
+tbody tr::before, tbody tr::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--bar) / -2);
+  width: var(--bar);
+  border-radius: var(--bar);
+  transition: scale 0.13s ease-out;
+}
+tbody tr::before {
+  bottom: var(--ring);
+  height: var(--reach);
+  transform-origin: 50% 100%;
+  scale: 1 calc(0.04 + attr(data-key type(<number>), 0) / 104);
+  background: linear-gradient(to top, color-mix(in oklch, currentColor 88%, black), color-mix(in oklch, currentColor 30%, white));
+  box-shadow: 0 0 1.8cqmin color-mix(in oklch, currentColor 80%, transparent);
+}
+tbody tr::after {
+  top: calc(0.9cqmin - var(--ring));
+  height: 8.5cqmin;
+  transform-origin: 50% 0;
+  scale: 1 calc(0.04 + attr(data-key type(<number>), 0) / 104);
+  background: linear-gradient(color-mix(in oklch, currentColor 45%, transparent), transparent);
+}
+
+/* The core: the fourth band's level cell, at the center. */
+tbody tr:nth-child(4) td[data-col="level"] {
+  display: block;
+  position: absolute;
+  left: -7cqmin;
+  top: -7cqmin;
+  width: 14cqmin;
+  height: 14cqmin;
+  border-radius: 50%;
+  font-size: 0;
+  background: radial-gradient(circle, #fff 0, oklch(90% 0.08 330) 14%, oklch(66% 0.27 335 / 0.9) 38%, oklch(45% 0.22 300 / 0) 70%);
+  box-shadow: 0 0 9cqmin 1cqmin oklch(62% 0.26 330 / 0.35);
+  scale: calc(0.62 + var(--level) / 230);
+  transition: scale 0.12s ease-out;
+}
+
+/* A vignette over everything. */
+table::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.55));
+}
+@media (prefers-reduced-motion: reduce) {
+  tbody { animation: none; }
+  tbody tr::before, tbody tr::after, td { transition: none; }
+}
+---
+band,Hz,level
+1,44,70
+2,53,71
+3,64,72
+4,77,85
+5,93,96
+6,112,100
+7,135,100
+8,163,81
+9,196,69
+10,237,56
+11,286,58
+12,344,55
+13,415,55
+14,501,77
+15,604,64
+16,729,48
+17,879,48
+18,1059,39
+19,1278,38
+20,1541,68
+21,1858,47
+22,2240,42
+23,2702,59
+24,3258,35
+25,3929,41
+26,4738,32
+27,5713,29
+28,6890,31
+29,8308,20
+30,10019,18
+31,12082,13
+32,14570,8

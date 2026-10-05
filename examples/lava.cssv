@@ -1,0 +1,161 @@
+---
+/* A lava lamp. Each record is a blob of wax, and its volume is the key
+   column: typed attr() reads the millilitres and a cube root turns them
+   into the blob's size. Each blob rises and sinks on its own animation,
+   timed by sibling-index(), and a blur plus a contrast filter melts the
+   blobs into one liquid. Hand the table new volumes with update() and the
+   wax flows into them. The page can switch the lamp off by setting --play
+   and --on on the element; custom properties inherit into the table. */
+table {
+  --cssv-key: "wax (ml)";
+  --w: min(300px, 70%);                                   /* the lamp's width */
+  --glass: polygon(22% 0, 78% 0, 100% 74%, 97% 100%, 3% 100%, 0 74%);
+  display: block;
+  position: relative;
+  height: 640px;
+  overflow: hidden;
+  border-radius: 14px;
+  isolation: isolate;
+  background:
+    radial-gradient(40% 7% at 50% 92%, rgb(0 0 0 / 0.7), transparent),      /* the lamp's shadow */
+    linear-gradient(#170c22, #0b0612 88%, #140b1b 88.2%, #0e0814);             /* wall, then floor */
+}
+@media (width < 480px) { table { height: 540px; } }
+thead th, tbody td { padding: 0; font-size: 0; }
+col { display: none; }
+
+/* The glow on the wall, breathing. */
+colgroup {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(34% 40% at 50% 42%, rgb(255 70 110 / 0.34), rgb(255 120 40 / 0.1) 55%, transparent 75%);
+  opacity: var(--on, 1);
+  transition: opacity 2s;
+  animation: breathe 7s ease-in-out infinite alternate;
+}
+@keyframes breathe { to { scale: 1.12; } }
+
+/* The glass, full of liquid. Everything in it is black or white until the
+   filter: blurred, then pushed to full contrast, nearby blobs run
+   together with clean edges. */
+tbody {
+  display: block;
+  position: absolute;
+  top: 16%;
+  left: calc(50% - var(--w) * 0.33);
+  width: calc(var(--w) * 0.66);
+  height: 50%;
+  z-index: 1;
+  container-type: size;
+  overflow: hidden;
+  background: #000;
+  filter: blur(7px) contrast(22);
+  clip-path: var(--glass);
+}
+tbody::before, tbody::after { content: ""; position: absolute; border-radius: 50%; background: #fff; }
+tbody::before { inset: auto -15% -9%; height: 21%; }   /* the wax pooled at the bottom */
+tbody::after { inset: -7% 20% auto; height: 9%; }      /* and a little stuck at the top */
+
+/* A blob: its volume sets its size, and its place in the file its path. */
+tbody tr {
+  --reach: calc((45 + mod(sibling-index() * 17, 50)) * 1cqh);
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: calc(50% + 26% * sin(sibling-index() * 2.4) - 19cqw);
+  width: 38cqw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  scale: calc(pow(attr(data-key type(<number>), 4), 1 / 3) / 2.9);
+  transition: scale 2.6s ease-in-out;
+  animation:
+    rise calc((11 + mod(sibling-index() * 7, 9)) * 1s) ease-in-out calc(mod(sibling-index() * 5, 13) * -1s) infinite alternate,
+    sway calc((5 + mod(sibling-index() * 3, 5)) * 1s) ease-in-out calc(sibling-index() * -0.7s) infinite alternate;
+  animation-play-state: var(--play, running);
+}
+tbody td { display: none; }
+@keyframes rise  { from { translate: 0 12%; } to { translate: 0 calc(85% - var(--reach)); } }
+@keyframes sway  { from { transform: translateX(-7cqw) scale(1.08, 0.92); } to { transform: translateX(7cqw) scale(0.94, 1.1); } }
+
+/* Over the liquid, in the glass's shape: the wax colors the white, the
+   bulb lights the black, and the glass catches the light. */
+thead {
+  display: block;
+  position: absolute;
+  top: 16%;
+  left: calc(50% - var(--w) * 0.33);
+  width: calc(var(--w) * 0.66);
+  height: 50%;
+  pointer-events: none;
+}
+thead tr { display: contents; }
+th, thead::after { position: absolute; inset: 0; clip-path: var(--glass); }
+th[data-col="blob"] {
+  z-index: 2;
+  background:
+    linear-gradient(90deg, rgb(70 0 40 / 0.6), transparent 30% 70%, rgb(70 0 40 / 0.6)),
+    linear-gradient(#ff2e88, #ff5b3a 45%, #ffb13b);
+  mix-blend-mode: multiply;
+}
+th[data-col="wax (ml)"] {
+  z-index: 2;
+  background:
+    radial-gradient(70% 38% at 50% 104%, rgb(255 190 90 / 0.75), transparent),
+    linear-gradient(#2a0838, #4a0a3d);
+  mix-blend-mode: screen;
+  opacity: calc(0.35 + 0.65 * var(--on, 1));
+  transition: opacity 2s;
+}
+thead::after {
+  content: "";
+  z-index: 2;
+  background: linear-gradient(90deg, transparent 9%, rgb(255 255 255 / 0.32) 15%, rgb(255 255 255 / 0.06) 25%, transparent 32% 74%, rgb(255 255 255 / 0.14) 84%, transparent 91%);
+}
+
+/* The cap and the base, brushed metal. */
+table::before, table::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  background:
+    linear-gradient(rgb(255 255 255 / 0.18), transparent 30%, rgb(0 0 0 / 0.35)),
+    linear-gradient(90deg, #22222b, #6f6f7d 22%, #e8e8f2 38%, #9a9aa8 52%, #4a4a56 74%, #1b1b22);
+}
+table::before {
+  top: 7%;
+  left: calc(50% - var(--w) * 0.19);
+  width: calc(var(--w) * 0.38);
+  height: calc(9% + 2px);
+  clip-path: polygon(24% 0, 76% 0, 100% 100%, 0 100%);
+}
+table::after {
+  top: calc(66% - 3px);
+  left: calc(50% - var(--w) * 0.5);
+  width: var(--w);
+  height: 26%;
+  clip-path: polygon(18.5% 0, 81.5% 0, 100% 100%, 0 100%);
+}
+
+/* Without motion, the blobs hold still at different heights. */
+@media (prefers-reduced-motion: reduce) {
+  colgroup, tbody tr { animation: none; transition: none; }
+  tbody tr { translate: 0 calc(85% - var(--reach) * mod(sibling-index() * 3, 5) / 4); }
+}
+---
+blob,wax (ml)
+1,6.5
+2,3.0
+3,8.5
+4,2.0
+5,4.5
+6,7.0
+7,1.5
+8,5.5
+9,3.5
+10,9.0
+11,2.5
+12,5.0
+13,4.0

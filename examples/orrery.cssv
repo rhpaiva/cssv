@@ -1,0 +1,199 @@
+---
+/* The solar system, running itself. The key column is each planet's orbital
+   period in days (NASA's Planetary Fact Sheet), and typed attr() turns it
+   into the orbit: its animation-duration, with one Earth year taking --year
+   (8 s unless the page sets it on <cssv-table>), and its size. By Kepler's
+   third law the distance from the Sun grows as the period to the power 2/3,
+   so log(period) draws the orbits on a logarithmic scale of distance. Nothing
+   calls update(): once the table is rendered, CSS does the rest. Only the
+   planets move, so each frame repaints a few small boxes. */
+table {
+  --cssv-key: "orbit (days)";
+  --tilt: 64deg;   /* the orbital plane, seen from a little above */
+  --unit: 6.25cqi; /* radius per unit of ln(period / 40 days) */
+  color-scheme: dark;
+  display: block;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  container-type: inline-size;
+  overflow: hidden;
+  perspective: 260cqi;
+  perspective-origin: 50% 30%;
+  border-radius: 14px;
+  font: 600 max(9px, 1.1cqi)/1.15 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #dbe4ff;
+  background:
+    radial-gradient(circle at 50% 53%, rgb(255 170 80 / 0.16), rgb(255 120 60 / 0.05) 18%, transparent 34%),
+    radial-gradient(ellipse 55% 45% at 78% 12%, rgb(99 102 241 / 0.2), transparent 70%),
+    radial-gradient(ellipse 45% 55% at 8% 92%, rgb(236 72 153 / 0.13), transparent 70%),
+    radial-gradient(1.4px 1.4px at 30px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 120px 90px, rgb(255 255 255 / 0.8), transparent),
+    radial-gradient(1.2px 1.2px at 200px 160px, rgb(200 220 255 / 0.9), transparent),
+    radial-gradient(1px 1px at 60px 210px, rgb(255 240 220 / 0.7), transparent),
+    radial-gradient(0.8px 0.8px at 160px 30px, rgb(255 255 255 / 0.6), transparent),
+    #04050f;
+  background-size: auto, auto, auto, 230px 190px, 290px 210px, 170px 250px, 310px 230px, 130px 140px;
+}
+/* A second layer of stars that twinkles. */
+table::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1.3px 1.3px at 70px 120px, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 250px 60px, rgb(220 230 255 / 0.9), transparent),
+    radial-gradient(1px 1px at 180px 260px, #fff, transparent);
+  background-size: 270px 280px, 330px 240px, 210px 300px;
+  animation: twinkle 3.2s ease-in-out infinite alternate;
+}
+@keyframes twinkle { from { opacity: 0.25; } }
+colgroup, thead { display: none; }
+
+/* The orbital plane: everything in it is in 3D, tilted away from the viewer. */
+tbody {
+  position: absolute;
+  inset: 0;
+  transform: rotateX(var(--tilt));
+  transform-style: preserve-3d;
+}
+/* The Sun, turned back to face the viewer. */
+tbody::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4.8cqi;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  transform: rotateX(calc(-1 * var(--tilt)));
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 40%, #fffbe6, #ffe08a 30%, #ffa62b 68%, #e8590c);
+  box-shadow: 0 0 1.4cqi #ffc061, 0 0 4.5cqi rgb(255 150 50 / 0.6), 0 0 12cqi rgb(255 120 40 / 0.28);
+}
+/* The asteroid belt, at the distance of Ceres (a period of 1,682 days). */
+tbody::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(2 * log(1682 / 40) * var(--unit));
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgb(214 200 180 / 0.5) 0 0.35deg, transparent 0.35deg 1.7deg, rgb(214 200 180 / 0.28) 1.7deg 2deg, transparent 2deg 3.1deg);
+  mask: radial-gradient(closest-side, transparent calc(100% - 1.6cqi), #000 calc(100% - 1.1cqi), #000 calc(100% - 0.5cqi), transparent);
+}
+
+/* An orbit: a circle around the Sun, as wide as the period says. It stays
+   still; the planet travels round it once per period. --phase starts the
+   planets spread out instead of lined up, and it too comes from the period. */
+tbody tr {
+  --period: attr(data-key type(<number>), 365.2);
+  --r: calc(log(var(--period) / 40) * var(--unit));
+  --t: calc(var(--period) / 365.2 * var(--year, 8s));
+  --phase: calc(-0.37 * var(--period) / 365.2 * var(--t));
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(2 * var(--r));
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  transform-style: preserve-3d;
+  border: 1px solid rgb(170 190 255 / 0.18);
+  border-radius: 50%;
+}
+
+/* The planet and its period ride the orbit, anticlockwise, staying upright
+   (offset-rotate: 0deg), then turn back up to face the viewer. */
+tbody td { display: none; }
+td:is([data-col="planet"], [data-col="orbit (days)"]) {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  offset-path: circle(closest-side);
+  offset-rotate: 0deg;
+  white-space: nowrap;
+  text-shadow: 0 0 0.6cqi #000, 0 1px 2px #000;
+  animation: orbit var(--t) linear var(--phase) infinite;
+}
+@keyframes orbit { from { offset-distance: 100%; } to { offset-distance: 0%; } }
+td[data-col="planet"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35cqi;
+  min-width: calc(var(--size) * 2.6); /* room for Saturn's rings */
+  offset-anchor: 50% calc(var(--size) / 2);
+  transform-origin: 50% calc(var(--size) / 2);
+  transform: rotateX(calc(-1 * var(--tilt)));
+}
+/* The period, under the name: the number that sets the speed. */
+td[data-col="orbit (days)"] {
+  --cssv-format: "maximumFractionDigits: 0";
+  display: block;
+  offset-anchor: 50% 0;
+  transform-origin: 50% 0;
+  transform: rotateX(calc(-1 * var(--tilt))) translateY(calc(var(--size) / 2 + 0.5cqi + 1.15 * max(9px, 1.1cqi)));
+  color: rgb(219 228 255 / 0.6);
+  font-size: max(8px, 0.85cqi);
+  font-weight: 500;
+}
+td[data-col="orbit (days)"]::after { content: " days"; }
+/* The globe, lit from the viewer's side, with a soft edge. */
+td[data-col="planet"]::before {
+  content: "";
+  width: var(--size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, rgb(255 255 255 / 0.28), transparent 42%), radial-gradient(circle, transparent 52%, rgb(2 3 12 / 0.6)), var(--surface);
+  box-shadow: 0 0 calc(var(--size) / 2) var(--glow, transparent);
+}
+
+/* Each planet's size and surface. The file lists the planets from the Sun
+   out, so the n-th row is always the same planet. Sizes are compressed: at
+   true scale Mercury would be a dot next to Jupiter. */
+tbody tr:nth-child(1) { --size: 0.8cqi; --surface: radial-gradient(circle at 40% 60%, #cfc8bf, #857d73); }
+tbody tr:nth-child(2) { --size: 1.25cqi; --surface: linear-gradient(160deg, #f6e1ad, #d9a95b 60%, #b9853f); --glow: rgb(246 214 150 / 0.35); }
+tbody tr:nth-child(3) {
+  --size: 1.3cqi;
+  --surface: radial-gradient(circle at 34% 38%, #6fbf6a 0 17%, transparent 18%), radial-gradient(circle at 66% 64%, #84cc7a 0 13%, transparent 14%), radial-gradient(circle at 50% 50%, #4f8ff7, #1e3a8a);
+  --glow: rgb(96 165 250 / 0.45);
+}
+tbody tr:nth-child(4) { --size: 1cqi; --surface: radial-gradient(circle at 40% 40%, #ec8a5c, #a3361a); }
+tbody tr:nth-child(5) {
+  --size: 3.2cqi;
+  --surface: radial-gradient(ellipse 15% 10% at 63% 60%, #c4553a 85%, transparent), repeating-linear-gradient(#d9b38c 0 12%, #b47b54 12% 19%, #ecd9be 19% 28%, #c08a62 28% 35%);
+}
+tbody tr:nth-child(6) { --size: 2.7cqi; --surface: repeating-linear-gradient(#ead39c 0 14%, #d4b273 14% 21%, #f1e2b8 21% 30%); }
+tbody tr:nth-child(7) { --size: 1.9cqi; --surface: radial-gradient(circle at 45% 40%, #d2f6f7, #7fd3dc 60%, #4aa6b8); --glow: rgb(127 211 220 / 0.3); }
+tbody tr:nth-child(8) { --size: 1.85cqi; --surface: radial-gradient(circle at 45% 40%, #8fb0ff, #3b5bdb 60%, #1e2f8a); --glow: rgb(91 124 250 / 0.35); }
+/* Saturn's rings, around the globe. */
+tbody tr:nth-child(6) td[data-col="planet"]::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--size) / 2);
+  left: 50%;
+  width: calc(var(--size) * 2.4);
+  height: calc(var(--size) * 0.62);
+  translate: -50% -50%;
+  rotate: -14deg;
+  border-radius: 50%;
+  border: calc(var(--size) * 0.1) solid rgb(234 214 165 / 0.9);
+  border-top-color: rgb(234 214 165 / 0.25);
+  box-shadow: 0 0 0 calc(var(--size) * 0.08) rgb(200 180 130 / 0.28), inset 0 0 0 calc(var(--size) * 0.05) rgb(150 130 90 / 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  table::before, td:is([data-col="planet"], [data-col="orbit (days)"]) { animation-play-state: paused; }
+}
+---
+planet,orbit (days),from sun (10⁶ km),diameter (km)
+Mercury,88.0,57.9,4879
+Venus,224.7,108.2,12104
+Earth,365.2,149.6,12756
+Mars,687.0,228.0,6792
+Jupiter,4331,778.5,142984
+Saturn,10747,1432.0,120536
+Uranus,30589,2867.0,51118
+Neptune,59800,4515.0,49528

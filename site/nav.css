@@ -63,8 +63,9 @@
 .nav .gh svg { display: block; width: 19px; height: 19px; fill: currentColor; }
 /* Narrower, "How it works" and "AI" go (both are one scroll away on the
    home page); on phones the name and "Editor" go too (the editor needs a
-   keyboard and a wider screen), and below 360px the GitHub icon, which the
-   home page's footer repeats. */
+   keyboard and a wider screen), "Experiments" for room (the examples page
+   links to it), and below 360px the GitHub icon, which the home page's
+   footer repeats. */
 @media (max-width: 860px) { .nav .wide-only { display: none; } }
 @media (max-width: 640px) {
   .nav .phone-hidden { display: none; }

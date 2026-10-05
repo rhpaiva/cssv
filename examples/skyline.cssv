@@ -1,0 +1,187 @@
+---
+/* A skyline. Every record is a building of 400 m or more from Wikipedia's
+   "List of tallest buildings" (revision 1376498189, retrieved 2026-10-05), tallest
+   first, and every row is a tower. Its place in the file gives it a plot on
+   a sunflower spiral, so the tallest stands in the middle; the height is the
+   key column, which typed attr() turns into the tower's height; and its
+   cells are its faces: the name on the front, the city and the country on
+   the sides, the floors at the back and the height on the roof. A building
+   with no height is an empty plot. Give the table a new file with update()
+   and the towers that changed rise to their new heights. */
+table {
+  --cssv-key: "height (m)";
+  --m: 0.04cqw;     /* a metre */
+  --glass: #161b36;
+  --sun: #ff9a62;   /* low, from the front of every tower */
+  container-type: inline-size;
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 14px;
+  background:
+    radial-gradient(1px 1px at 12% 9%, #fff, transparent),
+    radial-gradient(1px 1px at 31% 4%, rgb(255 255 255 / 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 61% 7%, #fff, transparent),
+    radial-gradient(1px 1px at 79% 3%, rgb(255 255 255 / 0.6), transparent),
+    radial-gradient(1px 1px at 92% 12%, #fff, transparent),
+    radial-gradient(1px 1px at 4% 16%, rgb(255 255 255 / 0.5), transparent),
+    radial-gradient(150% 75% at 50% 102%, #0d0f22 78%, #1f1a36 90%, #5a3452 97%, #a35a68 99.5%, transparent 100%),
+    radial-gradient(9% 7% at 50% 27%, #fff1d6, #ffc07a 40%, transparent),
+    radial-gradient(75% 18% at 50% 27%, rgb(255 170 110 / 0.9), rgb(230 100 110 / 0.4) 50%, transparent),
+    linear-gradient(#060918, #0f1636 10%, #2b2556 18%, #8c4a70 24%, #e98a62 28%);
+}
+colgroup, thead { display: none; }
+
+/* The city's ground, tilted away from us and turning once in two
+   minutes. Its streets glow near the middle and fade into the land
+   behind, which is painted on the table and stays still. */
+tbody {
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  width: 96cqw;
+  height: 96cqw;
+  margin: -48cqw 0 0 -48cqw;
+  transform-style: preserve-3d;
+  transform: perspective(150cqw) rotateX(64deg) rotateZ(0deg);
+  animation: orbit 120s linear infinite;
+}
+tbody::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgb(255 160 90 / 0.34), transparent 38%),
+    repeating-linear-gradient(0deg, rgb(255 200 140 / 0.16) 0 0.12cqw, transparent 0 3cqw),
+    repeating-linear-gradient(90deg, rgb(255 200 140 / 0.16) 0 0.12cqw, transparent 0 3cqw),
+    #151933;
+  mask-image: radial-gradient(closest-side, #000 45%, transparent);
+}
+@keyframes orbit { to { transform: perspective(150cqw) rotateX(64deg) rotateZ(360deg); } }
+
+/* A tower: its plot on the spiral, from its place in the file. */
+tbody tr {
+  --H: calc(attr(data-key type(<number>), 0) * var(--m));
+  --w: calc(1.2cqw + attr(data-key type(<number>), 0) * 0.0016cqw); /* taller is wider */
+  position: absolute;
+  left: calc(50% - var(--w) / 2);
+  top: calc(50% - var(--w) / 2);
+  width: var(--w);
+  height: var(--w);
+  transform-style: preserve-3d;
+  --a: calc(sibling-index() * 137.508deg);       /* the golden angle */
+  --r: calc(sqrt(sibling-index() - 1) * 4.6cqw);
+  translate: calc(cos(var(--a)) * var(--r)) calc(sin(var(--a)) * var(--r));
+}
+td {
+  position: absolute;
+  left: 0;
+  display: block;
+  box-sizing: border-box;
+  width: var(--w);
+  padding: 0;
+  overflow: hidden;
+  font: 600 0.78cqw/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: rgb(255 244 230 / 0.9);
+  white-space: nowrap;
+  backface-visibility: hidden; /* a wall seen from behind is inside the tower */
+  transition: height 1.6s cubic-bezier(.2, .7, .2, 1), transform 1.6s cubic-bezier(.2, .7, .2, 1);
+}
+
+/* The walls: each cell stands up on the tower's center, moves out to its
+   edge and turns to face out. The sun is low behind us, so the front glows. */
+td:is([data-col="building"], [data-col="city"], [data-col="country"], [data-col="floors"]) {
+  bottom: 50%;
+  height: var(--H);
+  text-indent: 0.5cqw;
+  transform-origin: 50% 100%;
+  writing-mode: sideways-lr;
+  text-align: start;
+  line-height: var(--w);
+  background:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='72'><path fill='%23ffcf87' d='M12 1.5h6v3.5h-6zM22 1.5h6v3.5h-6zM32 1.5h6v3.5h-6zM2 7.5h6v3.5h-6zM32 7.5h6v3.5h-6zM12 19.5h6v3.5h-6zM22 19.5h6v3.5h-6zM12 25.5h6v3.5h-6zM12 31.5h6v3.5h-6zM12 37.5h6v3.5h-6zM22 37.5h6v3.5h-6zM2 49.5h6v3.5h-6zM12 49.5h6v3.5h-6zM32 49.5h6v3.5h-6zM2 55.5h6v3.5h-6zM32 55.5h6v3.5h-6zM22 61.5h6v3.5h-6zM32 61.5h6v3.5h-6zM22 67.5h6v3.5h-6zM32 67.5h6v3.5h-6z'/><path fill='%23ffe9c4' fill-opacity='.2' d='M2 13.5h6v3.5h-6zM32 31.5h6v3.5h-6zM2 67.5h6v3.5h-6z'/></svg>") 50% 100% / 100% auto,
+    linear-gradient(transparent 60%, rgb(0 0 0 / 0.35)),
+    var(--face);
+}
+td[data-col="building"] { --face: linear-gradient(color-mix(in srgb, var(--sun) 62%, var(--glass)), color-mix(in srgb, var(--sun) 14%, var(--glass)) 38%, var(--glass) 70%); transform: translateY(calc(var(--w) / 2)) rotateX(-90deg); }
+td[data-col="city"]     { --face: linear-gradient(color-mix(in srgb, var(--sun) 24%, #23284a), #181c36 50%); transform: rotateZ(-90deg) translateY(calc(var(--w) / 2)) rotateX(-90deg); }
+td[data-col="floors"]   { --face: #0e1126; transform: rotateZ(180deg) translateY(calc(var(--w) / 2)) rotateX(-90deg); }
+td[data-col="country"]  { --face: linear-gradient(#1e2342, #12152c); transform: rotateZ(90deg) translateY(calc(var(--w) / 2)) rotateX(-90deg); }
+td[data-col="floors"]::after { content: " floors"; }
+
+/* The roof, with its height and a red light for aircraft. */
+td[data-col="height (m)"] {
+  top: 0;
+  height: var(--w);
+  display: grid;
+  place-items: center;
+  font-size: 0.6cqw;
+  background:
+    radial-gradient(circle at 50% 22%, #ff3b30 0 7%, rgb(255 59 48 / 0.45) 12%, transparent 22%),
+    linear-gradient(135deg, color-mix(in srgb, var(--sun) 45%, #2b3158), #20254a);
+  transform: translateZ(var(--H));
+}
+td[data-col="height (m)"]:empty { background: rgb(255 205 150 / 0.1); box-shadow: inset 0 0 0 0.08cqw rgb(255 205 150 / 0.3); }
+
+/* The year casts the shadow. The sun is setting behind the city, so the
+   shadows fall toward us. */
+td[data-col="built"] {
+  top: 50%;
+  height: calc(var(--H) * 1.1);
+  font-size: 0;
+  transform-origin: 50% 0;
+  transform: translateZ(0.02cqw) rotateZ(10deg);
+  background: linear-gradient(rgb(4 6 18 / 0.7), rgb(4 6 18 / 0.25) 60%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  tbody { animation: none; transform: perspective(150cqw) rotateX(64deg) rotateZ(-30deg); }
+  td { transition: none; }
+}
+---
+building,city,country,height (m),floors,built
+Burj Khalifa,Dubai,United Arab Emirates,829.8,163,2010
+Merdeka Maybank Tower,Kuala Lumpur,Malaysia,680.1,118,2023
+Shanghai Tower,Shanghai,China,632,128,2015
+Mecca Royal Clock Tower,Mecca,Saudi Arabia,601,120,2012
+Ping An Finance Centre,Shenzhen,China,599.1,115,2016
+Lotte World Tower,Seoul,South Korea,555.7,123,2016
+One World Trade Center,New York City,United States,546.2,104,2014
+Tianjin CTF Finance Centre,Tianjin,China,530.4,98,2019
+Guangzhou CTF Finance Centre,Guangzhou,China,530,111,2016
+China Zun,Beijing,China,528,108,2018
+Willis Tower,Chicago,United States,527,108,1974
+Taipei 101,Taipei,Taiwan,508,101,2004
+Shanghai World Financial Center,Shanghai,China,494.3,101,2008
+International Commerce Centre,Hong Kong,China,484,118,2010
+Wuhan Greenland Center,Wuhan,China,475.6,97,2021
+Central Park Tower,New York City,United States,472.4,98,2020
+Landmark 81,Ho Chi Minh City,Vietnam,469.5,81,2018
+Lakhta Center,St. Petersburg,Russia,462,87,2019
+International Land-Sea Center,Chongqing,China,458.2,98,2022
+875 North Michigan Avenue,Chicago,United States,456.9,100,1969
+The Exchange 106,Kuala Lumpur,Malaysia,453.6,95,2019
+Changsha IFS Tower T1,Changsha,China,452.1,94,2018
+Petronas Tower 1,Kuala Lumpur,Malaysia,451.9,88,1998
+Petronas Tower 2,Kuala Lumpur,Malaysia,451.9,88,1998
+Zifeng Tower,Nanjing,China,450,89,2010
+Suzhou IFS,Suzhou,China,450,98,2019
+Empire State Building,New York City,United States,443.2,102,1931
+Kingkey 100,Shenzhen,China,441.8,100,2011
+Guangzhou International Finance Center,Guangzhou,China,438.6,103,2009
+Wuhan Center,Wuhan,China,438,88,2019
+111 West 57th Street,New York City,United States,435.3,82,2020
+One Vanderbilt,New York City,United States,427,58,2020
+Minying International Trade Center T2,Dongguan,China,426.9,88,2020
+432 Park Avenue,New York City,United States,425.5,85,2015
+Marina 101,Dubai,United Arab Emirates,425,101,2017
+Trump International Hotel and Tower,Chicago,United States,423.2,96,2009
+Jin Mao Tower,Shanghai,China,421,88,1998
+Princess Tower,Dubai,United Arab Emirates,414,101,2012
+Al Hamra Tower,Kuwait City,Kuwait,412.6,80,2010
+Two International Finance Centre,Hong Kong,China,412,88,2003
+Haeundae LCT The Sharp Landmark Tower,Busan,South Korea,411.6,101,2019
+Guangxi China Resources Tower,Nanning,China,402.7,85,2019
+Guiyang Financial Center Tower 1,Guiyang,China,401,79,2021

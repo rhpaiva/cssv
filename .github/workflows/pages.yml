@@ -31,8 +31,8 @@ jobs:
           mkdir _site
           cp -r src examples skills SPEC.md CONFORMANCE.md README.md llms.txt _site/
           cp -r site/. _site/
-          # The examples page reaches the website as ../site/; here it is the root.
-          sed -i 's#\.\./site/#../#g' _site/examples/index.html
+          # The examples pages reach the website as ../site/; here it is the root.
+          sed -i 's#\.\./site/#../#g' _site/examples/index.html _site/examples/experiments.html
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

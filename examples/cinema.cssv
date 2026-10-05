@@ -1,0 +1,137 @@
+---
+/* The projector. A frame is 45 records of 80 fields, one per pixel, and a
+   field's type is its shade, from dark to light: empty, negative, zero,
+   positive and text. Hand the table the next frame with update() and only
+   the cells that changed are touched. The scene column is the key column:
+   it picks the palette and the camera work. The last record is the
+   subtitle. */
+table {
+  --cssv-key: scene;
+  --p0: #000; --p1: #3b3b3b; --p2: #7b7b7b; --p3: #bdbdbd; --p4: #f4f4f4;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(80, 1fr);
+  gap: 1px; /* the cells show between the pixels */
+  container-type: inline-size;
+  overflow: hidden;
+  background: #000;
+}
+@media (width < 720px) { table { gap: 0; } }
+colgroup, thead, td[data-col="scene"] { display: none; }
+tbody, tr { display: contents; }
+td { aspect-ratio: 1; padding: 0; font-size: 0; background: var(--p4); }
+td:empty    { background: var(--p0); }
+td.negative { background: var(--p1); }
+td.zero     { background: var(--p2); }
+td.positive { background: var(--p3); }
+
+/* Palettes, by scene. */
+tr:is([data-key="leader"], [data-key="horse"]) { --p0: #1c130a; --p1: #4f3b24; --p2: #8a6d4b; --p3: #c4a57b; --p4: #ecdcb8; }
+tr[data-key="fire"]   { --p0: #000; --p1: #5e0b00; --p2: #c42c00; --p3: #ff8c00; --p4: #ffeaa0; }
+tr[data-key="plasma"] { --p0: #10002b; --p1: #5a189a; --p2: #e0399a; --p3: #ffad3b; --p4: #fff3c4; }
+
+/* Film: grain, scanlines and a vignette over every frame. */
+table::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / 0.6)),
+    repeating-linear-gradient(transparent 0 2px, rgb(0 0 0 / 0.12) 2px 3px),
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 -.18'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>") 0 0 / 160px;
+  animation: grain 0.4s steps(4) infinite;
+}
+@keyframes grain { to { background-position: 0 0, 0 0, 120px 80px; } }
+
+/* Camera work, by scene: the leader weaves and flickers, the title fades in,
+   the horse irises in, the fire flashes, the plasma cycles its colors and
+   the end irises out. */
+table:has(tr[data-key="leader"]) { animation: weave 0.3s steps(1) infinite; }
+table:has(tr[data-key="leader"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 37%, rgb(255 240 210 / 0.5) 37.2% 37.4%, transparent 37.6%) 0 0 / 200% 100% no-repeat;
+  animation: flicker 0.18s steps(2) infinite, scratch 0.7s steps(3) infinite;
+}
+table:has(tr[data-key="title"])  { animation: fade-in 1.4s ease-out; }
+table:has(tr[data-key="horse"])  { animation: iris-in 1.6s ease-out; }
+table:has(tr[data-key="fire"])   { animation: flash 0.9s ease-out; }
+table:has(tr[data-key="plasma"]) { animation: cycle 5s linear infinite; }
+table:has(tr[data-key="end"])    { animation: iris-out 4s ease-in forwards; }
+@keyframes weave   { 0% { translate: 0 0; } 25% { translate: 0.2% -0.3%; } 50% { translate: -0.2% 0.1%; } 75% { translate: 0.1% 0.3%; } }
+@keyframes flicker { 50% { background-color: rgb(255 240 210 / 0.07); } }
+@keyframes scratch { 33% { background-position: 40% 0; } 66% { background-position: 15% 0; } }
+@keyframes fade-in { from { filter: brightness(0); } }
+@keyframes iris-in { from { clip-path: circle(0%); } to { clip-path: circle(75%); } }
+@keyframes flash   { from { filter: brightness(3) saturate(0); } }
+@keyframes cycle   { to { filter: hue-rotate(360deg); } }
+@keyframes iris-out { 0%, 55% { clip-path: circle(75%); } to { clip-path: circle(0%); } }
+@media (prefers-reduced-motion: reduce) { table, table::before, table::after { animation: none; } }
+
+/* The subtitle: the last record's first pixel field. */
+tr[data-key="subtitle"] td { display: none; }
+tr[data-key="subtitle"] td[data-col="1"]:not(:empty) {
+  display: block;
+  position: absolute;
+  inset: auto 6% 5%;
+  z-index: 3;
+  aspect-ratio: auto;
+  background: none;
+  color: #ffe45c;
+  font: 600 max(12px, 2.6cqi)/1.3 system-ui, -apple-system, "Segoe UI", sans-serif;
+  text-align: center;
+  text-shadow: 0 0 2px #000, 0 1px 3px #000, 0 0 8px #000;
+}
+---
+scene,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80
+horse,,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,0,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,0,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,-1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,0,,,,0,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,,,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,-1,-1,1,x,x,x,x,x,x,x,x,x,x,x,-1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,-1,-1,0,x,x,x,x,x,x,x,x,1,0,1,0,,-1,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,-1,-1,x,x,x,x,x,x,x,x,-1,,,,,,-1,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,,,,,,1,x,x,x,x,x,x,-1,,,,,,,,-1,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,x,x,x,x,x,x,x,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,-1,,,,,,,,-1,1,x,x,0,-1,-1,,,,,,,,,,-1,x,x,x,1,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,x,0,-1,-1,x,0,,,-1,1,-1,,,,,,,,,,,,,,-1,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,0,x,x,x,x,x,x,0,,,,,,,,,,,,,,,,,,,0,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,-1,,,,,,-1,-1,-1,-1,-1,-1,0,1,x,x,1,,,,,,,,,,,,,,,,,,,,,,1,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,x,1,1,1,x,x,x,x,x,x,x,x,1,-1,,,,,,,,,,,,,,,,0,x,x,-1,,,,,,,,,,,,,,-1,-1,,,,,,-1,1,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,x,1,x,1,-1,,-1,-1,0,0,-1,-1,0,0,-1,,,,,,,,,,,,,,,,,,,-1,0,x,0,-1,,,,-1,,,,-1,,-1,x,x,x,x,-1,,,,,-1,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,x,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-1,x,x,-1,-1,-1,-1,-1,,,-1,,-1,x,x,x,x,1,x,x,-1,,,0,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,x,1,1,x,0,,,,,,,,,,-1,1,,,,,,,,,,,,,,,,,,,-1,-1,x,0,-1,-1,-1,,-1,,,,,0,x,x,x,x,x,x,x,x,0,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,0,,,,,,0,1,0,-1,-1,-1,,,,,,,,,,,,,,,,,,,-1,-1,x,0,-1,-1,-1,,,,,,-1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,0,-1,,,-1,x,x,x,x,x,x,-1,,,,,,,,,,,,,,,,,,,,,-1,-1,,,-1,,,,,,0,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,x,0,-1,0,x,x,x,x,x,x,x,1,,,,,,,,,,,,,,,,,,,,,,,,,,,-1,,,-1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,,,,,,,,,,,,,,,,,,,,,,,,,,-1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,0,,,,,,,,,-1,,,,,,,,,,,,,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,x,x,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,,,,,,,,x,x,-1,,,,,,,,,,,,,,,-1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,0,x,x,1,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,,,,,-1,x,x,x,x,0,-1,,,,,,,,,,,,x,x,x,x,x,x,x,x,1,1,x,x,x,x,x,1,x,x,1,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,1,-1,,,,0,-1,,,1,x,x,x,x,x,x,x,0,,,,,,,,,0,x,x,x,x,x,x,x,x,1,1,x,1,x,1,1,1,1,1,1,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,1,,,,-1,x,x,,,-1,x,x,x,x,x,x,x,x,x,x,-1,,,,,,x,x,x,x,x,x,x,x,x,x,x,x,x,1,1,x,1,1,1,1,1,1,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,0,x,0,,,1,x,x,x,x,x,x,x,x,x,x,-1,,,,,,0,x,x,x,x,x,x,x,x,x,x,x,1,1,x,x,1,0,x,x,x,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,1,-1,,-1,,,,1,x,x,x,x,x,x,x,x,x,0,,,-1,x,-1,,-1,x,x,x,x,x,x,x,x,x,1,1,x,x,x,x,1,1,x,1,1,1,x,x,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,-1,,,,,-1,x,x,x,x,x,x,x,x,,,,x,x,x,-1,,0,x,x,x,x,x,x,x,x,x,x,1,1,1,x,x,x,x,x,x,x,x,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,-1,,,,,,-1,0,x,x,x,x,0,,,x,x,x,x,x,-1,,x,x,x,x,x,x,x,x,x,x,1,1,1,1,x,x,x,x,1,1,x,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,0,-1,x,0,-1,,,-1,x,x,x,,,,x,x,x,x,1,,,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,x,x,x,1,x,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,1,x,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,-1,-1,-1,0,0,,,0,1,-1,,,,-1,-1,-1,-1,,-1,0,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,x,x,x,1,x,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,1,x,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,0,0,-1,-1,,,,,,,,x,x,-1,,,-1,x,x,x,x,x,x,x,x,x,x,x,1,1,1,1,x,x,x,1,x,1,1,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,x,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,0,-1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,1,1,1,1,x,1,0,1,1,1,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,1,1,1,1,x,x,1,0,1,1,1,1,1,1,,,,,,
+horse,,,,,,,1,1,1,1,1,1,1,1,1,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,1,1,1,1,1,1,0,1,1,1,1,1,1,,,,,,
+horse,,,,,,,0,1,1,1,1,1,1,1,1,1,1,1,1,x,x,x,x,x,1,x,x,x,x,x,x,x,x,x,x,x,x,1,1,1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,1,1,1,x,1,1,1,0,1,1,1,1,1,1,,,,,,
+horse,,,,,,,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,x,x,x,x,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,-1,0,0,0,0,0,0,,,,,,
+horse,,,,,,,,-1,,-1,-1,,,-1,-1,-1,-1,-1,-1,-1,-1,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,0,-1,-1,-1,0,-1,-1,0,-1,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,,,,,,
+horse,,,,,,,,,,,-1,,,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,,,,,,
+horse,,,,,,,,,,,-1,,,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,,,,,,
+subtitle,"Sallie Gardner at a Gallop, by Eadweard Muybridge, 1878"
