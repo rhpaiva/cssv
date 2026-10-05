@@ -2,14 +2,15 @@
 /* A resume as CSV. Each row is one line of the resume, and the kind column
    says what that line is (a job, one of its points, a skill), so it is the
    key every rule selects on. The left column holds dates, places and labels;
-   the rail between the columns carries the timeline. */
+   the rail between the columns carries the timeline. It is a sheet of
+   paper, so it stays light in dark mode too. */
 table {
   --cssv-key: kind;
-  --paper: light-dark(#fffdf9, #161614);
-  --ink: light-dark(#1c1a17, #ece8df);
-  --muted: light-dark(#6f685d, #a39d91);
-  --rule: light-dark(#e4ded2, #34322c);
-  --mark: light-dark(#ffe45c, #e9d54a);
+  --paper: #fffdf9;
+  --ink: #1c1a17;
+  --muted: #6f685d;
+  --rule: #e4ded2;
+  --mark: #ffe45c;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, P052, Georgia, serif;
   --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", "Nimbus Sans", Helvetica, Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
@@ -19,7 +20,7 @@ table {
   margin: 0 auto;
   padding: 64px 64px 72px;
   container-type: inline-size;
-  color-scheme: light dark;
+  color-scheme: light;
   background: var(--paper);
   color: var(--ink);
   font: 13.5px/1.55 var(--sans);
@@ -55,8 +56,7 @@ td { grid-column: main / -1; padding: 0; }
   padding-inline: 0.06em;
   font: 400 3.5em/1.05 var(--serif);
   letter-spacing: -0.015em;
-  color: light-dark(var(--ink), #15140f);
-  background: linear-gradient(light-dark(transparent, var(--mark)) 60%, var(--mark) 0 92%, light-dark(transparent, var(--mark)) 0);
+  background: linear-gradient(transparent 60%, var(--mark) 0 92%, transparent 0);
   print-color-adjust: exact;
 }
 [data-key="name"] [data-col="text"] { margin-top: 0.9em; font-size: 0.8em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
@@ -160,7 +160,7 @@ tr:is([data-key="job"], [data-key="point"], [data-key="stack"], [data-key="quote
 
 /* Paper: a little smaller and tighter than on screen. */
 @media print {
-  table { width: 100%; padding: 0; box-shadow: none; background: none; color-scheme: light; font-size: 12.5px; }
+  table { width: 100%; padding: 0; box-shadow: none; background: none; font-size: 12.5px; }
   tbody { --gutter: 7.6em; --rail: 1.9em; }
   [data-key="heading"] { padding: 2em 0 1em; }
   [data-key="contact"] + [data-key="heading"] { margin-top: 1.8em; }
