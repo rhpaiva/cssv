@@ -1,5 +1,5 @@
-// Generates site/demo.svg, the animated demo in the README: a .cssv file is
-// typed into an editor on the left, and the table on the right follows it.
+// Generates site/demo.svg, an animated demo: a .cssv file is typed into an
+// editor on the left, and the table on the right follows it.
 // The story builds the website's departures board one rule at a time.
 //
 // Nothing in the table is drawn by hand. Each state of the file is rendered by
@@ -11,10 +11,10 @@
 //
 // The SVG has no script and no external resources, so it also animates as an
 // <img> on GitHub and npm. With reduced motion it shows scene STILL.
-import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { DEFAULT_CSS } from '../src/core.js';
 import { launchChromium, startServer } from '../test/browser/harness.js';
+import { scopeCss, snapshotTable } from './svg-tables.js';
 
 const OUT = new URL('../site/demo.svg', import.meta.url);
 const BASE = new URL('../site/', import.meta.url); // the story's file sits next to departures.cssv
@@ -75,6 +75,7 @@ await page.emulateMedia({ colorScheme: 'light' });
 // The page sits in site/, so the story's relative @import finds split-flap.css.
 await page.goto(server.page('<main id="host"></main>', { path: '/site/__demo.html', head: '<link rel="stylesheet" href="site.css">' }));
 await page.waitForFunction(() => customElements.get('cssv-table'));
+await page.addScriptTag({ content: `window.snapshotTable = ${snapshotTable};` });
 const { theme, code, rendered } = await page.evaluate(async ({ texts, full }) => {
   const ctx = document.createElement('canvas').getContext('2d');
   const color = (c) => { ctx.fillStyle = '#000'; ctx.fillStyle = c; return ctx.fillStyle; };
@@ -102,10 +103,8 @@ const { theme, code, rendered } = await page.evaluate(async ({ texts, full }) =>
   }
   pre.remove();
 
-  // Each state's table model, and the one-shot CSS animations its stylesheets
-  // start on it (the board's flaps), so the SVG can replay them.
+  // Each state's table model, and the one-shot animations to replay.
   const host = document.getElementById('host');
-  const kebab = (p) => (p.startsWith('--') ? p : p.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`));
   const rendered = [];
   for (const text of texts) {
     const el = document.createElement('cssv-table');
@@ -116,39 +115,7 @@ const { theme, code, rendered } = await page.evaluate(async ({ texts, full }) =>
     host.append(el);
     await el.ready;
     if (el.errors.length) throw new Error(el.errors.map((e) => `§${e.section} ${e.message}`).join('\n'));
-    const { table } = el;
-    const html = new XMLSerializer().serializeToString(table);
-    const path = (node) => {
-      const steps = [];
-      for (; node !== table; node = node.parentElement) steps.unshift(`:nth-child(${[...node.parentElement.children].indexOf(node) + 1})`);
-      return ['table', ...steps].join(' > ');
-    };
-    const anims = [];
-    for (const anim of table.getAnimations({ subtree: true })) {
-      const { target, pseudoElement } = anim.effect;
-      const timing = anim.effect.getTiming();
-      if (timing.iterations === Infinity) continue; // runs the same in the SVG
-      const what = `${anim.animationName} on ${path(target)}${pseudoElement ?? ''}`;
-      if (pseudoElement || timing.iterations !== 1 || timing.direction !== 'normal' || timing.easing !== 'linear') {
-        throw new Error(`Can't replay ${what}: only single runs on elements are supported.`);
-      }
-      if (target.getAnimations().some((a) => a.effect.getTiming().iterations === Infinity)) {
-        throw new Error(`Can't replay ${what}: the element also has an endless animation.`);
-      }
-      const keyframes = anim.effect.getKeyframes().map(({ offset, computedOffset, easing, composite, ...props }) => ({
-        offset: computedOffset,
-        easing,
-        props: Object.fromEntries(Object.entries(props).map(([p, v]) => [kebab(p), v])),
-      }));
-      // The value without the animation, for properties a 0% or 100% keyframe leaves out.
-      const names = [...new Set(keyframes.flatMap((k) => Object.keys(k.props)))];
-      target.style.animation = 'none';
-      const cs = getComputedStyle(target);
-      const base = Object.fromEntries(names.map((p) => [p, cs.getPropertyValue(p)]));
-      target.style.animation = '';
-      anims.push({ path: path(target), what, delay: timing.delay / 1000, duration: timing.duration / 1000, fill: timing.fill, keyframes, base });
-    }
-    rendered.push({ html, anims });
+    rendered.push(snapshotTable(el.table));
     el.remove();
   }
   return { theme, code: code.filter((line) => line.length), rendered };
@@ -277,86 +244,9 @@ const still = renders.find(([, s]) => s === stateOf(SCENES[STILL]))[0] + 0.5;
 
 // --- Stylesheets -------------------------------------------------------------
 // One document holds every state's table, so each state's stylesheets are
-// scoped to its wrapper (.s0, .s1, ...): every selector gets the wrapper as an
-// ancestor, imports are inlined and @keyframes move to the top level. This
-// works on the source text, because the CSSOM serializes a shorthand that
-// uses var() as empty values once a longhand follows it.
-
-// Top-level rules as { prelude, block }, or { prelude } for a statement.
-function rules(css) {
-  const out = [];
-  let prelude = '', block = '', depth = 0, quote = null;
-  const put = (s) => { if (depth) block += s; else prelude += s; };
-  for (let i = 0; i < css.length; i++) {
-    const ch = css[i];
-    if (quote) {
-      put(ch === '\\' ? ch + css[++i] : ch);
-      if (ch === quote) quote = null;
-    } else if (ch === '/' && css[i + 1] === '*') {
-      i = css.indexOf('*/', i + 2) + 1;
-      if (!i) throw new Error('Unclosed CSS comment');
-    } else if (ch === '{') {
-      if (depth++) block += ch;
-    } else if (ch === '}') {
-      if (--depth) block += ch;
-      else out.push({ prelude: prelude.trim(), block: block.trim() }), prelude = block = '';
-    } else if (ch === ';' && !depth) {
-      if (prelude.trim()) out.push({ prelude: prelude.trim() });
-      prelude = '';
-    } else {
-      if (ch === '"' || ch === "'") quote = ch;
-      put(ch);
-    }
-  }
-  if (depth || prelude.trim()) throw new Error('Unbalanced CSS');
-  return out;
-}
-// A selector list split at its top-level commas.
-function selectors(list) {
-  const out = [];
-  let cur = '', depth = 0, quote = null;
-  for (const ch of list) {
-    if (quote) { if (ch === quote) quote = null; } else if (ch === '"' || ch === "'") quote = ch;
-    else if (ch === '(' || ch === '[') depth++;
-    else if (ch === ')' || ch === ']') depth--;
-    else if (ch === ',' && !depth) { out.push(cur.trim()); cur = ''; continue; }
-    cur += ch;
-  }
-  return [...out, cur.trim()];
-}
+// scoped to its wrapper (.s0, .s1, ...) by scopeCss.
 const hoisted = new Map(); // @keyframes name -> rule
-function scope(css, prefix, base) {
-  let out = '';
-  for (const { prelude, block } of rules(css)) {
-    const at = /^@([\w-]+)/.exec(prelude)?.[1].toLowerCase();
-    if (at === 'import') {
-      const href = /^@import\s+(?:url\(\s*)?(["'])(.*?)\1\s*\)?$/i.exec(prelude);
-      if (!href) throw new Error(`Only plain imports are supported: ${prelude}`);
-      const url = new URL(href[2], base);
-      out += scope(readFileSync(url, 'utf8'), prefix, url);
-    } else if (at === 'charset') {
-      // The file is UTF-8 anyway (SPEC 4.1).
-    } else if (at === 'layer' && block === undefined) {
-      out += `${prelude};`;
-    } else if (['media', 'supports', 'layer', 'container'].includes(at)) {
-      out += `${prelude}{${scope(block, prefix, base)}}`;
-    } else if (at === 'keyframes') {
-      const name = prelude.slice(10).trim();
-      const rule = `${prelude}{${block}}`;
-      if (/^(k\d+|caret)$/.test(name)) throw new Error(`@keyframes ${name} clashes with the demo's own animations`);
-      if (hoisted.has(name) && hoisted.get(name) !== rule) throw new Error(`Two different @keyframes ${name}`);
-      hoisted.set(name, rule);
-    } else if (at) {
-      throw new Error(`Unsupported rule: ${prelude}`);
-    } else if (block.includes('{')) {
-      throw new Error(`Nested rules are not supported: ${prelude}`);
-    } else {
-      if (/url\(\s*(?!["']?data:)/i.test(block)) throw new Error(`An SVG image can't load ${prelude}'s url()`);
-      out += `${selectors(prelude).map((s) => `${prefix} ${s}`).join(',')}{${block}}`;
-    }
-  }
-  return out;
-}
+const scope = (css, prefix, base) => scopeCss(css, prefix, base, hoisted, /^(k\d+|caret)$/);
 
 // --- Drawing -------------------------------------------------------------------
 const W = 960, H = 440, HEAD = 44, FOOT = 52, SPLIT = 450;
