@@ -445,7 +445,7 @@
       padding: 14px 22px;
       border-top: 1px solid var(--border);
     }
-    .pager > button {
+    .pager > button, .controls > button {
       padding: 8px 14px;
       border: 1px solid var(--border);
       border-radius: 999px;
@@ -455,8 +455,8 @@
       font: 600 13px/1 system-ui, sans-serif;
       transition: border-color 0.15s, opacity 0.15s;
     }
-    .pager > button:hover:not(:disabled) { border-color: var(--muted); }
-    .pager > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .pager > button:hover:not(:disabled), .controls > button:hover { border-color: var(--muted); }
+    .pager > button:focus-visible, .controls > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .pager > button:disabled { opacity: 0.45; cursor: default; }
     .pager .status {
       display: inline-flex;
@@ -530,7 +530,7 @@
     <header class="hero">
       <p class="eyebrow">CSSV v1 · Examples</p>
       <h1>The CSV you already have, <span>worth looking at.</span></h1>
-      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first nine were made for this page, to show how far a style block goes. The next eight start from files people already have. The last two show other ways to put a table in a page.</p>
+      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first ten were made for this page, to show how far a style block goes. The next eight start from files people already have. The last two show other ways to put a table in a page.</p>
       <p class="lede">Each tile below is the file itself, rendered live and scaled down. Point at one to see its plain CSV; click it for the full card. In a card, the yellow figure is the size of the style block, and <strong>View source</strong> shows the whole file.</p>
     </header>
 
@@ -606,6 +606,15 @@
             <pre class="raw"></pre>
           </span>
           <span class="caption"><strong>Seat map</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#stadium" data-src="stadium.cssv" style="--virtual: 960">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="stadium.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Stadium tickets</strong><span class="lines"></span></span>
         </a>
       </li>
       <li>
@@ -703,6 +712,7 @@
       <a href="#league">League table</a>
       <a href="#forecast">Forecast</a>
       <a href="#seats">Seat map</a>
+      <a href="#stadium">Stadium</a>
       <a href="#nutrition">Nutrition</a>
       <span class="sep" aria-hidden="true"></span>
       <a href="#weather">Weather</a>
@@ -720,7 +730,7 @@
 
     <section class="group" id="showcase">
       <h2>Made for the gallery</h2>
-      <p>These files were written for this page, to show how far a style block goes. Each is still a plain table, one record per row; the style block turns it into a grid of tiles, a trading terminal, a week stood on its side, a cabin, a food label or a CV.</p>
+      <p>These files were written for this page, to show how far a style block goes. Each is still a plain table, one record per row; the style block turns it into a grid of tiles, a trading terminal, a week stood on its side, a cabin, a stadium, a food label or a CV.</p>
       <div class="toolbar">
         <span class="label" id="locale-label">Display numbers in</span>
         <div class="seg" id="locale" role="radiogroup" aria-labelledby="locale-label">
@@ -954,6 +964,42 @@
         </div>
       </div>
       <div class="stage"><cssv-table src="seats.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="stadium">
+      <header>
+        <div>
+          <h3>Stadium tickets</h3>
+          <div class="file">stadium.cssv</div>
+          <p>A seating plan exported from Ticketlark, an invented ticket seller, for Northbridge FC v Harbor City: one record per section, with its stand, tier, category, price, seats and the seats left. The records run clockwise from the halfway line, tier by tier, so <code>sibling-index()</code> turns each row's place in the file into an angle, and the row's <code>::before</code> cuts its wedge out of the bowl with <code>clip-path: polygon()</code>. The category is the key column, so one rule colors every section in a category, and a section with no seats left is <code>.zero</code>, hatched. Point at a section and <code>tr:hover</code> lights it up and shows the rest of its record over the pitch. Browsers older than Chrome 138, Safari 26.2 and Firefox 154 have no <code>sibling-index()</code> and show the sections as a list.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented match</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>sibling-index()</li>
+            <li>clip-path: polygon()</li>
+            <li>[data-key="Category 1"]</li>
+            <li>tr:has(.zero[data-col="available"])</li>
+            <li>tr:hover</li>
+            <li>table.update()</li>
+          </ul>
+          <div class="legend">
+            <span style="--swatch: #5f3dc4">Category 1</span>
+            <span style="--swatch: #1971c2">Category 2</span>
+            <span style="--swatch: #0c8599">Category 3</span>
+            <span style="--swatch: #d9480f">Category 4</span>
+            <span style="--swatch: #a07800">Hospitality</span>
+            <span style="--swatch: #aab3c0">Sold out</span>
+          </div>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-stadium" id="v-stadium-s" value="styled" checked><label for="v-stadium-s">Styled</label>
+          <input type="radio" name="v-stadium" id="v-stadium-r" value="raw"><label for="v-stadium-r">Plain CSV</label>
+        </div>
+        <button type="button" id="on-sale">Start the sale</button>
+        <span class="hint" id="on-sale-status">Every half second the page hands the table the next export with <code>update()</code>, which changes only the cells that changed.</span>
+      </div>
+      <div class="stage"><cssv-table src="stadium.cssv"></cssv-table></div>
       </article>
 
       <article class="example" id="nutrition">
@@ -1424,6 +1470,73 @@ The date picker uses each locale's first day of the week.",tomas
     for (const button of [prev, next]) {
       button.addEventListener('click', () => show(current + Number(button.dataset.step)));
     }
+  </script>
+
+  <script type="module">
+    // The sale: every half second some sections sell seats, and the stadium
+    // table gets the new file with update(). The table patches the cells that
+    // changed, so the map isn't drawn again. Switching between Styled and
+    // Plain CSV loads the file again and ends the sale.
+    const card = document.getElementById('stadium');
+    const stadium = card.querySelector('.stage cssv-table');
+    const button = document.getElementById('on-sale');
+    const status = document.getElementById('on-sale-status');
+    const plain = document.getElementById('v-stadium-r');
+    const hint = status.innerHTML;
+    let file = null;
+    let loading = null;
+    let sections = [];
+    let timer = 0;
+
+    async function load() {
+      const lines = (await fetch(stadium.getAttribute('src')).then((res) => res.text())).trimEnd().split('\n');
+      const fence = lines.indexOf('---', 1);
+      const head = lines[fence + 1];
+      return { style: lines.slice(0, fence + 1).join('\n'), head, left: head.split(',').indexOf('available'), rows: lines.slice(fence + 2) };
+    }
+
+    const pick = (list, n) => [...list].sort(() => Math.random() - 0.5).slice(0, n);
+
+    function render() {
+      const data = [file.head, ...sections.map((fields) => fields.join(','))].join('\n');
+      stadium.update(plain.checked ? `${data}\n` : `${file.style}\n${data}\n`);
+      const left = sections.reduce((sum, fields) => sum + fields[file.left], 0);
+      const gone = sections.filter((fields) => fields[file.left] === 0).length;
+      status.textContent = `${left.toLocaleString('en-US')} seats left · ${gone} of ${sections.length} sections sold out`;
+    }
+
+    function tick() {
+      for (const fields of pick(sections.filter((fields) => fields[file.left] > 0), 12)) {
+        const left = fields[file.left];
+        fields[file.left] = left < 15 ? 0 : left - Math.ceil(left * (0.3 + Math.random() * 0.35));
+      }
+      render();
+      if (sections.every((fields) => fields[file.left] === 0)) stop('Start again');
+    }
+
+    function stop(label) {
+      clearInterval(timer);
+      timer = 0;
+      button.textContent = label;
+    }
+
+    button.addEventListener('click', async () => {
+      if (timer) return stop('Resume');
+      file ??= await (loading ??= load());
+      if (timer) return;
+      if (!sections.length || sections.every((fields) => fields[file.left] === 0)) {
+        sections = file.rows.map((line) => line.split(',').map((field, i) => (i === file.left ? Number(field) : field)));
+        render();
+      }
+      button.textContent = 'Pause';
+      timer = setInterval(tick, 500);
+    });
+
+    card.querySelector('.seg').addEventListener('change', () => {
+      stop('Start the sale');
+      sections = [];
+      status.innerHTML = hint;
+    });
   </script>
 
   <script type="module">

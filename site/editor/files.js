@@ -13,6 +13,7 @@ export const GROUPS = [
       'examples/markets.cssv',
       'examples/planets.cssv',
       'examples/seats.cssv',
+      'examples/stadium.cssv',
       'examples/nutrition.cssv',
       'examples/invoice.cssv',
       'examples/league.cssv',

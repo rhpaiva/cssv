@@ -23,6 +23,7 @@ The reference renderer is the `<cssv-table>` custom element, published on npm as
 - [elements.cssv](https://cssv.dev/examples/elements.cssv): the periodic table, with 118 rows laid out as an 18-column grid by position and colored through the key column
 - [forecast.cssv](https://cssv.dev/examples/forecast.cssv): a week of weather stood on its side with subgrid, its icons drawn per condition
 - [seats.cssv](https://cssv.dev/examples/seats.cssv): a seat map where empty fields are free seats and the row-number column is the aisle
+- [stadium.cssv](https://cssv.dev/examples/stadium.cssv): a ticket seller's seating plan drawn as a stadium bowl, where sibling-index() turns each section's row into an angle, clip-path cuts its wedge, the category key column colors it and .zero marks sold-out sections
 - [nutrition.cssv](https://cssv.dev/examples/nutrition.cssv): a Nutrition Facts label made from four columns of numbers
 - [cv.cssv](https://cssv.dev/examples/cv.cssv): a CV with one row per line, a kind column as the key, rows as subgrids sharing a label column and a timeline, and @media print for A4
 - [Ledger, page 1](https://cssv.dev/examples/ledger/page-1.cssv): pagination, with one .cssv file per page (page-1 to page-5) sharing the imported [ledger.css](https://cssv.dev/examples/ledger/ledger.css)

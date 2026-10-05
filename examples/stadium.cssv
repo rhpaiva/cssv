@@ -1,0 +1,310 @@
+---
+/* Ticketlark's seating plan for Northbridge FC v Harbor City: a record per
+   section, with its stand, tier, category, price, seats and the seats left.
+   Records run clockwise from the halfway line, tier by tier, so
+   sibling-index() gives each section its place in the bowl: the lower
+   tier's 44 sections, the club level's 36, the upper tier's 52. The
+   category is the key column and colors the section; a section with no
+   seats left is .zero. Point at a section to read its record. */
+table {
+  --cssv-key: category;
+  --ink: light-dark(#1f2933, #e6e9ef);
+  --muted: light-dark(#6b7480, #8b94a3);
+  --gone: light-dark(#d4d9e0, #2a2f39);
+  --gone-2: light-dark(#e4e8ed, #20242c);
+  --grass: light-dark(#4f9d57, #2e6b38);
+  --stripe: light-dark(#5aa862, #33753e);
+  --line: rgb(255 255 255 / 0.85);
+  --panel: light-dark(rgb(255 255 255 / 0.94), rgb(17 20 27 / 0.94));
+  --before: "€";
+  --after: "";
+  color-scheme: light dark;
+  display: block;
+  position: relative;
+  max-width: 960px;
+  margin-inline: auto;
+  padding: 2.4em 2.4em;
+  font: 600 12px/1.2 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+}
+table:is(:lang(de), :lang(fr)) { --before: ""; --after: "\2009€"; }
+@media (width < 640px) { table { font-size: 8px; } }
+colgroup, thead tr { display: none; }
+thead { display: contents; }
+
+/* The stands' names, around the bowl. */
+table::before, table::after, thead::before, thead::after {
+  position: absolute;
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+table::before { content: "North Stand"; top: 0.8em; left: 50%; translate: -50%; }
+table::after { content: "South Stand"; bottom: 0.8em; left: 50%; translate: -50%; }
+thead::before { content: "West Stand"; left: 0.8em; top: 50%; translate: 0 -50%; writing-mode: vertical-rl; rotate: 180deg; }
+thead::after { content: "East Stand"; right: 0.8em; top: 50%; translate: 0 -50%; writing-mode: vertical-rl; }
+
+/* The bowl, and the pitch in the middle of it. */
+tbody {
+  --ratio: 1.36;
+  display: block;
+  position: relative;
+  aspect-ratio: var(--ratio);
+  container-type: inline-size;
+}
+tbody::before, tbody::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42%;
+  translate: -50% -50%;
+}
+tbody::before {
+  aspect-ratio: 105 / 68;
+  border: 2px solid var(--line);
+  background:
+    radial-gradient(circle, var(--line) 3px, transparent 3.5px),
+    radial-gradient(circle, transparent 13%, var(--line) 0 calc(13% + 2px), transparent 0),
+    linear-gradient(90deg, transparent calc(50% - 1px), var(--line) 0 calc(50% + 1px), transparent 0),
+    repeating-linear-gradient(90deg, var(--grass) 0 10%, var(--stripe) 0 20%);
+}
+/* The penalty areas: one box, its middle masked away. */
+tbody::after {
+  aspect-ratio: 105 / 35;
+  border-block: 2px solid var(--line);
+  background: linear-gradient(90deg, transparent 16%, var(--line) 0 calc(16% + 2px), transparent 0 calc(84% - 2px), var(--line) 0 84%, transparent 0);
+  mask: linear-gradient(90deg, #000 calc(16% + 2px), transparent 0 calc(84% - 2px), #000 0);
+}
+
+/* A section is a layer over the whole bowl. Its row's place in its tier is
+   an angle, and the tier's two radii make the wedge; the bowl's outline
+   is a squircle, so the sides run straight and the corners round. */
+tbody tr {
+  --first: 0; --n: 44; --in: 25; --out: 34.5;
+  --i: calc(sibling-index() - 1 - var(--first));
+  --a0: calc((var(--i) + 0.04) * 360deg / var(--n) - 90deg);
+  --a1: calc((var(--i) + 0.96) * 360deg / var(--n) - 90deg);
+  --am: calc((var(--i) + 0.5) * 360deg / var(--n) - 90deg);
+  --s0: pow(pow(cos(var(--a0)), 4) + pow(sin(var(--a0)), 4), -0.25);
+  --s1: pow(pow(cos(var(--a1)), 4) + pow(sin(var(--a1)), 4), -0.25);
+  --sm: calc(pow(pow(cos(var(--am)), 4) + pow(sin(var(--am)), 4), -0.25) * (var(--in) + var(--out)) / 2);
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  /* The section number sits in the middle of the wedge. */
+  padding-left: calc(50% + cos(var(--am)) * var(--sm) * 1%);
+  padding-top: calc((50% + sin(var(--am)) * var(--sm) * 1%) / var(--ratio));
+  pointer-events: none;
+}
+tbody tr:nth-child(n+45) { --first: 44; --n: 36; --in: 35.3; --out: 38.8; }
+tbody tr:nth-child(n+81) { --first: 80; --n: 52; --in: 39.6; --out: 49.4; }
+tbody tr::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(
+    calc(50% + var(--in) * cos(var(--a0)) * var(--s0) * 1%) calc(50% + var(--in) * sin(var(--a0)) * var(--s0) * 1%),
+    calc(50% + var(--out) * cos(var(--a0)) * var(--s0) * 1%) calc(50% + var(--out) * sin(var(--a0)) * var(--s0) * 1%),
+    calc(50% + var(--out) * cos(var(--a1)) * var(--s1) * 1%) calc(50% + var(--out) * sin(var(--a1)) * var(--s1) * 1%),
+    calc(50% + var(--in) * cos(var(--a1)) * var(--s1) * 1%) calc(50% + var(--in) * sin(var(--a1)) * var(--s1) * 1%));
+  background: var(--color);
+  pointer-events: auto;
+}
+td { display: none; padding: 0; }
+td[data-col="section"] {
+  display: block;
+  width: max-content;
+  translate: -50% -50%;
+  font-size: 0.95cqw;
+  color: #fff;
+}
+
+/* Categories, from the key column, and sold-out sections from .zero. */
+[data-key="Category 1"] { --color: light-dark(#5f3dc4, #7048e8); }
+[data-key="Category 2"] { --color: light-dark(#1971c2, #228be6); }
+[data-key="Category 3"] { --color: light-dark(#0c8599, #1098ad); }
+[data-key="Category 4"] { --color: light-dark(#d9480f, #e8590c); }
+[data-key="Hospitality"] { --color: light-dark(#a07800, #b8901a); }
+tbody tr:has(.zero[data-col="available"]) { --color: repeating-linear-gradient(-45deg, var(--gone) 0 4px, var(--gone-2) 0 7px); }
+tbody tr:has(.zero[data-col="available"]) td[data-col="section"] { color: var(--muted); }
+
+/* Pointing at a section lights it up, and the rest of its record shows
+   over the pitch in three pairs: stand and tier, category and price, seats
+   and seats left. */
+tbody tr:hover { z-index: 1; }
+tbody tr:hover::before { filter: brightness(1.25) saturate(1.1); }
+tbody tr:hover:has(.zero[data-col="available"]) { --color: var(--muted); }
+tbody tr:hover:has(.zero[data-col="available"]) td[data-col="section"] { color: light-dark(#fff, #11141b); }
+tbody tr:hover::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  width: 22cqw;
+  height: 9cqw;
+  translate: -50% -50%;
+  border-radius: 1cqw;
+  background: var(--panel);
+  box-shadow: 0 0.6cqw 2cqw rgb(15 23 42 / 0.35);
+}
+tbody tr:hover td:not([data-col="section"]) { display: block; position: absolute; top: 50%; font-size: 1.25cqw; }
+tbody tr:hover td:is([data-col="stand"], [data-col="category"], [data-col="seats"]) { right: 50%; margin-right: 0.75cqw; font-weight: 500; color: var(--muted); }
+tbody tr:hover td:is([data-col="tier"], [data-col="price"], [data-col="available"]) { left: 50%; margin-left: 0.75cqw; font-weight: 700; }
+tbody tr:hover td:is([data-col="stand"], [data-col="tier"]) { translate: 0 -200%; }
+tbody tr:hover td:is([data-col="category"], [data-col="price"]) { translate: 0 -50%; }
+tbody tr:hover td:is([data-col="seats"], [data-col="available"]) { translate: 0 100%; }
+td[data-col="price"]::before { content: var(--before); }
+td[data-col="price"]::after { content: var(--after); }
+td:is([data-col="seats"], [data-col="available"]) { --cssv-format: "maximumFractionDigits: 0"; }
+td[data-col="seats"]::after { content: " seats"; }
+td[data-col="available"]::after { content: " left"; }
+tbody tr:hover td.zero[data-col="available"] { font-size: 0; }
+td.zero[data-col="available"]::after { content: "Sold out"; font-size: 1.25cqw; }
+
+/* Without sibling-index(), the sections are a list of chips. */
+@supports not (order: sibling-index()) {
+  tbody { display: flex; flex-wrap: wrap; gap: 3px; aspect-ratio: auto; }
+  :is(table, thead, tbody)::before, :is(table, thead, tbody)::after { display: none; }
+  tbody tr { position: relative; padding: 0.4em 0.6em; }
+  tbody tr::before { clip-path: none; }
+  tbody tr:hover::after, tbody tr:hover td:not([data-col="section"]) { display: none; }
+  td[data-col="section"] { position: relative; translate: none; font-size: 1em; }
+}
+---
+section,stand,tier,category,price,seats,available
+101,North Stand,Lower tier,Category 1,145.00,562,106
+102,North Stand,Lower tier,Category 1,145.00,492,0
+103,North Stand,Lower tier,Category 1,145.00,616,0
+104,North Stand,Lower tier,Category 2,110.00,628,0
+105,North Stand,Lower tier,Category 2,110.00,608,0
+106,North Stand,Lower tier,Category 3,79.50,502,25
+107,East Stand,Lower tier,Category 3,79.50,502,22
+108,East Stand,Lower tier,Category 3,79.50,624,0
+109,East Stand,Lower tier,Category 3,79.50,536,145
+110,East Stand,Lower tier,Category 3,79.50,494,94
+111,East Stand,Lower tier,Category 3,79.50,536,0
+112,East Stand,Lower tier,Category 3,79.50,698,0
+113,East Stand,Lower tier,Category 3,79.50,586,41
+114,East Stand,Lower tier,Category 3,79.50,558,174
+115,East Stand,Lower tier,Category 3,79.50,506,149
+116,East Stand,Lower tier,Category 3,79.50,574,0
+117,East Stand,Lower tier,Category 3,79.50,662,0
+118,South Stand,Lower tier,Category 2,110.00,494,115
+119,South Stand,Lower tier,Category 2,110.00,616,95
+120,South Stand,Lower tier,Category 1,145.00,628,110
+121,South Stand,Lower tier,Category 1,145.00,542,173
+122,South Stand,Lower tier,Category 1,145.00,542,0
+123,South Stand,Lower tier,Category 1,145.00,556,220
+124,South Stand,Lower tier,Category 1,145.00,666,187
+125,South Stand,Lower tier,Category 1,145.00,498,0
+126,South Stand,Lower tier,Category 2,110.00,586,0
+127,South Stand,Lower tier,Category 2,110.00,566,0
+128,South Stand,Lower tier,Category 3,79.50,604,261
+129,West Stand,Lower tier,Category 3,79.50,498,132
+130,West Stand,Lower tier,Category 3,79.50,704,117
+131,West Stand,Lower tier,Category 3,79.50,568,152
+132,West Stand,Lower tier,Category 3,79.50,596,0
+133,West Stand,Lower tier,Category 3,79.50,502,112
+134,West Stand,Lower tier,Category 3,79.50,650,0
+135,West Stand,Lower tier,Category 3,79.50,666,198
+136,West Stand,Lower tier,Category 3,79.50,654,93
+137,West Stand,Lower tier,Category 3,79.50,578,97
+138,West Stand,Lower tier,Category 3,79.50,720,66
+139,West Stand,Lower tier,Category 3,79.50,508,57
+140,North Stand,Lower tier,Category 2,110.00,552,0
+141,North Stand,Lower tier,Category 2,110.00,542,224
+142,North Stand,Lower tier,Category 1,145.00,606,0
+143,North Stand,Lower tier,Category 1,145.00,594,82
+144,North Stand,Lower tier,Category 1,145.00,514,201
+201,North Stand,Club level,Hospitality,295.00,126,55
+202,North Stand,Club level,Hospitality,295.00,152,65
+203,North Stand,Club level,Hospitality,295.00,118,0
+204,North Stand,Club level,Hospitality,295.00,118,0
+205,North Stand,Club level,Hospitality,295.00,124,0
+206,East Stand,Club level,Hospitality,295.00,162,21
+207,East Stand,Club level,Hospitality,295.00,110,0
+208,East Stand,Club level,Hospitality,295.00,144,37
+209,East Stand,Club level,Hospitality,295.00,170,0
+210,East Stand,Club level,Hospitality,295.00,164,46
+211,East Stand,Club level,Hospitality,295.00,152,32
+212,East Stand,Club level,Hospitality,295.00,164,64
+213,East Stand,Club level,Hospitality,295.00,160,30
+214,East Stand,Club level,Hospitality,295.00,134,0
+215,South Stand,Club level,Hospitality,295.00,150,15
+216,South Stand,Club level,Hospitality,295.00,122,8
+217,South Stand,Club level,Hospitality,295.00,148,0
+218,South Stand,Club level,Hospitality,295.00,110,27
+219,South Stand,Club level,Hospitality,295.00,170,5
+220,South Stand,Club level,Hospitality,295.00,164,0
+221,South Stand,Club level,Hospitality,295.00,134,0
+222,South Stand,Club level,Hospitality,295.00,126,35
+223,South Stand,Club level,Hospitality,295.00,140,0
+224,West Stand,Club level,Hospitality,295.00,164,72
+225,West Stand,Club level,Hospitality,295.00,140,7
+226,West Stand,Club level,Hospitality,295.00,116,39
+227,West Stand,Club level,Hospitality,295.00,140,12
+228,West Stand,Club level,Hospitality,295.00,110,0
+229,West Stand,Club level,Hospitality,295.00,170,14
+230,West Stand,Club level,Hospitality,295.00,144,49
+231,West Stand,Club level,Hospitality,295.00,128,50
+232,West Stand,Club level,Hospitality,295.00,154,37
+233,North Stand,Club level,Hospitality,295.00,168,0
+234,North Stand,Club level,Hospitality,295.00,158,0
+235,North Stand,Club level,Hospitality,295.00,144,23
+236,North Stand,Club level,Hospitality,295.00,124,44
+301,North Stand,Upper tier,Category 2,110.00,618,229
+302,North Stand,Upper tier,Category 2,110.00,636,0
+303,North Stand,Upper tier,Category 2,110.00,772,25
+304,North Stand,Upper tier,Category 3,79.50,534,119
+305,North Stand,Upper tier,Category 3,79.50,618,266
+306,North Stand,Upper tier,Category 3,79.50,748,247
+307,North Stand,Upper tier,Category 4,49.50,698,123
+308,East Stand,Upper tier,Category 4,49.50,632,140
+309,East Stand,Upper tier,Category 4,49.50,692,199
+310,East Stand,Upper tier,Category 4,49.50,520,156
+311,East Stand,Upper tier,Category 4,49.50,562,40
+312,East Stand,Upper tier,Category 4,49.50,718,245
+313,East Stand,Upper tier,Category 4,49.50,764,157
+314,East Stand,Upper tier,Category 4,49.50,690,294
+315,East Stand,Upper tier,Category 4,49.50,722,245
+316,East Stand,Upper tier,Category 4,49.50,562,52
+317,East Stand,Upper tier,Category 4,49.50,584,0
+318,East Stand,Upper tier,Category 4,49.50,758,62
+319,East Stand,Upper tier,Category 4,49.50,762,130
+320,East Stand,Upper tier,Category 4,49.50,586,0
+321,South Stand,Upper tier,Category 3,79.50,572,241
+322,South Stand,Upper tier,Category 3,79.50,742,76
+323,South Stand,Upper tier,Category 3,79.50,628,0
+324,South Stand,Upper tier,Category 2,110.00,628,77
+325,South Stand,Upper tier,Category 2,110.00,686,137
+326,South Stand,Upper tier,Category 2,110.00,586,0
+327,South Stand,Upper tier,Category 2,110.00,700,213
+328,South Stand,Upper tier,Category 2,110.00,734,291
+329,South Stand,Upper tier,Category 2,110.00,586,143
+330,South Stand,Upper tier,Category 3,79.50,528,186
+331,South Stand,Upper tier,Category 3,79.50,522,44
+332,South Stand,Upper tier,Category 3,79.50,592,196
+333,South Stand,Upper tier,Category 4,49.50,550,133
+334,West Stand,Upper tier,Category 4,49.50,766,50
+335,West Stand,Upper tier,Category 4,49.50,548,76
+336,West Stand,Upper tier,Category 4,49.50,570,149
+337,West Stand,Upper tier,Category 4,49.50,552,156
+338,West Stand,Upper tier,Category 4,49.50,778,82
+339,West Stand,Upper tier,Category 4,49.50,660,164
+340,West Stand,Upper tier,Category 4,49.50,764,96
+341,West Stand,Upper tier,Category 4,49.50,652,263
+342,West Stand,Upper tier,Category 4,49.50,622,49
+343,West Stand,Upper tier,Category 4,49.50,582,90
+344,West Stand,Upper tier,Category 4,49.50,642,71
+345,West Stand,Upper tier,Category 4,49.50,674,273
+346,West Stand,Upper tier,Category 4,49.50,598,177
+347,North Stand,Upper tier,Category 3,79.50,706,282
+348,North Stand,Upper tier,Category 3,79.50,758,325
+349,North Stand,Upper tier,Category 3,79.50,722,64
+350,North Stand,Upper tier,Category 2,110.00,634,0
+351,North Stand,Upper tier,Category 2,110.00,740,143
+352,North Stand,Upper tier,Category 2,110.00,734,0
