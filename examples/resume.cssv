@@ -1,7 +1,7 @@
 ---
-/* A CV as CSV. Each row is one line of the CV, and the kind column says
-   what that line is (a job, one of its points, a skill), so it is the key
-   every rule selects on. The left column holds dates, places and labels;
+/* A resume as CSV. Each row is one line of the resume, and the kind column
+   says what that line is (a job, one of its points, a skill), so it is the
+   key every rule selects on. The left column holds dates, places and labels;
    the rail between the columns carries the timeline. */
 table {
   --cssv-key: kind;

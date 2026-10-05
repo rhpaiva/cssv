@@ -546,12 +546,48 @@
         </a>
       </li>
       <li>
-        <a class="tile" href="#cv" data-src="cv.cssv" style="--virtual: 880">
+        <a class="tile" href="#resume" data-src="resume.cssv" style="--virtual: 880">
           <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="cv.cssv"></cssv-table>
+            <cssv-table src="resume.cssv"></cssv-table>
             <pre class="raw"></pre>
           </span>
-          <span class="caption"><strong>CV</strong><span class="lines"></span></span>
+          <span class="caption"><strong>Resume</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#stadium" data-src="stadium.cssv" style="--virtual: 960">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="stadium.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Stadium tickets</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#seats" data-src="seats.cssv" style="--virtual: 600">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="seats.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Seat map</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#forecast" data-src="forecast.cssv" style="--virtual: 760">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="forecast.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Weather forecast</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#nutrition" data-src="nutrition.cssv" style="--virtual: 420">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="nutrition.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Nutrition Facts</strong><span class="lines"></span></span>
         </a>
       </li>
       <li>
@@ -588,42 +624,6 @@
             <pre class="raw"></pre>
           </span>
           <span class="caption"><strong>League table</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#forecast" data-src="forecast.cssv" style="--virtual: 760">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="forecast.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Weather forecast</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#seats" data-src="seats.cssv" style="--virtual: 600">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="seats.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Seat map</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#stadium" data-src="stadium.cssv" style="--virtual: 960">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="stadium.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Stadium tickets</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#nutrition" data-src="nutrition.cssv" style="--virtual: 420">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="nutrition.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Nutrition Facts</strong><span class="lines"></span></span>
         </a>
       </li>
     </ul>
@@ -705,15 +705,15 @@
 
     <nav class="jump" aria-label="Examples">
       <a href="#elements">Periodic table</a>
-      <a href="#cv">CV</a>
+      <a href="#resume">Resume</a>
+      <a href="#stadium">Stadium</a>
+      <a href="#seats">Seat map</a>
+      <a href="#forecast">Forecast</a>
+      <a href="#nutrition">Nutrition</a>
       <a href="#markets">Markets</a>
       <a href="#planets">Solar system</a>
       <a href="#invoice">Invoice</a>
       <a href="#league">League table</a>
-      <a href="#forecast">Forecast</a>
-      <a href="#seats">Seat map</a>
-      <a href="#stadium">Stadium</a>
-      <a href="#nutrition">Nutrition</a>
       <span class="sep" aria-hidden="true"></span>
       <a href="#weather">Weather</a>
       <a href="#jira">Jira board</a>
@@ -730,7 +730,7 @@
 
     <section class="group" id="showcase">
       <h2>Made for the gallery</h2>
-      <p>These files were written for this page, to show how far a style block goes. Each is still a plain table, one record per row; the style block turns it into a grid of tiles, a trading terminal, a week stood on its side, a cabin, a stadium, a food label or a CV.</p>
+      <p>These files were written for this page, to show how far a style block goes. Each is still a plain table, one record per row; the style block turns it into a grid of tiles, a resume, a stadium, a cabin, a week stood on its side, a food label or a trading terminal.</p>
       <div class="toolbar">
         <span class="label" id="locale-label">Display numbers in</span>
         <div class="seg" id="locale" role="radiogroup" aria-labelledby="locale-label">
@@ -781,12 +781,12 @@
       <div class="stage"><cssv-table src="elements.cssv"></cssv-table></div>
       </article>
 
-      <article class="example" id="cv">
+      <article class="example" id="resume">
       <header>
         <div>
-          <h3>A CV</h3>
-          <div class="file">cv.cssv</div>
-          <p>One row per line of the CV: a job, one of its points, a skill. A <code>kind</code> column says which, and as the key column it is what every rule selects on. Rows are subgrids of one grid, so dates, places and labels share a left column, and the rail beside it carries a timeline drawn by each row's <code>::before</code>. <code>[data-key="heading"] + [data-key="job"]</code> finds the current job and fills its dot. The headings are rows too, so they stay in the data.</p>
+          <h3>A resume</h3>
+          <div class="file">resume.cssv</div>
+          <p>One row per line of the resume: a job, one of its points, a skill. A <code>kind</code> column says which, and as the key column it is what every rule selects on. Rows are subgrids of one grid, so dates, places and labels share a left column, and the rail beside it carries a timeline drawn by each row's <code>::before</code>. <code>[data-key="heading"] + [data-key="job"]</code> finds the current job and fills its dot. The headings are rows too, so they stay in the data.</p>
           <ul class="stats"><li class="style" data-count></li><li>data: an invented person</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>--cssv-key: kind</li>
@@ -799,12 +799,127 @@
       </header>
       <div class="controls">
         <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-cv" id="v-cv-s" value="styled" checked><label for="v-cv-s">Styled</label>
-          <input type="radio" name="v-cv" id="v-cv-r" value="raw"><label for="v-cv-r">Plain CSV</label>
+          <input type="radio" name="v-resume" id="v-resume-s" value="styled" checked><label for="v-resume-s">Styled</label>
+          <input type="radio" name="v-resume" id="v-resume-r" value="raw"><label for="v-resume-r">Plain CSV</label>
         </div>
         <span class="hint">On paper, the file's <code>@media print</code> rules set it on two A4 pages.</span>
       </div>
-      <div class="stage"><cssv-table src="cv.cssv"></cssv-table></div>
+      <div class="stage"><cssv-table src="resume.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="stadium">
+      <header>
+        <div>
+          <h3>Stadium tickets</h3>
+          <div class="file">stadium.cssv</div>
+          <p>A seating plan exported from Ticketlark, an invented ticket seller, for Northbridge FC v Harbor City: one record per section, with its stand, tier, category, price, seats and the seats left. The records run clockwise from the halfway line, tier by tier, so <code>sibling-index()</code> turns each row's place in the file into an angle, and the row's <code>::before</code> cuts its wedge out of the bowl with <code>clip-path: polygon()</code>. The category is the key column, so one rule colors every section in a category, and a section with no seats left is <code>.zero</code>, hatched. Point at a section and <code>tr:hover</code> lights it up and shows the rest of its record over the pitch. Browsers older than Chrome 138, Safari 26.2 and Firefox 154 have no <code>sibling-index()</code> and show the sections as a list.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented match</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>sibling-index()</li>
+            <li>clip-path: polygon()</li>
+            <li>[data-key="Category 1"]</li>
+            <li>tr:has(.zero[data-col="available"])</li>
+            <li>tr:hover</li>
+            <li>table.update()</li>
+          </ul>
+          <div class="legend">
+            <span style="--swatch: #5f3dc4">Category 1</span>
+            <span style="--swatch: #1971c2">Category 2</span>
+            <span style="--swatch: #0c8599">Category 3</span>
+            <span style="--swatch: #d9480f">Category 4</span>
+            <span style="--swatch: #a07800">Hospitality</span>
+            <span style="--swatch: #aab3c0">Sold out</span>
+          </div>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-stadium" id="v-stadium-s" value="styled" checked><label for="v-stadium-s">Styled</label>
+          <input type="radio" name="v-stadium" id="v-stadium-r" value="raw"><label for="v-stadium-r">Plain CSV</label>
+        </div>
+        <button type="button" id="on-sale">Start the sale</button>
+        <span class="hint" id="on-sale-status">Every half second the page hands the table the next export with <code>update()</code>, which changes only the cells that changed.</span>
+      </div>
+      <div class="stage"><cssv-table src="stadium.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="seats">
+      <header>
+        <div>
+          <h3>Seat map</h3>
+          <div class="file">seats.cssv</div>
+          <p>A booking export: initials where a seat is taken, an empty field where it's free, so <code>:empty</code> draws the free seats. The row number is the middle column, which puts it in the aisle, and the key column, so <code>tr[data-key="12"]</code> is an exit row and one rule finds your seat by row and column. There is no row 13.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: invented bookings</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>:empty</li>
+            <li>tr[data-key="17"] td[data-col="D"]</li>
+            <li>:nth-child(-n+3)</li>
+            <li>@keyframes</li>
+          </ul>
+          <div class="legend">
+            <span style="--swatch: #2f9e44">Free</span>
+            <span style="--swatch: #94a3b8">Taken</span>
+            <span style="--swatch: #1c7ed6">Your seat</span>
+            <span style="--swatch: #e03131">Exit</span>
+          </div>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-seats" id="v-seats-s" value="styled" checked><label for="v-seats-s">Styled</label>
+          <input type="radio" name="v-seats" id="v-seats-r" value="raw"><label for="v-seats-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="seats.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="forecast">
+      <header>
+        <div>
+          <h3>A week of weather</h3>
+          <div class="file">forecast.cssv</div>
+          <p>Each record is a day, and the style block stands the table on its side: every <code>tr</code> becomes a column of the table's grid, sharing its rows through <code>subgrid</code>, and the header row becomes the labels. The condition is the key column, and each condition paints its own sky and icon with gradients. Friday's low of −0.3 rounds to 0 but keeps <code>.negative</code>, so it stays frost blue. Try ar-EG.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented week</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>grid-template-rows: subgrid</li>
+            <li>rows as columns</li>
+            <li>tr[data-key="storm"]</li>
+            <li>.negative</li>
+            <li>colgroup { display: none }</li>
+          </ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-forecast" id="v-forecast-s" value="styled" checked><label for="v-forecast-s">Styled</label>
+          <input type="radio" name="v-forecast" id="v-forecast-r" value="raw"><label for="v-forecast-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="forecast.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="nutrition">
+      <header>
+        <div>
+          <h3>Nutrition Facts</h3>
+          <div class="file">nutrition.cssv</div>
+          <p>Four columns: nutrient, amount, unit and % Daily Value. Every row is a flex line, and the nutrient, the key column, styles it by name: the heavy rules, the indents, the <code>order</code> that makes "Includes 10g Added Sugars", and the title and footnote as generated content. Empty % cells disappear with <code>:empty</code>.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented label</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>tr { display: flex }</li>
+            <li>order</li>
+            <li>::before / ::after</li>
+            <li>:empty</li>
+          </ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-nutrition" id="v-nutrition-s" value="styled" checked><label for="v-nutrition-s">Styled</label>
+          <input type="radio" name="v-nutrition" id="v-nutrition-r" value="raw"><label for="v-nutrition-r">Plain CSV</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="nutrition.cssv"></cssv-table></div>
       </article>
 
       <article class="example" id="markets">
@@ -909,121 +1024,6 @@
         </div>
       </div>
       <div class="stage"><cssv-table src="league.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="forecast">
-      <header>
-        <div>
-          <h3>A week of weather</h3>
-          <div class="file">forecast.cssv</div>
-          <p>Each record is a day, and the style block stands the table on its side: every <code>tr</code> becomes a column of the table's grid, sharing its rows through <code>subgrid</code>, and the header row becomes the labels. The condition is the key column, and each condition paints its own sky and icon with gradients. Friday's low of −0.3 rounds to 0 but keeps <code>.negative</code>, so it stays frost blue. Try ar-EG.</p>
-          <ul class="stats"><li class="style" data-count></li><li>data: an invented week</li></ul>
-          <ul class="chips" aria-label="Techniques">
-            <li>grid-template-rows: subgrid</li>
-            <li>rows as columns</li>
-            <li>tr[data-key="storm"]</li>
-            <li>.negative</li>
-            <li>colgroup { display: none }</li>
-          </ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-forecast" id="v-forecast-s" value="styled" checked><label for="v-forecast-s">Styled</label>
-          <input type="radio" name="v-forecast" id="v-forecast-r" value="raw"><label for="v-forecast-r">Plain CSV</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="forecast.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="seats">
-      <header>
-        <div>
-          <h3>Seat map</h3>
-          <div class="file">seats.cssv</div>
-          <p>A booking export: initials where a seat is taken, an empty field where it's free, so <code>:empty</code> draws the free seats. The row number is the middle column, which puts it in the aisle, and the key column, so <code>tr[data-key="12"]</code> is an exit row and one rule finds your seat by row and column. There is no row 13.</p>
-          <ul class="stats"><li class="style" data-count></li><li>data: invented bookings</li></ul>
-          <ul class="chips" aria-label="Techniques">
-            <li>:empty</li>
-            <li>tr[data-key="17"] td[data-col="D"]</li>
-            <li>:nth-child(-n+3)</li>
-            <li>@keyframes</li>
-          </ul>
-          <div class="legend">
-            <span style="--swatch: #2f9e44">Free</span>
-            <span style="--swatch: #94a3b8">Taken</span>
-            <span style="--swatch: #1c7ed6">Your seat</span>
-            <span style="--swatch: #e03131">Exit</span>
-          </div>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-seats" id="v-seats-s" value="styled" checked><label for="v-seats-s">Styled</label>
-          <input type="radio" name="v-seats" id="v-seats-r" value="raw"><label for="v-seats-r">Plain CSV</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="seats.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="stadium">
-      <header>
-        <div>
-          <h3>Stadium tickets</h3>
-          <div class="file">stadium.cssv</div>
-          <p>A seating plan exported from Ticketlark, an invented ticket seller, for Northbridge FC v Harbor City: one record per section, with its stand, tier, category, price, seats and the seats left. The records run clockwise from the halfway line, tier by tier, so <code>sibling-index()</code> turns each row's place in the file into an angle, and the row's <code>::before</code> cuts its wedge out of the bowl with <code>clip-path: polygon()</code>. The category is the key column, so one rule colors every section in a category, and a section with no seats left is <code>.zero</code>, hatched. Point at a section and <code>tr:hover</code> lights it up and shows the rest of its record over the pitch. Browsers older than Chrome 138, Safari 26.2 and Firefox 154 have no <code>sibling-index()</code> and show the sections as a list.</p>
-          <ul class="stats"><li class="style" data-count></li><li>data: an invented match</li></ul>
-          <ul class="chips" aria-label="Techniques">
-            <li>sibling-index()</li>
-            <li>clip-path: polygon()</li>
-            <li>[data-key="Category 1"]</li>
-            <li>tr:has(.zero[data-col="available"])</li>
-            <li>tr:hover</li>
-            <li>table.update()</li>
-          </ul>
-          <div class="legend">
-            <span style="--swatch: #5f3dc4">Category 1</span>
-            <span style="--swatch: #1971c2">Category 2</span>
-            <span style="--swatch: #0c8599">Category 3</span>
-            <span style="--swatch: #d9480f">Category 4</span>
-            <span style="--swatch: #a07800">Hospitality</span>
-            <span style="--swatch: #aab3c0">Sold out</span>
-          </div>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-stadium" id="v-stadium-s" value="styled" checked><label for="v-stadium-s">Styled</label>
-          <input type="radio" name="v-stadium" id="v-stadium-r" value="raw"><label for="v-stadium-r">Plain CSV</label>
-        </div>
-        <button type="button" id="on-sale">Start the sale</button>
-        <span class="hint" id="on-sale-status">Every half second the page hands the table the next export with <code>update()</code>, which changes only the cells that changed.</span>
-      </div>
-      <div class="stage"><cssv-table src="stadium.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="nutrition">
-      <header>
-        <div>
-          <h3>Nutrition Facts</h3>
-          <div class="file">nutrition.cssv</div>
-          <p>Four columns: nutrient, amount, unit and % Daily Value. Every row is a flex line, and the nutrient, the key column, styles it by name: the heavy rules, the indents, the <code>order</code> that makes "Includes 10g Added Sugars", and the title and footnote as generated content. Empty % cells disappear with <code>:empty</code>.</p>
-          <ul class="stats"><li class="style" data-count></li><li>data: an invented label</li></ul>
-          <ul class="chips" aria-label="Techniques">
-            <li>tr { display: flex }</li>
-            <li>order</li>
-            <li>::before / ::after</li>
-            <li>:empty</li>
-          </ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-nutrition" id="v-nutrition-s" value="styled" checked><label for="v-nutrition-s">Styled</label>
-          <input type="radio" name="v-nutrition" id="v-nutrition-r" value="raw"><label for="v-nutrition-r">Plain CSV</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="nutrition.cssv"></cssv-table></div>
       </article>
       </div>
     </section>
