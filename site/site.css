@@ -741,6 +741,7 @@ pre.code + pre.code { border-top: 1px solid rgb(255 255 255 / 0.06); }
 .doc .anchor:hover { color: var(--accent); }
 .doc p, .doc ul, .doc ol { margin: 0 0 14px; }
 .doc li + li { margin-top: 4px; }
+.doc img { display: block; max-width: 100%; height: auto; }
 .doc :not(pre) > code { padding: 0.1em 0.35em; border-radius: 5px; background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text); }
 .doc pre.code { margin: 0 0 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--code-bg); }
 .doc blockquote {
