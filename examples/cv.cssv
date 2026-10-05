@@ -1,0 +1,217 @@
+---
+/* A CV as CSV. Each row is one line of the CV, and the kind column says
+   what that line is (a job, one of its points, a skill), so it is the key
+   every rule selects on. The left column holds dates, places and labels;
+   the rail between the columns carries the timeline. */
+table {
+  --cssv-key: kind;
+  --paper: light-dark(#fffdf9, #161614);
+  --ink: light-dark(#1c1a17, #ece8df);
+  --muted: light-dark(#6f685d, #a39d91);
+  --rule: light-dark(#e4ded2, #34322c);
+  --mark: light-dark(#ffe45c, #e9d54a);
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, P052, Georgia, serif;
+  --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", "Nimbus Sans", Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  display: block;
+  box-sizing: border-box;
+  width: min(100%, 880px);
+  margin: 0 auto;
+  padding: 64px 64px 72px;
+  container-type: inline-size;
+  color-scheme: light dark;
+  background: var(--paper);
+  color: var(--ink);
+  font: 13.5px/1.55 var(--sans);
+  box-shadow: 0 1px 2px rgb(40 30 10 / 0.06), 0 24px 48px -24px rgb(40 30 10 / 0.35);
+}
+colgroup, thead, td:empty, tbody td[data-col="kind"] { display: none; }
+
+/* Every row shares the columns: labels, the rail, and twelve tracks. */
+tbody {
+  --gutter: 8.5em;
+  --rail: 2.25em;
+  display: grid;
+  grid-template-columns: [gutter] var(--gutter) [rail] var(--rail) [main] repeat(12, minmax(0, 1fr)) [end];
+}
+tr { grid-column: gutter / end; display: grid; grid-template-columns: subgrid; align-items: baseline; position: relative; }
+td { grid-column: main / -1; padding: 0; }
+
+/* Labels in the left column. */
+[data-key="job"] :is([data-col="when"], [data-col="place"]),
+:is([data-key="stack"], [data-key="skill"], [data-key="group"]) [data-col="title"] {
+  grid-column: gutter;
+  text-align: end;
+  font-size: 0.82em;
+  color: var(--muted);
+}
+:is([data-key="skill"], [data-key="group"]) [data-col="title"] { color: var(--ink); font-weight: 600; }
+
+/* The masthead: the name under a highlighter stroke, contacts beside it. */
+[data-key="name"] { grid-column: gutter / -6; grid-row: span 4; align-content: center; }
+[data-key="name"] td { grid-column: 1 / -1; }
+[data-key="name"] [data-col="title"] {
+  justify-self: start;
+  padding-inline: 0.06em;
+  font: 400 3.5em/1.05 var(--serif);
+  letter-spacing: -0.015em;
+  color: light-dark(var(--ink), #15140f);
+  background: linear-gradient(light-dark(transparent, var(--mark)) 60%, var(--mark) 0 92%, light-dark(transparent, var(--mark)) 0);
+  print-color-adjust: exact;
+}
+[data-key="name"] [data-col="text"] { margin-top: 0.9em; font-size: 0.8em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+[data-key="contact"] { grid-column: -6 / -1; grid-template-columns: 5.6em 1fr; line-height: 1.75; }
+[data-key="contact"] td { grid-column: auto; }
+[data-key="contact"] [data-col="title"] { font-size: 0.72em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+/* Section headings run a hairline to the edge; the first one closes the masthead. */
+[data-key="heading"] { padding: 2.6em 0 1.2em; break-after: avoid; }
+[data-key="heading"] [data-col="title"] { grid-column: 1 / -1; display: flex; align-items: center; gap: 1.2em; font-size: 0.76em; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+[data-key="heading"] [data-col="title"]::after { content: ""; flex: 1; border-top: 1px solid var(--rule); }
+[data-key="contact"] + [data-key="heading"] { margin-top: 2.4em; border-top: 2px solid var(--ink); }
+[data-key="summary"] td { font: 1.2em/1.6 var(--serif); }
+
+/* Work experience: a timeline down the rail, a dot for each job. */
+tr:is([data-key="job"], [data-key="point"], [data-key="stack"], [data-key="quote"])::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--gutter) + var(--rail) / 2);
+  border-left: 1px solid var(--rule);
+}
+[data-key="job"] { --pad: 2em; padding-top: var(--pad); break-inside: avoid; break-after: avoid; }
+[data-key="job"]::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--pad) + 0.5em);
+  left: calc(var(--gutter) + var(--rail) / 2 - 4.5px);
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+}
+[data-key="heading"] + [data-key="job"] { --pad: 0px; }
+[data-key="heading"] + [data-key="job"]::before { top: 0.5em; }
+[data-key="heading"] + [data-key="job"]::after { background: var(--mark); print-color-adjust: exact; }
+[data-key="job"] [data-col="when"] { grid-row: 1; font-variant-numeric: tabular-nums; }
+[data-key="job"] [data-col="place"] { grid-row: 2; font-style: italic; }
+[data-key="job"] [data-col="title"] { grid-row: 1; font-size: 1.12em; font-weight: 600; }
+[data-key="job"] [data-col="org"] { grid-row: 2; font: italic 1.1em var(--serif); }
+
+[data-key="point"] { padding-top: 0.45em; break-inside: avoid; }
+[data-key="job"] + [data-key="point"] { padding-top: 0.75em; }
+[data-key="point"] td { position: relative; padding-left: 1.2em; }
+[data-key="point"] td::before { content: ""; position: absolute; left: 0.2em; top: 0.66em; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
+
+[data-key="stack"] { padding-top: 0.8em; break-inside: avoid; }
+[data-key="stack"] [data-col="title"] { font-size: 0.7em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+[data-key="stack"] [data-col="text"] { font: 0.8em/1.7 var(--mono); color: var(--muted); }
+
+[data-key="quote"] { padding-top: 1.3em; break-inside: avoid; }
+[data-key="quote"] td { padding-left: 1.1em; border-left: 3px solid var(--mark); print-color-adjust: exact; }
+[data-key="quote"] [data-col="text"] { grid-row: 1; padding-bottom: 0.45em; font: italic 1.12em/1.55 var(--serif); text-indent: -0.4em; }
+[data-key="quote"] [data-col="org"] { grid-row: 2; font-size: 0.82em; color: var(--muted); }
+[data-key="quote"] [data-col="org"]::before { content: "— "; }
+
+/* Languages and certifications sit beside their label. */
+[data-key="group"] { grid-column: gutter / main; display: block; align-self: baseline; padding: 0.6em var(--rail) 0 0; }
+[data-key="group"] [data-col="title"] { display: block; }
+[data-key="heading"] + [data-key="group"] { padding-top: 0; }
+[data-key="language"] { grid-column: span 3; display: flex; flex-wrap: wrap; align-items: center; gap: 0.2em 0.6em; align-self: baseline; padding-top: 0.6em; }
+[data-key="language"] td { grid-column: auto; }
+[data-key="language"] [data-col="title"] { font-weight: 600; }
+[data-key="language"] [data-col="text"] { padding: 0 0.6em; border: 1px solid var(--rule); border-radius: 1em; font-size: 0.74em; letter-spacing: 0.06em; color: var(--muted); }
+[data-key="heading"] + [data-key="group"] ~ [data-key="language"] { padding-top: 0; }
+[data-key="cert"] { grid-column: main / end; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.5em; align-self: baseline; padding-top: 0.6em; }
+[data-key="cert"] td { grid-column: auto; }
+:is([data-key="cert"]) :is([data-col="title"], [data-col="text"]) { flex-basis: 100%; }
+[data-key="cert"] [data-col="title"] { font-weight: 600; }
+[data-key="cert"] :is([data-col="org"], [data-col="when"]) { font-size: 0.9em; color: var(--muted); }
+[data-key="cert"] [data-col="org"] { font: italic 1em var(--serif); color: var(--ink); }
+[data-key="cert"]:has([data-col="when"]:not(:empty)) [data-col="org"]::after { content: "·"; margin-left: 0.5em; font-style: normal; color: var(--muted); }
+[data-key="cert"] [data-col="text"] { order: 1; padding-top: 0.2em; font-size: 0.86em; color: var(--muted); }
+
+/* Skills: the area on the left, the list on the right. */
+[data-key="skill"] { padding-top: 0.5em; break-inside: avoid; }
+[data-key="heading"] + [data-key="skill"] { padding-top: 0; }
+
+/* Narrow screens: one column, labels above what they label. */
+@container (width < 620px) {
+  tbody { --gutter: 0px; --rail: 1.6em; }
+  [data-key="name"] { grid-column: gutter / end; grid-row: auto; padding-bottom: 1.4em; }
+  [data-key="name"] [data-col="title"] { font-size: 2.6em; }
+  [data-key="contact"] { grid-column: gutter / end; }
+  [data-key="job"] :is([data-col="when"], [data-col="place"]),
+  :is([data-key="stack"], [data-key="skill"], [data-key="group"]) [data-col="title"] { grid-column: main / -1; text-align: start; }
+  [data-key="job"] [data-col="when"] { grid-row: 1; }
+  [data-key="job"] [data-col="title"] { grid-row: 2; }
+  [data-key="job"] [data-col="org"] { grid-row: 3; }
+  [data-key="job"] [data-col="place"] { grid-row: 4; }
+  [data-key="job"]::after { top: calc(var(--pad) + 0.35em); }
+  [data-key="stack"] [data-col="title"] { padding-bottom: 0.2em; }
+  [data-key="group"] { grid-column: main / end; padding: 1em 0 0.2em; }
+  [data-key="language"] { grid-column: main / end; }
+  [data-key="summary"] td { font-size: 1.08em; }
+  [data-key="heading"] + [data-key="group"] ~ [data-key="language"] { padding-top: 0.4em; }
+  [data-key="skill"] { padding-top: 0.9em; }
+}
+
+/* Paper: a little smaller and tighter than on screen. */
+@media print {
+  table { width: 100%; padding: 0; box-shadow: none; background: none; color-scheme: light; font-size: 12.5px; }
+  tbody { --gutter: 7.6em; --rail: 1.9em; }
+  [data-key="heading"] { padding: 2em 0 1em; }
+  [data-key="contact"] + [data-key="heading"] { margin-top: 1.8em; }
+  [data-key="job"] { --pad: 1.6em; }
+}
+---
+kind,title,text,org,place,when
+name,Ines Varga,Staff Data Engineer
+contact,Location,"London, United Kingdom"
+contact,Phone,+44 7700 900461
+contact,E-mail,ines@varga.example
+contact,Website,varga.example
+heading,Summary
+summary,,"Data engineer with ten years of building pipelines people trust: streaming ingestion, warehouse modelling and the tooling around them. Happiest where data meets product, turning vague questions into reliable tables and dashboards. Leads by writing things down, pairing generously and leaving systems easier to run than before."
+heading,Work experience
+job,Staff Data Engineer,,Kestrel Rail,London,03/2023 – present
+point,,"Designed the streaming platform behind live departure data for 1,400 stations, replacing nightly batches with updates that arrive within five seconds."
+point,,"Led the migration of 300 Airflow DAGs to dbt and Dagster, cutting failed runs by 70% and onboarding time for new engineers from weeks to days."
+point,,"Introduced data contracts between product teams and the platform, ending a whole class of silent schema breaks."
+point,,Mentors four engineers and runs the fortnightly data guild.
+stack,Stack,"Kafka, Flink, dbt, Dagster, Snowflake, Python, Terraform, AWS"
+quote,,"“Ines rebuilt our most fragile system while it was running, and wrote it all down so the rest of us could follow. Our on-call nights have been quiet ever since.”",Priya Raman - VP Engineering @ Kestrel Rail
+job,Senior Data Engineer,,Brightwell Grocers,Manchester (Hybrid),06/2019 – 02/2023
+point,,"Built the demand-forecasting feature store used by 600 stores, reducing fresh-food waste by 12% in its first year."
+point,,"Rebuilt the customer data warehouse on BigQuery, bringing the daily load down from six hours to 40 minutes."
+point,,"Set up data quality checks across 180 tables, with failures routed to the team that owns each table."
+point,,Interviewed and hired five engineers and ran the team's on-call rotation.
+stack,Stack,"Python, Spark, BigQuery, Airflow, Great Expectations, Looker, GCP"
+job,Data Engineer,,Fernhill Health,Leeds,01/2017 – 05/2019
+point,,"Brought appointment and prescription data from 40 clinics into one warehouse, pseudonymising patient data at ingestion."
+point,,Automated the monthly regulatory reports that had taken an analyst a week to compile.
+point,,Wrote the team's first style guide for SQL and data modelling.
+stack,Stack,"Python, PostgreSQL, Redshift, Airflow, Docker"
+job,Software Engineer,,Quayside Labs,Leeds,09/2014 – 12/2016
+point,,Developed REST APIs and reporting dashboards for logistics clients.
+point,,Moved deployments from hand-run scripts to continuous integration with automated tests.
+stack,Stack,"Ruby on Rails, PostgreSQL, JavaScript, Jenkins"
+heading,Education and languages
+group,Languages
+language,English,Native
+language,Hungarian,C1
+language,Spanish,B2
+language,German,A2
+group,Education
+cert,BSc Mathematics with Computing,Dissertation: forecasting bike-share demand from weather data,University of Leeds,,2011 – 2014
+group,Certifications
+cert,Google Cloud Professional Data Engineer,,Google Cloud,,2022
+cert,Certified Kubernetes Application Developer,,CNCF,,2020
+heading,Skills
+skill,Data,"Streaming, batch ETL, dimensional modelling, data contracts, data quality, privacy by design"
+skill,Programming,"Python, SQL, Scala, Bash"
+skill,Platforms,"Kafka, Flink, Spark, dbt, Dagster, Airflow, Snowflake, BigQuery"
+skill,Cloud,"AWS, GCP, Terraform, Kubernetes, Docker"
+skill,Leadership,"Mentoring, technical writing, hiring, incident reviews"

@@ -5,7 +5,21 @@
 // stay in the gallery, not here.
 export const GROUPS = [
   {
-    title: 'Files you already have',
+    title: 'Made for the gallery',
+    files: [
+      'examples/elements.cssv',
+      'examples/cv.cssv',
+      'examples/forecast.cssv',
+      'examples/markets.cssv',
+      'examples/planets.cssv',
+      'examples/seats.cssv',
+      'examples/nutrition.cssv',
+      'examples/invoice.cssv',
+      'examples/league.cssv',
+    ],
+  },
+  {
+    title: 'Real usage examples',
     files: [
       'examples/oslo.cssv',
       'examples/jira-export.cssv',
@@ -15,19 +29,6 @@ export const GROUPS = [
       'examples/strings.cssv',
       'examples/git-log.cssv',
       'examples/attendees.cssv',
-    ],
-  },
-  {
-    title: 'Made for the gallery',
-    files: [
-      'examples/elements.cssv',
-      'examples/forecast.cssv',
-      'examples/markets.cssv',
-      'examples/planets.cssv',
-      'examples/seats.cssv',
-      'examples/nutrition.cssv',
-      'examples/invoice.cssv',
-      'examples/league.cssv',
     ],
   },
   {

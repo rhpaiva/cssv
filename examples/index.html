@@ -530,11 +530,95 @@
     <header class="hero">
       <p class="eyebrow">CSSV v1 · Examples</p>
       <h1>The CSV you already have, <span>worth looking at.</span></h1>
-      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first eight start from files people already have. The next eight were made for this page, to show how far a style block goes. The last two show other ways to put a table in a page.</p>
+      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first nine were made for this page, to show how far a style block goes. The next eight start from files people already have. The last two show other ways to put a table in a page.</p>
       <p class="lede">Each tile below is the file itself, rendered live and scaled down. Point at one to see its plain CSV; click it for the full card. In a card, the yellow figure is the size of the style block, and <strong>View source</strong> shows the whole file.</p>
     </header>
 
-    <p class="wall-label" id="wall-real">Files you already have</p>
+    <p class="wall-label" id="wall-showcase">Made for the gallery</p>
+    <ul class="wall" aria-labelledby="wall-showcase">
+      <li>
+        <a class="tile" href="#elements" data-src="elements.cssv" style="--virtual: 900">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="elements.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Periodic table</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#cv" data-src="cv.cssv" style="--virtual: 880">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="cv.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>CV</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#markets" data-src="markets.cssv" style="--virtual: 680">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="markets.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Market close</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#planets" data-src="planets.cssv" style="--virtual: 760">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="planets.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Solar system</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#invoice" data-src="invoice.cssv" style="--virtual: 720">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="invoice.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Invoice</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#league" data-src="league.cssv" style="--virtual: 720">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="league.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>League table</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#forecast" data-src="forecast.cssv" style="--virtual: 760">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="forecast.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Weather forecast</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#seats" data-src="seats.cssv" style="--virtual: 600">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="seats.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Seat map</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
+        <a class="tile" href="#nutrition" data-src="nutrition.cssv" style="--virtual: 420">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="nutrition.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Nutrition Facts</strong><span class="lines"></span></span>
+        </a>
+      </li>
+    </ul>
+    <p class="wall-label" id="wall-real">Real usage examples</p>
     <ul class="wall" aria-labelledby="wall-real">
       <li>
         <a class="tile" href="#weather" data-src="oslo.cssv" style="--virtual: 420">
@@ -609,83 +693,18 @@
         </a>
       </li>
     </ul>
-    <p class="wall-label" id="wall-showcase">Made for the gallery</p>
-    <ul class="wall" aria-labelledby="wall-showcase">
-      <li>
-        <a class="tile" href="#elements" data-src="elements.cssv" style="--virtual: 900">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="elements.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Periodic table</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#markets" data-src="markets.cssv" style="--virtual: 680">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="markets.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Market close</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#planets" data-src="planets.cssv" style="--virtual: 760">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="planets.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Solar system</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#invoice" data-src="invoice.cssv" style="--virtual: 720">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="invoice.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Invoice</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#league" data-src="league.cssv" style="--virtual: 720">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="league.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>League table</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#forecast" data-src="forecast.cssv" style="--virtual: 760">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="forecast.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Weather forecast</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#seats" data-src="seats.cssv" style="--virtual: 600">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="seats.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Seat map</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#nutrition" data-src="nutrition.cssv" style="--virtual: 420">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="nutrition.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Nutrition Facts</strong><span class="lines"></span></span>
-        </a>
-      </li>
-    </ul>
 
     <nav class="jump" aria-label="Examples">
+      <a href="#elements">Periodic table</a>
+      <a href="#cv">CV</a>
+      <a href="#markets">Markets</a>
+      <a href="#planets">Solar system</a>
+      <a href="#invoice">Invoice</a>
+      <a href="#league">League table</a>
+      <a href="#forecast">Forecast</a>
+      <a href="#seats">Seat map</a>
+      <a href="#nutrition">Nutrition</a>
+      <span class="sep" aria-hidden="true"></span>
       <a href="#weather">Weather</a>
       <a href="#jira">Jira board</a>
       <a href="#whatsapp">WhatsApp</a>
@@ -695,186 +714,13 @@
       <a href="#git-log">git log</a>
       <a href="#badges">Badges</a>
       <span class="sep" aria-hidden="true"></span>
-      <a href="#elements">Periodic table</a>
-      <a href="#markets">Markets</a>
-      <a href="#planets">Solar system</a>
-      <a href="#invoice">Invoice</a>
-      <a href="#league">League table</a>
-      <a href="#forecast">Forecast</a>
-      <a href="#seats">Seat map</a>
-      <a href="#nutrition">Nutrition</a>
-      <span class="sep" aria-hidden="true"></span>
       <a href="#release-notes">Release notes</a>
       <a href="#pagination">Pagination</a>
     </nav>
 
-    <section class="group" id="real">
-      <h2>Files you already have</h2>
-      <p>Each card starts from a file people already have: a download, an export, a command's output. The data stays exactly as it was exported; the two that print text rather than CSV, WhatsApp and <code>git log</code>, go through a few lines of Node first. <strong>As exported</strong> shows what you started with.</p>
-      <div class="cases">
-      <article class="example" id="weather" data-shared="weather.css">
-      <header>
-        <div>
-          <h3>A weather download</h3>
-          <div class="file">oslo.cssv · berlin.cssv · lisbon.cssv · weather.css</div>
-          <p><strong>Who has it:</strong> anyone who pulls data from an open-data portal or API. These are real: January 2026, daily, from Open-Meteo's archive, saved as CSV and left untouched, preamble and all.</p>
-          <p><strong>What the style does:</strong> each file is one <code>@import</code>; the calendar lives in <code>weather.css</code>, written once. The sign of each value says what kind of day it was: a negative minimum is a frosty night, a negative maximum a day below zero, a positive snowfall a snow day. The download's two location lines are found by <code>data-row</code> and become the caption.</p>
-          <ul class="stats"><li class="style" data-count></li><li>data: the download, unchanged</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-weather" id="v-weather-s" value="styled" checked><label for="v-weather-s">Styled</label>
-          <input type="radio" name="v-weather" id="v-weather-r" value="raw"><label for="v-weather-r">As exported</label>
-        </div>
-        <span class="hint">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> (CC BY 4.0).</span>
-      </div>
-      <div class="stage cities">
-        <cssv-table src="oslo.cssv"></cssv-table>
-        <cssv-table src="berlin.cssv"></cssv-table>
-        <cssv-table src="lisbon.cssv"></cssv-table>
-      </div>
-      </article>
-
-      <article class="example" id="jira">
-      <header>
-        <div>
-          <h3>A Jira export, as a board</h3>
-          <div class="file">jira-export.cssv</div>
-          <p><strong>Who has it:</strong> anyone who has clicked "Export CSV" in Jira to share a sprint with someone who has no account. The export repeats a column for every sprint and every label, all under the same name.</p>
-          <p><strong>What the style does:</strong> <code>--cssv-key: Status</code> sends each issue to its lane with one rule per status, and dense packing stacks the cards. Status is text, which v1 can't style by value; as the key it can. The repeated columns are no problem: <code>[data-col="Labels"]</code> styles both label columns.</p>
-          <ul class="stats"><li class="style" data-count></li><li>sample rows in Jira's format</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-jira" id="v-jira-s" value="styled" checked><label for="v-jira-s">Styled</label>
-          <input type="radio" name="v-jira" id="v-jira-r" value="raw"><label for="v-jira-r">As exported</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="jira-export.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="whatsapp">
-      <header>
-        <div>
-          <h3>A WhatsApp group chat</h3>
-          <div class="file">whatsapp-chat.cssv</div>
-          <p><strong>Who has it:</strong> anyone in a WhatsApp chat, through "Export chat" in the chat's menu. The export is a text file with a line per message; a few lines of Node turn each message into a CSV line: date, time, sender, message.</p>
-          <p><strong>What the style does:</strong> <code>--cssv-key: sender</code> puts the messages of Sam, who exported the chat, on the right and gives everyone else a color. WhatsApp's own lines, like "Ana added you", have no sender, so they get no <code>data-key</code>, and <code>tr:not([data-key])</code> centers them. A message with line breaks is one quoted field, and the renderer keeps the breaks.</p>
-          <ul class="stats"><li class="style" data-count></li><li>sample chat; the people are invented</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-chat" id="v-chat-s" value="styled" checked><label for="v-chat-s">Styled</label>
-          <input type="radio" name="v-chat" id="v-chat-r" value="raw"><label for="v-chat-r">As exported</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="whatsapp-chat.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="calendar">
-      <header>
-        <div>
-          <h3>A Google Calendar import</h3>
-          <div class="file">calendar-import.cssv</div>
-          <p><strong>Who has it:</strong> anyone who has put a term schedule, a shift rota or a fixture list into a spreadsheet to bulk-import it into Google Calendar, which reads CSV with exactly these column names.</p>
-          <p><strong>What the style does:</strong> <code>--cssv-key: "Start Date"</code> and five rules put each date in its column of a week, and a day's events stack in time order. The format leaves the times empty for all-day events, so <code>:empty</code> turns those into solid banners. The same file still imports.</p>
-          <ul class="stats"><li class="style" data-count></li><li>sample rows in Google Calendar's format</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-calendar" id="v-calendar-s" value="styled" checked><label for="v-calendar-s">Styled</label>
-          <input type="radio" name="v-calendar" id="v-calendar-r" value="raw"><label for="v-calendar-r">As exported</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="calendar-import.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="gradebook">
-      <header>
-        <div>
-          <h3>A Canvas gradebook</h3>
-          <div class="file">grades-bio-101.cssv</div>
-          <p><strong>Who has it:</strong> every teacher on Canvas. Line 2 isn't a student: it's the "Points Possible" row, indented with four spaces.</p>
-          <p><strong>What the style does:</strong> <code>tr[data-row="2"]</code> styles that row as "out of", without moving it. An empty score (<code>:empty</code>) is a missing assignment and says so; a <code>0</code> (<code>.zero</code>) was handed in and scored zero. Students with something missing get a red dot. The ID columns are hidden.</p>
-          <ul class="stats"><li class="style" data-count></li><li>sample rows in Canvas's format</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-grades" id="v-grades-s" value="styled" checked><label for="v-grades-s">Styled</label>
-          <input type="radio" name="v-grades" id="v-grades-r" value="raw"><label for="v-grades-r">As exported</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="grades-bio-101.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="translations">
-      <header>
-        <div>
-          <h3>A translation sheet</h3>
-          <div class="file">strings.cssv</div>
-          <p><strong>Who has it:</strong> any team that ships an app in more than one language. Translation tools import and export this CSV, and it often lives in the repository.</p>
-          <p><strong>What the style does:</strong> every empty cell is an untranslated string, so <code>td:empty</code> marks it in place, and a CSS counter per language totals them under the table. Reviewers see the gaps in the file itself, not in a separate report.</p>
-          <ul class="stats"><li class="style" data-count></li><li>sample strings</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-strings" id="v-strings-s" value="styled" checked><label for="v-strings-s">Styled</label>
-          <input type="radio" name="v-strings" id="v-strings-r" value="raw"><label for="v-strings-r">As exported</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="strings.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="git-log">
-      <header>
-        <div>
-          <h3><code>git log</code>, as a changelog</h3>
-          <div class="file">git-log.cssv</div>
-          <p><strong>Who has it:</strong> anyone with a terminal. Any command that prints CSV can print a report. These are the last 18 commits of this repository, from <code>git log --shortstat</code>.</p>
-          <p><strong>What the style does:</strong> deleted lines are written as negative numbers, so <code>.positive</code> and <code>.negative</code> color the additions and deletions, and <code>.zero</code> fades the commits that only added.</p>
-          <ul class="stats"><li class="style" data-count></li><li>data: this repository's history</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-git" id="v-git-s" value="styled" checked><label for="v-git-s">Styled</label>
-          <input type="radio" name="v-git" id="v-git-r" value="raw"><label for="v-git-r">As exported</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="git-log.cssv"></cssv-table></div>
-      </article>
-
-      <article class="example" id="badges">
-      <header>
-        <div>
-          <h3>An attendee list, printed as name badges</h3>
-          <div class="file">attendees.cssv</div>
-          <p><strong>Who has it:</strong> anyone running a meetup or a conference, the night before. Usually this is a mail merge in a word processor.</p>
-          <p><strong>What the style does:</strong> each row becomes a 9 × 5.5 cm badge, and <code>@media print</code> lays them out two to a row for an A4 page. The ticket type is the key, so <code>tr[data-key="Speaker"]</code> gets its own color. The order number, email and check-in columns are hidden; they stay in the file for the door.</p>
-          <ul class="stats"><li class="style" data-count></li><li>sample rows; the people are invented</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-badges" id="v-badges-s" value="styled" checked><label for="v-badges-s">Styled</label>
-          <input type="radio" name="v-badges" id="v-badges-r" value="raw"><label for="v-badges-r">As exported</label>
-        </div>
-        <span class="hint">On paper, the file's <code>@media print</code> rules make a sheet two badges wide, ready to cut.</span>
-      </div>
-      <div class="stage"><cssv-table src="attendees.cssv"></cssv-table></div>
-      </article>
-      </div>
-    </section>
-
     <section class="group" id="showcase">
       <h2>Made for the gallery</h2>
-      <p>These files were written for this page, to show how far a style block goes. Each is still a plain table, one record per row; the style block turns it into a grid of tiles, a trading terminal, a week stood on its side, a cabin or a food label.</p>
+      <p>These files were written for this page, to show how far a style block goes. Each is still a plain table, one record per row; the style block turns it into a grid of tiles, a trading terminal, a week stood on its side, a cabin, a food label or a CV.</p>
       <div class="toolbar">
         <span class="label" id="locale-label">Display numbers in</span>
         <div class="seg" id="locale" role="radiogroup" aria-labelledby="locale-label">
@@ -923,6 +769,32 @@
         </div>
       </div>
       <div class="stage"><cssv-table src="elements.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="cv">
+      <header>
+        <div>
+          <h3>A CV</h3>
+          <div class="file">cv.cssv</div>
+          <p>One row per line of the CV: a job, one of its points, a skill. A <code>kind</code> column says which, and as the key column it is what every rule selects on. Rows are subgrids of one grid, so dates, places and labels share a left column, and the rail beside it carries a timeline drawn by each row's <code>::before</code>. <code>[data-key="heading"] + [data-key="job"]</code> finds the current job and fills its dot. The headings are rows too, so they stay in the data.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented person</li></ul>
+          <ul class="chips" aria-label="Techniques">
+            <li>--cssv-key: kind</li>
+            <li>grid-template-columns: subgrid</li>
+            <li>[data-key="heading"] + [data-key="job"]</li>
+            <li>@container</li>
+            <li>@media print</li>
+          </ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-cv" id="v-cv-s" value="styled" checked><label for="v-cv-s">Styled</label>
+          <input type="radio" name="v-cv" id="v-cv-r" value="raw"><label for="v-cv-r">Plain CSV</label>
+        </div>
+        <span class="hint">On paper, the file's <code>@media print</code> rules set it on two A4 pages.</span>
+      </div>
+      <div class="stage"><cssv-table src="cv.cssv"></cssv-table></div>
       </article>
 
       <article class="example" id="markets">
@@ -1106,6 +978,170 @@
         </div>
       </div>
       <div class="stage"><cssv-table src="nutrition.cssv"></cssv-table></div>
+      </article>
+      </div>
+    </section>
+
+    <section class="group" id="real">
+      <h2>Real usage examples</h2>
+      <p>Each card starts from a file people already have: a download, an export, a command's output. The data stays exactly as it was exported; the two that print text rather than CSV, WhatsApp and <code>git log</code>, go through a few lines of Node first. <strong>As exported</strong> shows what you started with.</p>
+      <div class="cases">
+      <article class="example" id="weather" data-shared="weather.css">
+      <header>
+        <div>
+          <h3>A weather download</h3>
+          <div class="file">oslo.cssv · berlin.cssv · lisbon.cssv · weather.css</div>
+          <p><strong>Who has it:</strong> anyone who pulls data from an open-data portal or API. These are real: January 2026, daily, from Open-Meteo's archive, saved as CSV and left untouched, preamble and all.</p>
+          <p><strong>What the style does:</strong> each file is one <code>@import</code>; the calendar lives in <code>weather.css</code>, written once. The sign of each value says what kind of day it was: a negative minimum is a frosty night, a negative maximum a day below zero, a positive snowfall a snow day. The download's two location lines are found by <code>data-row</code> and become the caption.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: the download, unchanged</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-weather" id="v-weather-s" value="styled" checked><label for="v-weather-s">Styled</label>
+          <input type="radio" name="v-weather" id="v-weather-r" value="raw"><label for="v-weather-r">As exported</label>
+        </div>
+        <span class="hint">Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> (CC BY 4.0).</span>
+      </div>
+      <div class="stage cities">
+        <cssv-table src="oslo.cssv"></cssv-table>
+        <cssv-table src="berlin.cssv"></cssv-table>
+        <cssv-table src="lisbon.cssv"></cssv-table>
+      </div>
+      </article>
+
+      <article class="example" id="jira">
+      <header>
+        <div>
+          <h3>A Jira export, as a board</h3>
+          <div class="file">jira-export.cssv</div>
+          <p><strong>Who has it:</strong> anyone who has clicked "Export CSV" in Jira to share a sprint with someone who has no account. The export repeats a column for every sprint and every label, all under the same name.</p>
+          <p><strong>What the style does:</strong> <code>--cssv-key: Status</code> sends each issue to its lane with one rule per status, and dense packing stacks the cards. Status is text, which v1 can't style by value; as the key it can. The repeated columns are no problem: <code>[data-col="Labels"]</code> styles both label columns.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows in Jira's format</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-jira" id="v-jira-s" value="styled" checked><label for="v-jira-s">Styled</label>
+          <input type="radio" name="v-jira" id="v-jira-r" value="raw"><label for="v-jira-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="jira-export.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="whatsapp">
+      <header>
+        <div>
+          <h3>A WhatsApp group chat</h3>
+          <div class="file">whatsapp-chat.cssv</div>
+          <p><strong>Who has it:</strong> anyone in a WhatsApp chat, through "Export chat" in the chat's menu. The export is a text file with a line per message; a few lines of Node turn each message into a CSV line: date, time, sender, message.</p>
+          <p><strong>What the style does:</strong> <code>--cssv-key: sender</code> puts the messages of Sam, who exported the chat, on the right and gives everyone else a color. WhatsApp's own lines, like "Ana added you", have no sender, so they get no <code>data-key</code>, and <code>tr:not([data-key])</code> centers them. A message with line breaks is one quoted field, and the renderer keeps the breaks.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample chat; the people are invented</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-chat" id="v-chat-s" value="styled" checked><label for="v-chat-s">Styled</label>
+          <input type="radio" name="v-chat" id="v-chat-r" value="raw"><label for="v-chat-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="whatsapp-chat.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="calendar">
+      <header>
+        <div>
+          <h3>A Google Calendar import</h3>
+          <div class="file">calendar-import.cssv</div>
+          <p><strong>Who has it:</strong> anyone who has put a term schedule, a shift rota or a fixture list into a spreadsheet to bulk-import it into Google Calendar, which reads CSV with exactly these column names.</p>
+          <p><strong>What the style does:</strong> <code>--cssv-key: "Start Date"</code> and five rules put each date in its column of a week, and a day's events stack in time order. The format leaves the times empty for all-day events, so <code>:empty</code> turns those into solid banners. The same file still imports.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows in Google Calendar's format</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-calendar" id="v-calendar-s" value="styled" checked><label for="v-calendar-s">Styled</label>
+          <input type="radio" name="v-calendar" id="v-calendar-r" value="raw"><label for="v-calendar-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="calendar-import.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="gradebook">
+      <header>
+        <div>
+          <h3>A Canvas gradebook</h3>
+          <div class="file">grades-bio-101.cssv</div>
+          <p><strong>Who has it:</strong> every teacher on Canvas. Line 2 isn't a student: it's the "Points Possible" row, indented with four spaces.</p>
+          <p><strong>What the style does:</strong> <code>tr[data-row="2"]</code> styles that row as "out of", without moving it. An empty score (<code>:empty</code>) is a missing assignment and says so; a <code>0</code> (<code>.zero</code>) was handed in and scored zero. Students with something missing get a red dot. The ID columns are hidden.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows in Canvas's format</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-grades" id="v-grades-s" value="styled" checked><label for="v-grades-s">Styled</label>
+          <input type="radio" name="v-grades" id="v-grades-r" value="raw"><label for="v-grades-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="grades-bio-101.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="translations">
+      <header>
+        <div>
+          <h3>A translation sheet</h3>
+          <div class="file">strings.cssv</div>
+          <p><strong>Who has it:</strong> any team that ships an app in more than one language. Translation tools import and export this CSV, and it often lives in the repository.</p>
+          <p><strong>What the style does:</strong> every empty cell is an untranslated string, so <code>td:empty</code> marks it in place, and a CSS counter per language totals them under the table. Reviewers see the gaps in the file itself, not in a separate report.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample strings</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-strings" id="v-strings-s" value="styled" checked><label for="v-strings-s">Styled</label>
+          <input type="radio" name="v-strings" id="v-strings-r" value="raw"><label for="v-strings-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="strings.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="git-log">
+      <header>
+        <div>
+          <h3><code>git log</code>, as a changelog</h3>
+          <div class="file">git-log.cssv</div>
+          <p><strong>Who has it:</strong> anyone with a terminal. Any command that prints CSV can print a report. These are the last 18 commits of this repository, from <code>git log --shortstat</code>.</p>
+          <p><strong>What the style does:</strong> deleted lines are written as negative numbers, so <code>.positive</code> and <code>.negative</code> color the additions and deletions, and <code>.zero</code> fades the commits that only added.</p>
+          <ul class="stats"><li class="style" data-count></li><li>data: this repository's history</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-git" id="v-git-s" value="styled" checked><label for="v-git-s">Styled</label>
+          <input type="radio" name="v-git" id="v-git-r" value="raw"><label for="v-git-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="git-log.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="badges">
+      <header>
+        <div>
+          <h3>An attendee list, printed as name badges</h3>
+          <div class="file">attendees.cssv</div>
+          <p><strong>Who has it:</strong> anyone running a meetup or a conference, the night before. Usually this is a mail merge in a word processor.</p>
+          <p><strong>What the style does:</strong> each row becomes a 9 × 5.5 cm badge, and <code>@media print</code> lays them out two to a row for an A4 page. The ticket type is the key, so <code>tr[data-key="Speaker"]</code> gets its own color. The order number, email and check-in columns are hidden; they stay in the file for the door.</p>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows; the people are invented</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-badges" id="v-badges-s" value="styled" checked><label for="v-badges-s">Styled</label>
+          <input type="radio" name="v-badges" id="v-badges-r" value="raw"><label for="v-badges-r">As exported</label>
+        </div>
+        <span class="hint">On paper, the file's <code>@media print</code> rules make a sheet two badges wide, ready to cut.</span>
+      </div>
+      <div class="stage"><cssv-table src="attendees.cssv"></cssv-table></div>
       </article>
       </div>
     </section>
