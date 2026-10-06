@@ -63,8 +63,9 @@ tbody::before {
 
 /* A tower: its plot on the spiral, from its place in the file. */
 tbody tr {
-  --H: calc(attr(data-key type(<number>), 0) * var(--m));
-  --w: calc(1.2cqw + attr(data-key type(<number>), 0) * 0.0016cqw); /* taller is wider */
+  --h: attr(data-key type(<number>), 0); /* metres */
+  --H: calc(var(--h) * var(--m));
+  --w: calc(1.2cqw + var(--h) * 0.0016cqw); /* taller is wider */
   position: absolute;
   left: calc(50% - var(--w) / 2);
   top: calc(50% - var(--w) / 2);
@@ -74,6 +75,23 @@ tbody tr {
   --a: calc(sibling-index() * 137.508deg);       /* the golden angle */
   --r: calc(sqrt(sibling-index() - 1) * 4.6cqw);
   translate: calc(cos(var(--a)) * var(--r)) calc(sin(var(--a)) * var(--r));
+}
+/* Engines without typed attr() (WebKit, as of 2026) can't read a height, so
+   there it comes from the key's first two digits: within 5 m of the file's
+   heights, for towers from 400 to 829 m. Any other height is an empty plot. */
+@supports not (width: attr(data-key type(<length>), 0px)) {
+  tbody tr { --h: 0; }
+  tbody tr[data-key^="40"] { --h: 405; } tbody tr[data-key^="41"] { --h: 415; } tbody tr[data-key^="42"] { --h: 425; } tbody tr[data-key^="43"] { --h: 435; }
+  tbody tr[data-key^="44"] { --h: 445; } tbody tr[data-key^="45"] { --h: 455; } tbody tr[data-key^="46"] { --h: 465; } tbody tr[data-key^="47"] { --h: 475; }
+  tbody tr[data-key^="48"] { --h: 485; } tbody tr[data-key^="49"] { --h: 495; } tbody tr[data-key^="50"] { --h: 505; } tbody tr[data-key^="51"] { --h: 515; }
+  tbody tr[data-key^="52"] { --h: 525; } tbody tr[data-key^="53"] { --h: 535; } tbody tr[data-key^="54"] { --h: 545; } tbody tr[data-key^="55"] { --h: 555; }
+  tbody tr[data-key^="56"] { --h: 565; } tbody tr[data-key^="57"] { --h: 575; } tbody tr[data-key^="58"] { --h: 585; } tbody tr[data-key^="59"] { --h: 595; }
+  tbody tr[data-key^="60"] { --h: 605; } tbody tr[data-key^="61"] { --h: 615; } tbody tr[data-key^="62"] { --h: 625; } tbody tr[data-key^="63"] { --h: 635; }
+  tbody tr[data-key^="64"] { --h: 645; } tbody tr[data-key^="65"] { --h: 655; } tbody tr[data-key^="66"] { --h: 665; } tbody tr[data-key^="67"] { --h: 675; }
+  tbody tr[data-key^="68"] { --h: 685; } tbody tr[data-key^="69"] { --h: 695; } tbody tr[data-key^="70"] { --h: 705; } tbody tr[data-key^="71"] { --h: 715; }
+  tbody tr[data-key^="72"] { --h: 725; } tbody tr[data-key^="73"] { --h: 735; } tbody tr[data-key^="74"] { --h: 745; } tbody tr[data-key^="75"] { --h: 755; }
+  tbody tr[data-key^="76"] { --h: 765; } tbody tr[data-key^="77"] { --h: 775; } tbody tr[data-key^="78"] { --h: 785; } tbody tr[data-key^="79"] { --h: 795; }
+  tbody tr[data-key^="80"] { --h: 805; } tbody tr[data-key^="81"] { --h: 815; } tbody tr[data-key^="82"] { --h: 825; }
 }
 td {
   position: absolute;

@@ -50,6 +50,18 @@ tbody tr {
   background-color: var(--bg);
   transition: translate 1s cubic-bezier(.65, 0, .35, 1), background-color 0.6s;
 }
+/* Engines without typed attr() (WebKit, as of 2026) read the rank from
+   these rules instead, for leagues of up to 20 clubs. */
+@supports not (width: attr(data-key type(<length>), 0px)) {
+  tbody tr {
+    translate: 0 calc((var(--rank, sibling-index()) - sibling-index()) * var(--step));
+    z-index: calc(100 - var(--rank, 0));
+  }
+  tbody tr[data-key="1"] { --rank: 1; } tbody tr[data-key="2"] { --rank: 2; } tbody tr[data-key="3"] { --rank: 3; } tbody tr[data-key="4"] { --rank: 4; } tbody tr[data-key="5"] { --rank: 5; }
+  tbody tr[data-key="6"] { --rank: 6; } tbody tr[data-key="7"] { --rank: 7; } tbody tr[data-key="8"] { --rank: 8; } tbody tr[data-key="9"] { --rank: 9; } tbody tr[data-key="10"] { --rank: 10; }
+  tbody tr[data-key="11"] { --rank: 11; } tbody tr[data-key="12"] { --rank: 12; } tbody tr[data-key="13"] { --rank: 13; } tbody tr[data-key="14"] { --rank: 14; } tbody tr[data-key="15"] { --rank: 15; }
+  tbody tr[data-key="16"] { --rank: 16; } tbody tr[data-key="17"] { --rank: 17; } tbody tr[data-key="18"] { --rank: 18; } tbody tr[data-key="19"] { --rank: 19; } tbody tr[data-key="20"] { --rank: 20; }
+}
 tbody tr:hover { background-color: color-mix(in srgb, var(--fg) 4%, var(--bg)); }
 @media (prefers-reduced-motion: reduce) { tbody tr, td { transition: none; } }
 

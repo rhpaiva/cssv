@@ -102,6 +102,19 @@ tbody tr {
   border: 1px solid rgb(170 190 255 / 0.18);
   border-radius: 50%;
 }
+/* Engines without typed attr() (WebKit, as of 2026) can't read the period,
+   so there each row takes its planet's period from here, the way it takes
+   its size and surface below. They repeat the file's own periods. */
+@supports not (width: attr(data-key type(<length>), 0px)) {
+  tbody tr:nth-child(1) { --period: 88.0; }
+  tbody tr:nth-child(2) { --period: 224.7; }
+  tbody tr:nth-child(3) { --period: 365.2; }
+  tbody tr:nth-child(4) { --period: 687.0; }
+  tbody tr:nth-child(5) { --period: 4331; }
+  tbody tr:nth-child(6) { --period: 10747; }
+  tbody tr:nth-child(7) { --period: 30589; }
+  tbody tr:nth-child(8) { --period: 59800; }
+}
 
 /* The planet and its period ride the orbit, anticlockwise, staying upright
    (offset-rotate: 0deg), then turn back up to face the viewer. */

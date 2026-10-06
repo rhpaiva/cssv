@@ -39,6 +39,9 @@ for (const row of table.match(/<tr[\s\S]*?<\/tr>/g).slice(1)) {
 }
 if (records.length < 30) throw new Error(`Only ${records.length} buildings found.`);
 records.sort((a, b) => b[3] - a[3]);
+// The style block's fallback for engines without typed attr() knows heights
+// from 400 to 829 m.
+if (records[0][3] >= 830) console.warn(`${records[0][0]} is ${records[0][3]} m: add its height to the fallback in the style block.`);
 
 const source = readFileSync(FILE, 'utf8');
 const fence = source.indexOf('\n---\n') + 5;
