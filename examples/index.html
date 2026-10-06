@@ -279,6 +279,26 @@
     .example .file { color: var(--muted); font: 500 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; overflow-wrap: anywhere; }
     .example p { margin: 10px 0 0; max-width: 72ch; color: var(--muted); }
     .example p strong { color: var(--text); font-weight: 600; }
+    /* A long description shows its first three lines; More, or a click on
+       the text, shows the rest. */
+    .desc { margin-top: 10px; max-height: 3lh; overflow: hidden; mask-image: linear-gradient(#000 calc(100% - 1.2lh), transparent); cursor: pointer; }
+    .desc > p:first-child { margin-top: 0; }
+    .desc.fits { mask-image: none; cursor: auto; }
+    .desc.open { max-height: none; mask-image: none; cursor: auto; }
+    .more {
+      margin: 6px 0 0;
+      padding: 2px 0;
+      border: 0;
+      background: none;
+      color: var(--text);
+      cursor: pointer;
+      font: 600 13px/1.4 system-ui, sans-serif;
+      text-decoration: underline;
+      text-decoration-color: var(--link-line);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.18em;
+    }
+    .more:hover { text-decoration-color: currentColor; }
     .stats { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; padding: 0; list-style: none; }
     .stats li {
       padding: 5px 9px;
@@ -749,7 +769,10 @@
         <div>
           <h3>The periodic table</h3>
           <div class="file">elements.cssv</div>
-          <p>118 records in atomic-number order. The style block makes <code>tbody</code> an 18-column grid, so <code>tr:nth-child(26)</code> is iron: most elements flow into place, and five rules move the rest. <code>--cssv-key: category</code> names every row by its category, and each category sets one color. Masses keep the digits written in the file; switch to de-DE for decimal commas.</p>
+          <div class="desc" id="elements-desc">
+            <p>118 records in atomic-number order. The style block makes <code>tbody</code> an 18-column grid, so <code>tr:nth-child(26)</code> is iron: most elements flow into place, and five rules move the rest. <code>--cssv-key: category</code> names every row by its category, and each category sets one color. Masses keep the digits written in the file; switch to de-DE for decimal commas.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="elements-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: the 118 elements</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>tbody { display: grid }</li>
@@ -787,7 +810,10 @@
         <div>
           <h3>A resume</h3>
           <div class="file">resume.cssv</div>
-          <p>One row per line of the resume: a job, one of its points, a skill. A <code>kind</code> column says which, and as the key column it is what every rule selects on. Rows are subgrids of one grid, so dates, places and labels share a left column, and the rail beside it carries a timeline drawn by each row's <code>::before</code>. <code>[data-key="heading"] + [data-key="job"]</code> finds the current job and fills its dot. The headings are rows too, so they stay in the data.</p>
+          <div class="desc" id="resume-desc">
+            <p>One row per line of the resume: a job, one of its points, a skill. A <code>kind</code> column says which, and as the key column it is what every rule selects on. Rows are subgrids of one grid, so dates, places and labels share a left column, and the rail beside it carries a timeline drawn by each row's <code>::before</code>. <code>[data-key="heading"] + [data-key="job"]</code> finds the current job and fills its dot. The headings are rows too, so they stay in the data.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="resume-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: an invented person</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>--cssv-key: kind</li>
@@ -813,7 +839,10 @@
         <div>
           <h3>Stadium tickets</h3>
           <div class="file">stadium.cssv</div>
-          <p>A seating plan exported from Ticketlark, an invented ticket seller, for Northbridge FC v Harbor City: one record per section, with its stand, tier, category, price, seats and the seats left. The records run clockwise from the halfway line, tier by tier, so <code>sibling-index()</code> turns each row's place in the file into an angle, and the row's <code>::before</code> cuts its wedge out of the bowl with <code>clip-path: polygon()</code>. The category is the key column, so one rule colors every section in a category, and a section with no seats left is <code>.zero</code>, hatched. Point at a section and <code>tr:hover</code> lights it up and shows the rest of its record over the pitch. Browsers older than Chrome 138, Safari 26.2 and Firefox 154 have no <code>sibling-index()</code> and show the sections as a list.</p>
+          <div class="desc" id="stadium-desc">
+            <p>A seating plan exported from Ticketlark, an invented ticket seller, for Northbridge FC v Harbor City: one record per section, with its stand, tier, category, price, seats and the seats left. The records run clockwise from the halfway line, tier by tier, so <code>sibling-index()</code> turns each row's place in the file into an angle, and the row's <code>::before</code> cuts its wedge out of the bowl with <code>clip-path: polygon()</code>. The category is the key column, so one rule colors every section in a category, and a section with no seats left is <code>.zero</code>, hatched. Point at a section and <code>tr:hover</code> lights it up and shows the rest of its record over the pitch. Browsers older than Chrome 138, Safari 26.2 and Firefox 154 have no <code>sibling-index()</code> and show the sections as a list.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="stadium-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: an invented match</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>sibling-index()</li>
@@ -849,7 +878,10 @@
         <div>
           <h3>Seat map</h3>
           <div class="file">seats.cssv</div>
-          <p>A booking export: initials where a seat is taken, an empty field where it's free, so <code>:empty</code> draws the free seats. The row number is the middle column, which puts it in the aisle, and the key column, so <code>tr[data-key="12"]</code> is an exit row and one rule finds your seat by row and column. There is no row 13.</p>
+          <div class="desc" id="seats-desc">
+            <p>A booking export: initials where a seat is taken, an empty field where it's free, so <code>:empty</code> draws the free seats. The row number is the middle column, which puts it in the aisle, and the key column, so <code>tr[data-key="12"]</code> is an exit row and one rule finds your seat by row and column. There is no row 13.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="seats-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: invented bookings</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>:empty</li>
@@ -879,7 +911,10 @@
         <div>
           <h3>A week of weather</h3>
           <div class="file">forecast.cssv</div>
-          <p>Each record is a day, and the style block stands the table on its side: every <code>tr</code> becomes a column of the table's grid, sharing its rows through <code>subgrid</code>, and the header row becomes the labels. The condition is the key column, and each condition paints its own sky and icon with gradients. Friday's low of −0.3 rounds to 0 but keeps <code>.negative</code>, so it stays frost blue. Try ar-EG.</p>
+          <div class="desc" id="forecast-desc">
+            <p>Each record is a day, and the style block stands the table on its side: every <code>tr</code> becomes a column of the table's grid, sharing its rows through <code>subgrid</code>, and the header row becomes the labels. The condition is the key column, and each condition paints its own sky and icon with gradients. Friday's low of −0.3 rounds to 0 but keeps <code>.negative</code>, so it stays frost blue. Try ar-EG.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="forecast-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: an invented week</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>grid-template-rows: subgrid</li>
@@ -904,7 +939,10 @@
         <div>
           <h3>Nutrition Facts</h3>
           <div class="file">nutrition.cssv</div>
-          <p>Four columns: nutrient, amount, unit and % Daily Value. Every row is a flex line, and the nutrient, the key column, styles it by name: the heavy rules, the indents, the <code>order</code> that makes "Includes 10g Added Sugars", and the title and footnote as generated content. Empty % cells disappear with <code>:empty</code>.</p>
+          <div class="desc" id="nutrition-desc">
+            <p>Four columns: nutrient, amount, unit and % Daily Value. Every row is a flex line, and the nutrient, the key column, styles it by name: the heavy rules, the indents, the <code>order</code> that makes "Includes 10g Added Sugars", and the title and footnote as generated content. Empty % cells disappear with <code>:empty</code>.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="nutrition-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: an invented label</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>tr { display: flex }</li>
@@ -928,7 +966,10 @@
         <div>
           <h3>Market close</h3>
           <div class="file">markets.cssv</div>
-          <p>A trading terminal built from sign classes. Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>, which drives the arrows, the colors, the pill tints and the row highlights. No value is repeated in the CSS.</p>
+          <div class="desc" id="markets-desc">
+            <p>A trading terminal built from sign classes. Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>, which drives the arrows, the colors, the pill tints and the row highlights. No value is repeated in the CSS.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="markets-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: invented tickers</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>.positive / .negative / .zero</li>
@@ -953,7 +994,10 @@
         <div>
           <h3>The solar system</h3>
           <div class="file">planets.cssv</div>
-          <p><code>--cssv-key: planet</code> names every row, and each row sets a few custom properties (<code>--orb</code>, <code>--size</code>, <code>--glow</code>) that one shared rule draws. The file stores <code>0.387</code>, and <code>--cssv-format</code> rounds it to 0.39 for display.</p>
+          <div class="desc" id="planets-desc">
+            <p><code>--cssv-key: planet</code> names every row, and each row sets a few custom properties (<code>--orb</code>, <code>--size</code>, <code>--glow</code>) that one shared rule draws. The file stores <code>0.387</code>, and <code>--cssv-format</code> rounds it to 0.39 for display.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="planets-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: the eight planets</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>--cssv-key</li>
@@ -978,7 +1022,10 @@
         <div>
           <h3>Invoice</h3>
           <div class="file">invoice.cssv</div>
-          <p>SKUs like <code>0042</code> stay text because of the leading zero. Quoted fields span two lines, and <code>::first-line</code> bolds the title. Summary rows have no SKU, so they get no <code>data-key</code> and <code>tr:not([data-key])</code> selects them. Switch to de-DE or fr-FR to move the € sign after the amount with <code>:lang()</code>.</p>
+          <div class="desc" id="invoice-desc">
+            <p>SKUs like <code>0042</code> stay text because of the leading zero. Quoted fields span two lines, and <code>::first-line</code> bolds the title. Summary rows have no SKU, so they get no <code>data-key</code> and <code>tr:not([data-key])</code> selects them. Switch to de-DE or fr-FR to move the € sign after the amount with <code>:lang()</code>.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="invoice-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: an invented invoice</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>text IDs</li>
@@ -1003,7 +1050,10 @@
         <div>
           <h3>League table</h3>
           <div class="file">league.cssv</div>
-          <p>A semicolon-delimited spreadsheet export, detected from the header. Ranks come from a CSS counter, and crests come from two colors set per club by name. Zones are selected by position. The style block switches palettes with <code>prefers-color-scheme</code>.</p>
+          <div class="desc" id="league-desc">
+            <p>A semicolon-delimited spreadsheet export, detected from the header. Ranks come from a CSS counter, and crests come from two colors set per club by name. Zones are selected by position. The style block switches palettes with <code>prefers-color-scheme</code>.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="league-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: an invented league</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>; delimiter</li>
@@ -1038,8 +1088,11 @@
         <div>
           <h3>A weather download</h3>
           <div class="file">oslo.cssv · berlin.cssv · lisbon.cssv · weather.css</div>
-          <p><strong>Who has it:</strong> anyone who pulls data from an open-data portal or API. These are real: January 2026, daily, from Open-Meteo's archive, saved as CSV and left untouched, preamble and all.</p>
-          <p><strong>What the style does:</strong> each file is one <code>@import</code>; the calendar lives in <code>weather.css</code>, written once. The sign of each value says what kind of day it was: a negative minimum is a frosty night, a negative maximum a day below zero, a positive snowfall a snow day. The download's two location lines are found by <code>data-row</code> and become the caption.</p>
+          <div class="desc" id="weather-desc">
+            <p><strong>Who has it:</strong> anyone who pulls data from an open-data portal or API. These are real: January 2026, daily, from Open-Meteo's archive, saved as CSV and left untouched, preamble and all.</p>
+            <p><strong>What the style does:</strong> each file is one <code>@import</code>; the calendar lives in <code>weather.css</code>, written once. The sign of each value says what kind of day it was: a negative minimum is a frosty night, a negative maximum a day below zero, a positive snowfall a snow day. The download's two location lines are found by <code>data-row</code> and become the caption.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="weather-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: the download, unchanged</li></ul>
         </div>
       </header>
@@ -1062,8 +1115,11 @@
         <div>
           <h3>A Jira export, as a board</h3>
           <div class="file">jira-export.cssv</div>
-          <p><strong>Who has it:</strong> anyone who has clicked "Export CSV" in Jira to share a sprint with someone who has no account. The export repeats a column for every sprint and every label, all under the same name.</p>
-          <p><strong>What the style does:</strong> <code>--cssv-key: Status</code> sends each issue to its lane with one rule per status, and dense packing stacks the cards. Status is text, which v1 can't style by value; as the key it can. The repeated columns are no problem: <code>[data-col="Labels"]</code> styles both label columns.</p>
+          <div class="desc" id="jira-desc">
+            <p><strong>Who has it:</strong> anyone who has clicked "Export CSV" in Jira to share a sprint with someone who has no account. The export repeats a column for every sprint and every label, all under the same name.</p>
+            <p><strong>What the style does:</strong> <code>--cssv-key: Status</code> sends each issue to its lane with one rule per status, and dense packing stacks the cards. Status is text, which v1 can't style by value; as the key it can. The repeated columns are no problem: <code>[data-col="Labels"]</code> styles both label columns.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="jira-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>sample rows in Jira's format</li></ul>
         </div>
       </header>
@@ -1081,8 +1137,11 @@
         <div>
           <h3>A WhatsApp group chat</h3>
           <div class="file">whatsapp-chat.cssv</div>
-          <p><strong>Who has it:</strong> anyone in a WhatsApp chat, through "Export chat" in the chat's menu. The export is a text file with a line per message; a few lines of Node turn each message into a CSV line: date, time, sender, message.</p>
-          <p><strong>What the style does:</strong> <code>--cssv-key: sender</code> puts the messages of Sam, who exported the chat, on the right and gives everyone else a color. WhatsApp's own lines, like "Ana added you", have no sender, so they get no <code>data-key</code>, and <code>tr:not([data-key])</code> centers them. A message with line breaks is one quoted field, and the renderer keeps the breaks.</p>
+          <div class="desc" id="whatsapp-desc">
+            <p><strong>Who has it:</strong> anyone in a WhatsApp chat, through "Export chat" in the chat's menu. The export is a text file with a line per message; a few lines of Node turn each message into a CSV line: date, time, sender, message.</p>
+            <p><strong>What the style does:</strong> <code>--cssv-key: sender</code> puts the messages of Sam, who exported the chat, on the right and gives everyone else a color. WhatsApp's own lines, like "Ana added you", have no sender, so they get no <code>data-key</code>, and <code>tr:not([data-key])</code> centers them. A message with line breaks is one quoted field, and the renderer keeps the breaks.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="whatsapp-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>sample chat; the people are invented</li></ul>
         </div>
       </header>
@@ -1100,8 +1159,11 @@
         <div>
           <h3>A Google Calendar import</h3>
           <div class="file">calendar-import.cssv</div>
-          <p><strong>Who has it:</strong> anyone who has put a term schedule, a shift rota or a fixture list into a spreadsheet to bulk-import it into Google Calendar, which reads CSV with exactly these column names.</p>
-          <p><strong>What the style does:</strong> <code>--cssv-key: "Start Date"</code> and five rules put each date in its column of a week, and a day's events stack in time order. The format leaves the times empty for all-day events, so <code>:empty</code> turns those into solid banners. The same file still imports.</p>
+          <div class="desc" id="calendar-desc">
+            <p><strong>Who has it:</strong> anyone who has put a term schedule, a shift rota or a fixture list into a spreadsheet to bulk-import it into Google Calendar, which reads CSV with exactly these column names.</p>
+            <p><strong>What the style does:</strong> <code>--cssv-key: "Start Date"</code> and five rules put each date in its column of a week, and a day's events stack in time order. The format leaves the times empty for all-day events, so <code>:empty</code> turns those into solid banners. The same file still imports.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="calendar-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>sample rows in Google Calendar's format</li></ul>
         </div>
       </header>
@@ -1119,8 +1181,11 @@
         <div>
           <h3>A Canvas gradebook</h3>
           <div class="file">grades-bio-101.cssv</div>
-          <p><strong>Who has it:</strong> every teacher on Canvas. Line 2 isn't a student: it's the "Points Possible" row, indented with four spaces.</p>
-          <p><strong>What the style does:</strong> <code>tr[data-row="2"]</code> styles that row as "out of", without moving it. An empty score (<code>:empty</code>) is a missing assignment and says so; a <code>0</code> (<code>.zero</code>) was handed in and scored zero. Students with something missing get a red dot. The ID columns are hidden.</p>
+          <div class="desc" id="gradebook-desc">
+            <p><strong>Who has it:</strong> every teacher on Canvas. Line 2 isn't a student: it's the "Points Possible" row, indented with four spaces.</p>
+            <p><strong>What the style does:</strong> <code>tr[data-row="2"]</code> styles that row as "out of", without moving it. An empty score (<code>:empty</code>) is a missing assignment and says so; a <code>0</code> (<code>.zero</code>) was handed in and scored zero. Students with something missing get a red dot. The ID columns are hidden.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="gradebook-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>sample rows in Canvas's format</li></ul>
         </div>
       </header>
@@ -1138,8 +1203,11 @@
         <div>
           <h3>A translation sheet</h3>
           <div class="file">strings.cssv</div>
-          <p><strong>Who has it:</strong> any team that ships an app in more than one language. Translation tools import and export this CSV, and it often lives in the repository.</p>
-          <p><strong>What the style does:</strong> every empty cell is an untranslated string, so <code>td:empty</code> marks it in place, and a CSS counter per language totals them under the table. Reviewers see the gaps in the file itself, not in a separate report.</p>
+          <div class="desc" id="translations-desc">
+            <p><strong>Who has it:</strong> any team that ships an app in more than one language. Translation tools import and export this CSV, and it often lives in the repository.</p>
+            <p><strong>What the style does:</strong> every empty cell is an untranslated string, so <code>td:empty</code> marks it in place, and a CSS counter per language totals them under the table. Reviewers see the gaps in the file itself, not in a separate report.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="translations-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>sample strings</li></ul>
         </div>
       </header>
@@ -1157,8 +1225,11 @@
         <div>
           <h3><code>git log</code>, as a changelog</h3>
           <div class="file">git-log.cssv</div>
-          <p><strong>Who has it:</strong> anyone with a terminal. Any command that prints CSV can print a report. These are the last 18 commits of this repository, from <code>git log --shortstat</code>.</p>
-          <p><strong>What the style does:</strong> deleted lines are written as negative numbers, so <code>.positive</code> and <code>.negative</code> color the additions and deletions, and <code>.zero</code> fades the commits that only added.</p>
+          <div class="desc" id="git-log-desc">
+            <p><strong>Who has it:</strong> anyone with a terminal. Any command that prints CSV can print a report. These are the last 18 commits of this repository, from <code>git log --shortstat</code>.</p>
+            <p><strong>What the style does:</strong> deleted lines are written as negative numbers, so <code>.positive</code> and <code>.negative</code> color the additions and deletions, and <code>.zero</code> fades the commits that only added.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="git-log-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: this repository's history</li></ul>
         </div>
       </header>
@@ -1176,8 +1247,11 @@
         <div>
           <h3>An attendee list, printed as name badges</h3>
           <div class="file">attendees.cssv</div>
-          <p><strong>Who has it:</strong> anyone running a meetup or a conference, the night before. Usually this is a mail merge in a word processor.</p>
-          <p><strong>What the style does:</strong> each row becomes a 9 × 5.5 cm badge, and <code>@media print</code> lays them out two to a row for an A4 page. The ticket type is the key, so <code>tr[data-key="Speaker"]</code> gets its own color. The order number, email and check-in columns are hidden; they stay in the file for the door.</p>
+          <div class="desc" id="badges-desc">
+            <p><strong>Who has it:</strong> anyone running a meetup or a conference, the night before. Usually this is a mail merge in a word processor.</p>
+            <p><strong>What the style does:</strong> each row becomes a 9 × 5.5 cm badge, and <code>@media print</code> lays them out two to a row for an A4 page. The ticket type is the key, so <code>tr[data-key="Speaker"]</code> gets its own color. The order number, email and check-in columns are hidden; they stay in the file for the door.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="badges-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>sample rows; the people are invented</li></ul>
         </div>
       </header>
@@ -1202,7 +1276,10 @@
         <div>
           <h3>Release notes</h3>
           <div class="file">inline &lt;script type="text/cssv"&gt;</div>
-          <p>This file sits inline in the page instead of being loaded with <code>src</code>. Prefix selectors on the key (<code>[data-key^="feat-"]</code>) color each entry, and the timeline is drawn with pseudo-elements. Colors are mixed from <code>currentColor</code>, so the table follows the page's light or dark theme.</p>
+          <div class="desc" id="release-notes-desc">
+            <p>This file sits inline in the page instead of being loaded with <code>src</code>. Prefix selectors on the key (<code>[data-key^="feat-"]</code>) color each entry, and the timeline is drawn with pseudo-elements. Colors are mixed from <code>currentColor</code>, so the table follows the page's light or dark theme.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="release-notes-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: invented releases</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>inline &lt;script&gt;</li>
@@ -1339,8 +1416,11 @@ The date picker uses each locale's first day of the week.",tomas
         <div>
           <h3>Account activity, a page at a time</h3>
           <div class="file" id="ledger-file">ledger/page-1.cssv</div>
-          <p>A server can send <code>.cssv</code> where it would send JSON. This site is static, so the five pages are files; a real endpoint would take <code>?page=2</code> and report the total, for example in a response header. The page script sets the table's <code>src</code> and listens for its loading events.</p>
-          <p>Each page's style block is a comment and <code>@import url("ledger.css")</code>. The shared stylesheet sets the key column and the number format and styles the rows, so a page carries only its records and the browser can cache the styles. The current page stays on screen while the next one loads, and <code>cssv-loadstart</code> and <code>cssv-loadend</code> drive the spinner; throttle the network in your browser's developer tools to see it. Click ahead quickly and only the last page you asked for is shown.</p>
+          <div class="desc" id="pagination-desc">
+            <p>A server can send <code>.cssv</code> where it would send JSON. This site is static, so the five pages are files; a real endpoint would take <code>?page=2</code> and report the total, for example in a response header. The page script sets the table's <code>src</code> and listens for its loading events.</p>
+            <p>Each page's style block is a comment and <code>@import url("ledger.css")</code>. The shared stylesheet sets the key column and the number format and styles the rows, so a page carries only its records and the browser can cache the styles. The current page stays on screen while the next one loads, and <code>cssv-loadstart</code> and <code>cssv-loadend</code> drive the spinner; throttle the network in your browser's developer tools to see it. Click ahead quickly and only the last page you asked for is shown.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="pagination-desc">More</button>
           <ul class="stats"><li class="style" data-count></li><li>data: invented transactions</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>table.src = …</li>
@@ -1763,6 +1843,30 @@ The date picker uses each locale's first day of the week.",tomas
         if (!imported) lines.textContent = plural(cssLines(style), 'line');
         else read(imported[1]).then((css) => { lines.textContent = `${cssLines(style)} + ${plural(cssLines(css), 'line')}`; });
       });
+    }
+  </script>
+  <script type="module">
+    // Descriptions: More opens one and Less closes it again; a click on a
+    // closed one opens it too, unless it lands on a link. A description
+    // that fits in its three lines gets no button. Off screen, a card isn't
+    // laid out, so it's measured when it is.
+    for (const desc of document.querySelectorAll('.desc')) {
+      const more = desc.nextElementSibling;
+      const open = (yes) => {
+        desc.classList.toggle('open', yes);
+        more.setAttribute('aria-expanded', String(yes));
+        more.textContent = yes ? 'Less' : 'More';
+      };
+      more.addEventListener('click', () => open(!desc.classList.contains('open')));
+      desc.addEventListener('click', (e) => {
+        if (!desc.classList.contains('open') && !desc.classList.contains('fits') && !e.target.closest('a')) open(true);
+      });
+      new ResizeObserver(() => {
+        if (desc.classList.contains('open') || !desc.clientHeight) return;
+        const fits = desc.scrollHeight <= desc.clientHeight + 1;
+        desc.classList.toggle('fits', fits);
+        more.hidden = fits;
+      }).observe(desc);
     }
   </script>
 </body>
