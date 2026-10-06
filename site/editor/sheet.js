@@ -226,15 +226,28 @@ function highlightBars() {
   for (const el of lit.rows) el.classList.add('on');
 }
 
+const box = (node) => (node?.getClientRects().length ? node.getBoundingClientRect() : null);
+const overlap = (a, b) => !!a && !!b && a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+
 function cellRect(r, c) {
   const row = front.table?.rows[r];
   const cell = row?.cells[c];
   if (!cell) return null;
   // A cell the file hides has no box; its row stands in for it, if that shows.
-  const shown = cell.getClientRects().length ? cell : row.getClientRects().length ? row : null;
-  if (!shown) return null;
+  // Rows drawn over each other, as the stadium's are, each cover the whole
+  // drawing, so there the row's cells that show stand in instead.
+  let x = box(cell);
+  if (!x && (x = box(row)) && [row.previousElementSibling, row.nextElementSibling].some((n) => overlap(x, box(n)))) {
+    const shown = Array.from(row.cells, box).filter(Boolean);
+    if (shown.length) {
+      x = {
+        left: Math.min(...shown.map((s) => s.left)), top: Math.min(...shown.map((s) => s.top)),
+        right: Math.max(...shown.map((s) => s.right)), bottom: Math.max(...shown.map((s) => s.bottom)),
+      };
+    }
+  }
+  if (!x) return null;
   const base = els.wrap.getBoundingClientRect();
-  const x = shown.getBoundingClientRect();
   return { left: x.left - base.left, top: x.top - base.top, right: x.right - base.left, bottom: x.bottom - base.top };
 }
 
@@ -312,10 +325,25 @@ function scrollIntoView({ r, c }) {
   else if (rect.right + gutter > vp.scrollLeft + vp.clientWidth) vp.scrollLeft = rect.right + gutter - vp.clientWidth;
 }
 
+// A click can land on a row and miss its cells, on what the row draws
+// itself: a click on the stadium's wedges, each a row's ::before, goes to
+// the row. The row's nearest cell that shows stands in, or the active
+// column when none shows.
 function cellFromEvent(e) {
   for (const node of e.composedPath()) {
     if (node === els.wrap || node === els.editor) break;
     if (node.tagName === 'TD' || node.tagName === 'TH') return { r: node.parentElement.rowIndex, c: node.cellIndex };
+    if (node.tagName === 'TR') {
+      let c = state.anchor.c;
+      let nearest = Infinity;
+      for (const cell of node.cells) {
+        const x = box(cell);
+        if (!x) continue;
+        const d = Math.hypot(Math.max(x.left - e.clientX, 0, e.clientX - x.right), Math.max(x.top - e.clientY, 0, e.clientY - x.bottom));
+        if (d < nearest) [c, nearest] = [cell.cellIndex, d];
+      }
+      return { r: node.rowIndex, c };
+    }
   }
   return null;
 }
@@ -500,6 +528,14 @@ function openEditor(initial, mode = 'edit') {
   const cell = front.table?.rows[r]?.cells[c];
   if (!cell) return;
   scrollIntoView(state.anchor);
+  // A cell the file hides has no box to type over, so the formula bar edits it.
+  if (!cell.getClientRects().length) {
+    els.value.value = initial ?? raw(r, c);
+    els.hint.textContent = hintFor(r, els.value.value);
+    els.value.focus({ preventScroll: true });
+    els.value.setSelectionRange(els.value.value.length, els.value.value.length);
+    return;
+  }
   // The cell's font, so the text sits where it did, but the editor's own
   // colors: what shows behind a cell can come from the row, the table or an
   // image, so the cell's text color may be unreadable on any one background.
