@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CSSV experiments</title>
-  <meta name="description" content="Six .cssv files used in ways CSSV wasn't made for: a film, a solar system, a skyline, a lava lamp, a music visualizer and a league table that plays its season. Each one is rendered by <cssv-table> and leans on something the format already does.">
+  <meta name="description" content="Seven .cssv files used in ways CSSV wasn't made for: a film, a trading chart, a solar system, a skyline, a lava lamp, a music visualizer and a league table that plays its season. Each one is rendered by <cssv-table> and leans on something the format already does.">
   <link rel="canonical" href="https://cssv.dev/examples/experiments.html">
   <link rel="icon" href="../site/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../site/apple-touch-icon.png">
@@ -232,15 +232,17 @@
     footer { margin: 64px 0 40px; color: var(--muted); font-size: 13px; }
     footer p { margin: 0 0 6px; max-width: 86ch; }
 
+    /* 02, the chart: the plain CSV is a year of records, so it scrolls. */
+    #bitcoin .stage.plain cssv-table { max-height: 60vh; overflow: auto; font-size: 12px; }
     #skyline .stage { background: #070a1c; }
-    /* 04, the lava lamp: a dark room on either theme. */
+    /* 05, the lava lamp: a dark room on either theme. */
     #lava .stage { background: #0b0612; }
     #lava .stage.plain { background: var(--stage); }
-    /* 05, the visualizer: a dark stage, light again for the plain CSV. */
+    /* 06, the visualizer: a dark stage, light again for the plain CSV. */
     #visualizer .stage { background: #07060c; }
     #visualizer .stage.plain { background: var(--stage); }
     #visualizer .stage.plain cssv-table { max-height: 60vh; overflow: auto; font-size: 12px; }
-    /* 06, the season: a real table, which scrolls sideways on a phone. */
+    /* 07, the season: a real table, which scrolls sideways on a phone. */
     #season .stage cssv-table { overflow-x: auto; }
   </style>
 </head>
@@ -269,15 +271,16 @@
     <header class="hero">
       <p class="eyebrow">CSSV v1 · Examples · Experiments</p>
       <h1>Not what it's for. <span>It works anyway.</span></h1>
-      <p class="lede">CSSV is for tables: a CSV file with a CSS style block on top. Five of the six files on this page aren't tables in any useful sense: a film, a solar system, a skyline, a lava lamp and a music visualizer. The sixth is a league table that plays its whole season. Each is still an ordinary <code>.cssv</code> file rendered by <code>&lt;cssv-table&gt;</code>, with no other markup, and each leans on something the format already does.</p>
+      <p class="lede">CSSV is for tables: a CSV file with a CSS style block on top. Six of the seven files on this page aren't tables in any useful sense: a film, a trading chart, a solar system, a skyline, a lava lamp and a music visualizer. The other one is a league table that plays its whole season. Each is still an ordinary <code>.cssv</code> file rendered by <code>&lt;cssv-table&gt;</code>, with no other markup, and each leans on something the format already does.</p>
       <p class="lede">Nobody should build a film this way. The point is that the pieces hold: field types work as selectors, typed <code>attr()</code> reads the key column as a number, <code>sibling-index()</code> gives every row a place, and <code>update()</code> patches a live table fast enough to animate.</p>
       <nav class="jump" aria-label="Experiments">
         <a href="#film">01 Film</a>
-        <a href="#orrery">02 Solar system</a>
-        <a href="#skyline">03 Skyline</a>
-        <a href="#lava">04 Lava lamp</a>
-        <a href="#visualizer">05 Visualizer</a>
-        <a href="#season">06 League season</a>
+        <a href="#bitcoin">02 Trading chart</a>
+        <a href="#orrery">03 Solar system</a>
+        <a href="#skyline">04 Skyline</a>
+        <a href="#lava">05 Lava lamp</a>
+        <a href="#visualizer">06 Visualizer</a>
+        <a href="#season">07 League season</a>
       </nav>
     </header>
 
@@ -323,10 +326,51 @@ table:has(tr[data-key="horse"]) {
         </section>
       </section>
 
-      <section class="experiment" id="orrery" aria-labelledby="orrery-title">
+      <section class="experiment" id="bitcoin" aria-labelledby="bitcoin-title">
         <header>
           <div>
             <p class="number">02</p>
+            <h2 id="bitcoin-title">A trading chart</h2>
+            <div class="file">bitcoin.cssv</div>
+            <p>A price list becomes a candlestick chart. The records are CoinGecko's Bitcoin export as its download button gives it: one a day, with the price at midnight UTC, the market cap and the volume. A file with open, high, low and close on every row can't be drawn this way, because only the key column becomes a number CSS can use. One price a day can: seven records from a Monday are a week, and the week's prices are its candle. The price is the key column, so typed <code>attr()</code> turns it into a height, <code>sibling-index()</code> gives each record its week, and anchor positioning links the days to their Monday. Each day's date is a line from Monday's price to its own, and together the lines are the wick. On the week's last day, the market cap and the volume are the body from Monday's price to the day's, one in green and one in red, and the one that runs the wrong way has no height. The volume is in the file, but it can't be a bar: only the key column is a number. Press play and the page hands the table its year again from the first Monday, two more days with each <code>update()</code>, eight times a second: the candles appear week by week, and the newest one grows. The chart needs typed <code>attr()</code>, <code>sibling-index()</code> and anchor positioning, so Chromium only for now; elsewhere the file is a list of prices.</p>
+            <ul class="stats"><li class="style" data-count="bitcoin.cssv"></li><li>data: 365 days of a price export</li></ul>
+            <ul class="chips" aria-label="Techniques">
+              <li>--cssv-key: close_price_usd</li>
+              <li>attr(data-key type(&lt;number&gt;))</li>
+              <li>:nth-child(7n + 1)</li>
+              <li>anchor()</li>
+              <li>sibling-index()</li>
+              <li>table.update()</li>
+            </ul>
+          </div>
+          <pre class="trick"><code>tr {        <span class="c">/* its week, and its price as a height */</span>
+  left: calc((round(down, (sibling-index() - 1) / 7) + 0.5) * var(--w));
+  --y: calc((var(--hi) - attr(data-key type(&lt;number&gt;), 0))
+    / (var(--hi) - var(--lo)) * 100%);
+}
+tr:nth-child(7n + 1) td[data-col="close_price_usd"] {
+  anchor-name: --monday;
+}
+td[data-col="event_date"] { <span class="c">/* Monday to today: the wick */</span>
+  top: min(anchor(--monday center), var(--y));
+  bottom: min(anchor(--monday center), 100% - var(--y));
+}</code></pre>
+        </header>
+        <div class="stage" id="bitcoin-stage"><cssv-table src="bitcoin.cssv"></cssv-table></div>
+        <div class="controls">
+          <button type="button" id="bitcoin-play">Play the year</button>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <input type="radio" name="bitcoin-view" id="bitcoin-styled" value="styled" checked><label for="bitcoin-styled">Styled</label>
+            <input type="radio" name="bitcoin-view" id="bitcoin-plain" value="plain"><label for="bitcoin-plain">Plain CSV</label>
+          </div>
+          <span class="readout" id="bitcoin-readout">53 weekly candles, from 365 daily prices.</span>
+        </div>
+      </section>
+
+      <section class="experiment" id="orrery" aria-labelledby="orrery-title">
+        <header>
+          <div>
+            <p class="number">03</p>
             <h2 id="orrery-title">A solar system that runs itself</h2>
             <div class="file">orrery.cssv</div>
             <p>Eight records, one per planet, with NASA's figures. The key column is the orbital period in days, and typed <code>attr()</code> reads it as a number. That number becomes the orbit's <code>animation-duration</code>: one Earth year takes 8 seconds, so Mercury laps every 1.9 seconds and Neptune takes 22 minutes. The same number sets the orbit's size, because by Kepler's third law <code>log()</code> of the period is a logarithmic scale of distance. That's why the gap between Mars and Jupiter shows. <strong>The data sets the speeds and the sizes.</strong> No script runs: after the table renders, nothing calls <code>update()</code>. Each planet is a CSS animation along its orbit, and the orbits stay still, so a frame repaints only a few small boxes.</p>
@@ -371,7 +415,7 @@ td[data-col="planet"] {
       <section class="experiment" id="skyline" aria-labelledby="skyline-title">
         <header>
           <div>
-            <p class="number">03</p>
+            <p class="number">04</p>
             <h2 id="skyline-title">A skyline that grows</h2>
             <div class="file">skyline.cssv</div>
             <p>The CSV of buildings is the city. Every record is one of the 43 buildings of 400 m or more on Wikipedia's list, tallest first, and every row is a tower. Its place in the file gives it a plot on a sunflower spiral, so the tallest stands in the middle. The height is the key column, and typed <code>attr()</code> turns it into the tower's height. The row's six cells are its faces: the name on the front, the city and the country on the sides, the floors at the back, the height on the roof and the year as its shadow. Play the years and the page hands the table the same file with every building not yet finished left without a height; each year, the new ones rise out of their plots.</p>
@@ -407,7 +451,7 @@ td[data-col="building"] {             <span class="c">/* its front wall */</span
       <section class="experiment" id="lava" aria-labelledby="lava-title">
         <header>
           <div>
-            <p class="number">04</p>
+            <p class="number">05</p>
             <h2 id="lava-title">A lava lamp</h2>
             <div class="file">lava.cssv</div>
             <p>Thirteen records, one per blob of wax, and the key column is each blob's volume in millilitres. Typed <code>attr()</code> reads it and a cube root turns it into the blob's size. <code>sibling-index()</code> gives every blob its own path and pace, and a blur plus a contrast filter melts them into one liquid. Every three seconds the page moves a little wax from blob to blob, keeping the total, and hands the table the new volumes with <code>update()</code>. The rows stay, their sizes change with a transition, and the liquid flows into its new shape. The records are the wax.</p>
@@ -446,7 +490,7 @@ tbody tr {
       <section class="experiment" id="visualizer" aria-labelledby="visualizer-title">
         <header>
           <div>
-            <p class="number">05</p>
+            <p class="number">06</p>
             <h2 id="visualizer-title">A music visualizer</h2>
             <div class="file">visualizer.cssv</div>
             <p>A spectrum is a table: 32 frequency bands, one record each, with the band's center in Hz and its level from 0 to 100. Press play and the page plays a song with Web Audio, reads its spectrum and hands the table the next 32 records with <code>update()</code>, 15 times a second. The level is the key column, so typed <code>attr()</code> turns it into the length of each bar, and <code>sibling-index()</code> gives every band its angle and its color. A 0.13-second transition on <code>scale</code> fills the gaps between updates, so 15 updates a second move like 60 frames. The song is a CSV too: <a href="visualizer-song.csv">visualizer-song.csv</a>, one record per note, played by oscillators.</p>
@@ -482,7 +526,7 @@ tbody tr::before { <span class="c">/* the bar */</span>
       <section class="experiment" id="season" aria-labelledby="season-title">
         <header>
           <div>
-            <p class="number">06</p>
+            <p class="number">07</p>
             <h2 id="season-title">A league table that plays its season</h2>
             <div class="file">season.cssv</div>
             <p>The one real table on this page: standings from a semicolon-delimited spreadsheet export, with the clubs in alphabetical order. <code>Pos</code> is the key column, so typed <code>attr()</code> reads each row's rank, and <code>translate</code> moves the row from its place in the file, which <code>sibling-index()</code> gives, to its rank. Each time the file loads, the rows slide from alphabetical order into the standings. Play the season and the page works out the standings after each matchday from the 90 results in <a href="season-results.csv">season-results.csv</a> and hands them to the table with <code>update()</code>. The rows stay the same elements, so their transition slides them to their new places, and <code>z-index</code> from the rank puts a club moving up over the club it overtakes. The lines and the zones stay where they are. The season ends at the gallery's <a href="./#league">League table</a>.</p>
@@ -517,8 +561,9 @@ tbody tr::before { <span class="c">/* the bar */</span>
 
     <footer>
       <p>Footage in 01: <a href="https://commons.wikimedia.org/wiki/File:Muybridge_race_horse_animated.gif">Sallie Gardner at a Gallop</a>, Eadweard Muybridge, 1878. Public domain. The film's other scenes are drawn by <a href="cinema.js">cinema.js</a>, and the horse is <a href="cinema-horse.csv">cinema-horse.csv</a>, 15 frames of 45 records.</p>
-      <p>Planets in 02: <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/">Planetary Fact Sheet</a>, NASA Goddard Space Flight Center: orbital period, distance from the Sun and diameter.</p>
-      <p>Buildings in 03: <a href="https://en.wikipedia.org/wiki/List_of_tallest_buildings">List of tallest buildings</a>, Wikipedia, revision 1376498189, retrieved 5 October 2026: every building of 400 m or more, with the heights as the list gives them, to the tip of any spire or antenna. Text under CC BY-SA 4.0.</p>
+      <p>Prices in 02: <a href="https://www.coingecko.com/en/coins/bitcoin/historical_data">Bitcoin historical data</a>, CoinGecko, retrieved 6 October 2026: the price, market cap and volume in US dollars for every day from 6 October 2025 to 5 October 2026, as the export gives them.</p>
+      <p>Planets in 03: <a href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/">Planetary Fact Sheet</a>, NASA Goddard Space Flight Center: orbital period, distance from the Sun and diameter.</p>
+      <p>Buildings in 04: <a href="https://en.wikipedia.org/wiki/List_of_tallest_buildings">List of tallest buildings</a>, Wikipedia, revision 1376498189, retrieved 5 October 2026: every building of 400 m or more, with the heights as the list gives them, to the tip of any spire or antenna. Text under CC BY-SA 4.0.</p>
     </footer>
   </main>
 
@@ -641,7 +686,79 @@ tbody tr::before { <span class="c">/* the bar */</span>
   </script>
 
   <script type="module">
-    // 02. The speed buttons set --year on <cssv-table>. Custom properties
+    // 02. The chart: Play hands the table its own records again, two more
+    // days with each update(), eight times a second, under the same style
+    // block, price axis and all. A slow machine plays slower rather than
+    // queueing updates. Switching between Styled and Plain CSV shows the
+    // whole file again and ends the replay.
+    const stage = document.getElementById('bitcoin-stage');
+    const chart = stage.querySelector('cssv-table');
+    const button = document.getElementById('bitcoin-play');
+    const readout = document.getElementById('bitcoin-readout');
+    const plain = document.getElementById('bitcoin-plain');
+    const hint = readout.textContent;
+    let file = null;
+    let loading = null;
+    let shown = 0; // the days on the chart
+    let run = 0;   // the replay that's playing; stopping one counts up
+
+    async function load() {
+      const text = await fetch(chart.getAttribute('src')).then((res) => res.text());
+      const at = text.indexOf('\n---\n') + 5;
+      const [header, ...days] = text.slice(at).trim().split('\n');
+      return { text, style: text.slice(0, at), header, days };
+    }
+
+    function show() {
+      const { style, header, days } = file;
+      const data = [header, ...days.slice(0, shown)].join('\n') + '\n';
+      const [date, price] = days[shown - 1].split(',');
+      readout.textContent = `${new Date(date.slice(0, 10)).toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}: $${Math.round(price).toLocaleString('en-US')}`;
+      return chart.update(plain.checked ? data : style + data);
+    }
+
+    async function play() {
+      const mine = ++run;
+      button.textContent = 'Pause';
+      while (run === mine && shown < file.days.length) {
+        const started = performance.now();
+        shown = Math.min(file.days.length, shown + 2);
+        await show();
+        await new Promise((resolve) => setTimeout(resolve, 125 - (performance.now() - started)));
+      }
+      if (run === mine) stop('Play again');
+    }
+
+    function stop(label) {
+      run++;
+      button.textContent = label;
+    }
+
+    button.addEventListener('click', async () => {
+      if (button.textContent === 'Pause') return stop('Resume');
+      file ??= await (loading ??= load());
+      if (shown === file.days.length) shown = 0;
+      play();
+    });
+
+    // Scrolled out of view, the replay pauses.
+    new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting && button.textContent === 'Pause') stop('Resume');
+    }).observe(stage);
+
+    // Plain CSV shows the file without its style block.
+    document.querySelector('#bitcoin .seg').addEventListener('change', async () => {
+      stop('Play the year');
+      shown = 0;
+      readout.textContent = hint;
+      stage.classList.toggle('plain', plain.checked);
+      file ??= await (loading ??= load());
+      chart.update(plain.checked ? file.text.slice(file.text.indexOf('\n---\n') + 5) : file.text);
+    });
+  </script>
+
+  <script type="module">
+    // 03. The speed buttons set --year on <cssv-table>. Custom properties
     // inherit into the table, so the style block's var(--year, 8s) picks it
     // up and every orbit's duration changes at once. Plain CSV shows the
     // file without its style block.
@@ -676,7 +793,7 @@ tbody tr::before { <span class="c">/* the bar */</span>
   </script>
 
   <script type="module">
-    // 03. The years: the same file, year after year, with the height left
+    // 04. The years: the same file, year after year, with the height left
     // empty for every building finished later. The rows stay in the same
     // order, so update() only changes heights, and the towers that get one
     // rise with the file's own transition.
@@ -753,7 +870,7 @@ tbody tr::before { <span class="c">/* the bar */</span>
   </script>
 
   <script type="module">
-    // 04. The wax: every three seconds the page moves a little wax from blob
+    // 05. The wax: every three seconds the page moves a little wax from blob
     // to blob and hands the table the new volumes with update(). The total
     // stays the same. Only the key column changes, so only those cells are
     // patched, and the blobs' transitions do the rest. The lamp runs while
@@ -838,7 +955,7 @@ tbody tr::before { <span class="c">/* the bar */</span>
   </script>
 
   <script type="module">
-    // 05. While the song plays, its spectrum goes to the table with
+    // 06. While the song plays, its spectrum goes to the table with
     // update() 15 times a second. Stopped, or scrolled out of view, the
     // song ends and the table gets the spectrum in the file again, so the
     // bars settle back to it.
@@ -910,7 +1027,7 @@ tbody tr::before { <span class="c">/* the bar */</span>
     });
   </script>
   <script type="module">
-    // 06. The season: every 1.6 seconds the table gets the standings after
+    // 07. The season: every 1.6 seconds the table gets the standings after
     // the next matchday with update(). The rows on screen stay, so the
     // table's transitions slide them to their new places. Switching between
     // Styled and Plain CSV loads the file again and ends the season.

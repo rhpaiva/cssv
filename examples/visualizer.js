@@ -1,4 +1,4 @@
-// The music in experiments.html, 05: visualizer-song.csv played by Web Audio
+// The music in experiments.html, 06: visualizer-song.csv played by Web Audio
 // oscillators, and the song's spectrum as a data section for visualizer.cssv.
 // The song is one record per note: the beat it starts on, the instrument,
 // the note and how many beats it lasts. It loops at 100 beats a minute.
