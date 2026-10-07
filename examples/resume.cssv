@@ -18,7 +18,8 @@ table {
   box-sizing: border-box;
   width: min(100%, 880px);
   margin: 0 auto;
-  padding: 64px 64px 72px;
+  /* The margins shrink with the sheet, so a phone keeps its width for text. */
+  padding: clamp(20px, 7.3%, 64px) clamp(20px, 7.3%, 64px) clamp(24px, 8.2%, 72px);
   container-type: inline-size;
   color-scheme: light;
   background: var(--paper);
