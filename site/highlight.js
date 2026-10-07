@@ -1,5 +1,6 @@
 // Light syntax highlighting for the site: CSSV files, plus the HTML, JS and
-// shell snippets in "Get started". The CSSV part follows examples/index.html.
+// shell snippets in "Get started". The examples pages use it too, for View
+// source (source.js) and the experiments' excerpts.
 
 const NUMBER = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/; // SPEC 6.1
 const FENCE = /^﻿?---[ \t]*\r?\n?$/;      // SPEC 3.4
@@ -21,7 +22,8 @@ function selector(text, out) {
   });
 }
 
-function highlightCss(css, out) {
+// A style block, a stylesheet or a few lines of one.
+export function highlightCss(css, out = document.createDocumentFragment()) {
   const stack = ['rules'];
   let prelude = '';
   let inValue = false;
@@ -50,6 +52,7 @@ function highlightCss(css, out) {
     const name = tok.trim();
     out.append(span(name.startsWith('--cssv-') ? 't-cssv' : name.startsWith('--') ? 't-var' : 't-prop', tok));
   }
+  return out;
 }
 
 function highlightCsv(data, out) {
