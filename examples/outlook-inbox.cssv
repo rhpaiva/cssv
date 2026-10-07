@@ -1,0 +1,143 @@
+---
+/* An Outlook mail folder as Outlook exports it: File > Open & Export >
+   Import/Export > Export to a file > Comma Separated Values. The export has
+   19 columns, quotes every field, and has no dates, so the list keeps the
+   folder's order. Sample mailbox; the people and companies are invented. */
+table {
+  --cssv-key: Importance;
+  --list: 360px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  contain: inline-size;
+  overflow: hidden;
+  border-radius: 12px;
+  counter-reset: items;
+  color-scheme: light dark;
+  --line: light-dark(#e1dfdd, #3b3a39);
+  --muted: light-dark(#616161, #adadad);
+  --accent: light-dark(#0f6cbd, #479ef5);
+  --bg: light-dark(#fff, #262626);
+  background: var(--bg);
+  font: 13px/1.45 "Segoe UI", system-ui, sans-serif;
+  color: light-dark(#242424, #f0f0f0);
+}
+colgroup, thead { display: none; }
+td:not([data-col="From: (Name)"], [data-col="Subject"], [data-col="Body"], [data-col="Categories"]), td:empty { display: none; }
+
+/* The bar: the item count is a counter over the rows, so it follows the data. */
+table::before { content: "Inbox"; grid-area: 1 / 1 / 2 / -1; padding: 0 18px; border-bottom: 1px solid var(--line); font-size: 18px; font-weight: 600; line-height: 52px; }
+table::after { content: counter(items) " items"; grid-area: 1 / 1; align-self: center; justify-self: end; margin-right: 14px; color: var(--muted); font-size: 12px; }
+tbody { grid-area: 2 / 1; }
+
+/* A message in the list: sender and category, subject, the start of the body.
+   Rows keep their height, so nothing moves under the pointer. */
+tr { counter-increment: items; display: grid; grid-template: "from tag" "subject subject" "body body" / minmax(0, 1fr) auto; align-content: center; column-gap: 10px; height: 72px; padding: 0 14px 0 18px; border-bottom: 1px solid var(--line); }
+td { padding: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-col="From: (Name)"] { grid-area: from; font-size: 14px; font-weight: 600; }
+[data-col="Subject"] { grid-area: subject; }
+[data-col="Body"] { grid-area: body; color: var(--muted); }
+[data-col="Categories"] { grid-area: tag; align-self: center; padding: 0 7px; border-radius: 4px; background: light-dark(#ebf3fc, #1f3248); color: var(--accent); font-size: 11px; }
+
+/* Importance is the key: High and Low get Outlook's marks, Normal none. */
+[data-key="High"] > [data-col="From: (Name)"]::before { content: "!"; margin-right: 7px; color: light-dark(#c50f1f, #ff6b78); font-weight: 800; }
+[data-key="Low"] > [data-col="From: (Name)"]::before { content: "\2193"; margin-right: 6px; color: var(--accent); }
+
+/* With room for it, a reading pane shows the open message: the first one
+   until another is clicked. Every message's body, address, To and Cc sit in
+   the pane, the first message's on top. On a phone the list stands alone. */
+@media (min-width: 760px) {
+  table { grid-template-columns: var(--list) minmax(0, 1fr); min-width: 720px; }
+  tr { height: 60px; cursor: pointer; transition: background-color 0s 999999s, box-shadow 0s 999999s; }
+  tr:hover { background-image: linear-gradient(light-dark(#0000000a, #ffffff0d) 0 0); }
+  :is([data-col="From: (Address)"], [data-col="To: (Name)"], [data-col="CC: (Name)"]):not(:empty) { display: block; position: absolute; left: calc(var(--list) + 32px); right: 32px; color: var(--muted); }
+  [data-col="From: (Address)"] { top: 72px; }
+  [data-col="To: (Name)"] { top: 94px; }
+  [data-col="CC: (Name)"] { top: 116px; }
+  [data-col="Body"] { grid-area: auto; position: absolute; inset: 52px 0 0 var(--list); padding: 104px 32px 24px; border-left: 1px solid var(--line); background: linear-gradient(var(--line) 0 0) 32px 90px / calc(100% - 64px) 1px no-repeat, var(--bg); overflow: auto; color: inherit; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+  tr:first-child > td { z-index: 1; }
+
+  /* A click opens a message. While the button is down, the message is
+     selected and every other message's pane hides, at once; when it comes up,
+     the change back waits 999999 seconds, so the click holds. */
+  td { transition: visibility 0s 999999s; }
+  tbody:active :is(tr, td) { transition: none; }
+  tr:is(:first-child, :active) { background-color: light-dark(#ebf3fc, #1f3248); box-shadow: inset 3px 0 var(--accent); }
+  tbody:active > tr:not(:active) { background-color: transparent; box-shadow: none; }
+  tbody:active > tr:not(:active) > :is([data-col="Body"], [data-col="From: (Address)"], [data-col="To: (Name)"], [data-col="CC: (Name)"]) { visibility: hidden; }
+}
+[data-col="From: (Address)"]::before { content: "From"; display: inline-block; width: 44px; }
+[data-col="To: (Name)"]::before { content: "To"; display: inline-block; width: 44px; }
+[data-col="CC: (Name)"]::before { content: "Cc"; display: inline-block; width: 44px; }
+---
+"Subject","Body","From: (Name)","From: (Address)","From: (Type)","To: (Name)","To: (Address)","To: (Type)","CC: (Name)","CC: (Address)","CC: (Type)","BCC: (Name)","BCC: (Address)","BCC: (Type)","Billing Information","Categories","Importance","Mileage","Sensitivity"
+"Photos from the hike","Hi all,
+
+Here are the photos. The one on the bridge came out best; Ben, you're in exactly one of them, at the very back.
+
+Same time next month? I'm thinking the coast path.
+
+Ana","Ana Souza","ana.souza@example.com","SMTP","Sam Rivera; Ben Okafor; Chloe Martin","sam.rivera@example.com; ben.okafor@example.com; chloe.martin@example.com","SMTP; SMTP; SMTP","","","","","","","","","Normal","","Normal"
+"Documents for Thursday's viewing","Hi Sam,
+
+Confirming your viewing of flat 3B, 14 Quay Street, on Thursday at 18:30.
+
+If you'd like to apply on the day, please bring photo ID and your last three payslips. Applications are taken in the order they arrive.
+
+Kind regards,
+Jo Patel
+Harbour Lettings","Jo Patel","jo.patel@harbourlettings.example","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","","","","","","","","Flat","High","","Normal"
+"RE: Flat viewing on Thursday","Thursday works. I'm coming straight from work, so let's meet outside at 18:20.
+
+From: Sam Rivera <sam.rivera@example.com>
+Sent: Monday, October 5, 2026 9:40 PM
+To: Ben Okafor <ben.okafor@example.com>
+Subject: Flat viewing on Thursday
+
+Can you do Thursday after work? The agent says 18:30.","Ben Okafor","ben.okafor@example.com","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","","","","","","","","Flat","Normal","","Normal"
+"Booking confirmed: Oslo to Lisbon, 14 November","Hello Sam,
+
+Your booking is confirmed.
+
+Booking reference: K7QF2M
+Saturday 14 November 2026
+FJ 812  Oslo (OSL) 07:40 - Lisbon (LIS) 10:25
+
+Online check-in opens 30 hours before departure.
+Manage your booking <https://fjordair.example/manage>
+
+Fjord Air","Fjord Air","bookings@fjordair.example","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","","","","","","","","Travel","Normal","","Normal"
+"Your September statement is ready","Hi Sam,
+
+Your statement for September 2026 is ready in the app, under Accounts > Statements.
+
+This is an automated message; please don't reply.","Pebble Bank","no-reply@pebblebank.example","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","","","","","","","","Bills","Normal","","Normal"
+"Book club: next pick?","Three candidates for November, vote by Friday:
+
+1. The Dispossessed
+2. Piranesi
+3. Klara and the Sun
+
+Whoever picked last time doesn't get the tie-break (Ana).","Chloe Martin","chloe.martin@example.com","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","Ana Souza","ana.souza@example.com","SMTP","","","","","","Normal","","Normal"
+"Autumn sale: 30% off rain jackets","Rain is coming. Our waterproof shells are 30% off until Sunday, along with merino layers and the boots you looked at last month.
+
+[cid:image001.jpg@01DB2F3A.5C1E7D40]
+
+Shop the sale <https://trailhead.example/sale>
+Unsubscribe <https://trailhead.example/u>","Trailhead Outfitters","news@trailhead.example","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","","","","","","","","","Normal","","Normal"
+"Check-in details for your stay","Hi Sam!
+
+Looking forward to having you in November. The flat is on the third floor, no lift (sorry!). The key box code is 4817, and the box is to the left of the door.
+
+Pasteis de nata: Manteigaria, two streets down.
+
+Marta","Marta Lopes","marta.lopes@example.com","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","","","","","","","","Travel","Normal","","Normal"
+"Lunch next Sunday","Lunch is at one. Your dad is making the lamb again, so bring an appetite, and the good bread from the bakery near you.
+
+He also built a garden bench and wants you to say so.
+
+Love, Mum","Mum","helen.rivera@example.com","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","","","","","","","","Family","High","","Normal"
+"Issue 212: plain text is back","This week: why teams are going back to plain files, a field guide to the CSV dialects you'll meet in the wild, and a terminal that draws tables.
+
+Read it online <https://weeklybyte.example/212>","The Weekly Byte","hello@weeklybyte.example","SMTP","Sam Rivera","sam.rivera@example.com","SMTP","","","","","","","","","Low","","Normal"

@@ -31,6 +31,7 @@ The reference renderer is the `<cssv-table>` custom element, published on npm as
 - [oslo.cssv](https://cssv.dev/examples/oslo.cssv): an Open-Meteo daily download, unchanged, as a month calendar; its look is the imported [weather.css](https://cssv.dev/examples/weather.css), shared with berlin.cssv and lisbon.cssv
 - [jira-export.cssv](https://cssv.dev/examples/jira-export.cssv): a Jira CSV export as a board, with Status as the key column and repeated column names
 - [whatsapp-chat.cssv](https://cssv.dev/examples/whatsapp-chat.cssv): a WhatsApp group chat as bubbles, with the sender as the key column and WhatsApp's own lines found by their missing data-key
+- [outlook-inbox.cssv](https://cssv.dev/examples/outlook-inbox.cssv): an Outlook mail folder exported as CSV, unchanged, as an inbox with a reading pane; Importance is the key column, and columns are matched by names like "From: (Name)" as written
 - [calendar-import.cssv](https://cssv.dev/examples/calendar-import.cssv): a Google Calendar import file laid out as a week, with all-day events found by :empty
 - [grades-bio-101.cssv](https://cssv.dev/examples/grades-bio-101.cssv): a Canvas gradebook, where :empty is a missing assignment and .zero a score of zero
 - [strings.cssv](https://cssv.dev/examples/strings.cssv): a translation sheet whose empty cells are untranslated strings, totalled with CSS counters

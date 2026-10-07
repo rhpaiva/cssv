@@ -25,6 +25,7 @@ export const GROUPS = [
       'examples/oslo.cssv',
       'examples/jira-export.cssv',
       'examples/whatsapp-chat.cssv',
+      'examples/outlook-inbox.cssv',
       'examples/calendar-import.cssv',
       'examples/grades-bio-101.cssv',
       'examples/strings.cssv',

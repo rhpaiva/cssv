@@ -477,7 +477,7 @@
     <header class="hero">
       <p class="eyebrow">CSSV v1 · Examples</p>
       <h1>The CSV you already have, <span>worth looking at.</span></h1>
-      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first nine were made for this page, to show how far a style block goes. The next six start from files people already have. The last two show other ways to put a table in a page. Files used in ways CSSV wasn't made for, from a film to a lava lamp, are on the <a href="experiments.html">experiments</a> page.</p>
+      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first nine were made for this page, to show how far a style block goes. The next seven start from files people already have. The last two show other ways to put a table in a page. Files used in ways CSSV wasn't made for, from a film to a lava lamp, are on the <a href="experiments.html">experiments</a> page.</p>
       <p class="lede">Each tile below is the file itself, rendered live and scaled down. Point at one to see its plain CSV; click it for the full card. In a card, the yellow figure is the size of the style block, and <strong>View source</strong> shows the whole file.</p>
     </header>
 
@@ -595,6 +595,15 @@
         </a>
       </li>
       <li>
+        <a class="tile" href="#outlook" data-src="outlook-inbox.cssv" style="--virtual: 760">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="outlook-inbox.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>Outlook export</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
         <a class="tile" href="#calendar" data-src="calendar-import.cssv" style="--virtual: 600">
           <span class="thumb" aria-hidden="true" inert>
             <cssv-table src="calendar-import.cssv"></cssv-table>
@@ -637,6 +646,7 @@
       <a href="#weather">Weather</a>
       <a href="#jira">Jira board</a>
       <a href="#whatsapp">WhatsApp</a>
+      <a href="#outlook">Outlook</a>
       <a href="#calendar">Calendar</a>
       <a href="#translations">Translations</a>
       <a href="#git-log">git log</a>
@@ -1024,6 +1034,28 @@
         </div>
       </div>
       <div class="stage"><cssv-table src="whatsapp-chat.cssv"></cssv-table></div>
+      </article>
+
+      <article class="example" id="outlook">
+      <header>
+        <div>
+          <h3>An Outlook export, as an inbox</h3>
+          <div class="file">outlook-inbox.cssv</div>
+          <div class="desc" id="outlook-desc">
+            <p><strong>Who has it:</strong> anyone who has exported a mail folder from Outlook, through Import/Export, Export to a file, Comma Separated Values: to keep an archive, or to hand mail to someone. The export has 19 columns, quotes every field, and has no dates.</p>
+            <p><strong>What the style does:</strong> <code>--cssv-key: Importance</code> makes Outlook's Importance, which is text, the row's <code>data-key</code>, so High gets a red <code>!</code> and Low a blue arrow. Column names are used exactly as written, so <code>[data-col="From: (Name)"]</code> is the sender, and one <code>:not()</code> rule hides every column but the four the list shows. Empty fields, like most of the CC columns, are <code>:empty</code>. A CSS counter totals the items. Click a message to open it in the reading pane, with no script: <code>:active</code> selects it while the button is down, and a transition that waits 999999 seconds keeps the choice. On a phone, the list stands alone.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="outlook-desc">More</button>
+          <ul class="stats"><li class="style" data-count></li><li>sample rows in Outlook's format</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-outlook" id="v-outlook-s" value="styled" checked><label for="v-outlook-s">Styled</label>
+          <input type="radio" name="v-outlook" id="v-outlook-r" value="raw"><label for="v-outlook-r">As exported</label>
+        </div>
+      </div>
+      <div class="stage"><cssv-table src="outlook-inbox.cssv"></cssv-table></div>
       </article>
 
       <article class="example" id="calendar">
