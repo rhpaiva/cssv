@@ -477,7 +477,7 @@
     <header class="hero">
       <p class="eyebrow">CSSV v1 · Examples</p>
       <h1>The CSV you already have, <span>worth looking at.</span></h1>
-      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first ten were made for this page, to show how far a style block goes. The next eight start from files people already have. The last two show other ways to put a table in a page. Files used in ways CSSV wasn't made for, from a film to a lava lamp, are on the <a href="experiments.html">experiments</a> page.</p>
+      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first nine were made for this page, to show how far a style block goes. The next six start from files people already have. The last two show other ways to put a table in a page. Files used in ways CSSV wasn't made for, from a film to a lava lamp, are on the <a href="experiments.html">experiments</a> page.</p>
       <p class="lede">Each tile below is the file itself, rendered live and scaled down. Point at one to see its plain CSV; click it for the full card. In a card, the yellow figure is the size of the style block, and <strong>View source</strong> shows the whole file.</p>
     </header>
 
@@ -535,15 +535,6 @@
             <pre class="raw"></pre>
           </span>
           <span class="caption"><strong>Nutrition Facts</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
-        <a class="tile" href="#markets" data-src="markets.cssv" style="--virtual: 680">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="markets.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Market close</strong><span class="lines"></span></span>
         </a>
       </li>
       <li>
@@ -613,15 +604,6 @@
         </a>
       </li>
       <li>
-        <a class="tile" href="#gradebook" data-src="grades-bio-101.cssv" style="--virtual: 820">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="grades-bio-101.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Canvas gradebook</strong><span class="lines"></span></span>
-        </a>
-      </li>
-      <li>
         <a class="tile" href="#translations" data-src="strings.cssv" style="--virtual: 720">
           <span class="thumb" aria-hidden="true" inert>
             <cssv-table src="strings.cssv"></cssv-table>
@@ -639,15 +621,6 @@
           <span class="caption"><strong><code>git log</code></strong><span class="lines"></span></span>
         </a>
       </li>
-      <li>
-        <a class="tile" href="#badges" data-src="attendees.cssv" style="--virtual: 720">
-          <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="attendees.cssv"></cssv-table>
-            <pre class="raw"></pre>
-          </span>
-          <span class="caption"><strong>Attendee list</strong><span class="lines"></span></span>
-        </a>
-      </li>
     </ul>
 
     <nav class="jump" aria-label="Examples">
@@ -657,7 +630,6 @@
       <a href="#seats">Seat map</a>
       <a href="#forecast">Forecast</a>
       <a href="#nutrition">Nutrition</a>
-      <a href="#markets">Markets</a>
       <a href="#planets">Solar system</a>
       <a href="#invoice">Invoice</a>
       <a href="#league">League table</a>
@@ -666,10 +638,8 @@
       <a href="#jira">Jira board</a>
       <a href="#whatsapp">WhatsApp</a>
       <a href="#calendar">Calendar</a>
-      <a href="#gradebook">Gradebook</a>
       <a href="#translations">Translations</a>
       <a href="#git-log">git log</a>
-      <a href="#badges">Badges</a>
       <span class="sep" aria-hidden="true"></span>
       <a href="#release-notes">Release notes</a>
       <a href="#pagination">Pagination</a>
@@ -887,33 +857,6 @@
       <div class="stage"><cssv-table src="nutrition.cssv"></cssv-table></div>
       </article>
 
-      <article class="example" id="markets">
-      <header>
-        <div>
-          <h3>Market close</h3>
-          <div class="file">markets.cssv</div>
-          <div class="desc" id="markets-desc">
-            <p>A trading terminal built from sign classes. Every number cell is tagged <code>.positive</code>, <code>.negative</code> or <code>.zero</code>, which drives the arrows, the colors, the pill tints and the row highlights. No value is repeated in the CSS.</p>
-          </div>
-          <button type="button" class="more" aria-expanded="false" aria-controls="markets-desc">More</button>
-          <ul class="stats"><li class="style" data-count></li><li>data: invented tickers</li></ul>
-          <ul class="chips" aria-label="Techniques">
-            <li>.positive / .negative / .zero</li>
-            <li>tr:has(.negative)</li>
-            <li>--cssv-format per column</li>
-            <li>tr[data-key="QBIT"]</li>
-            <li>@keyframes</li>
-          </ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-markets" id="v-markets-s" value="styled" checked><label for="v-markets-s">Styled</label>
-          <input type="radio" name="v-markets" id="v-markets-r" value="raw"><label for="v-markets-r">Plain CSV</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="markets.cssv"></cssv-table></div>
-      </article>
 
       <article class="example" id="planets">
       <header>
@@ -1105,27 +1048,6 @@
       <div class="stage"><cssv-table src="calendar-import.cssv"></cssv-table></div>
       </article>
 
-      <article class="example" id="gradebook">
-      <header>
-        <div>
-          <h3>A Canvas gradebook</h3>
-          <div class="file">grades-bio-101.cssv</div>
-          <div class="desc" id="gradebook-desc">
-            <p><strong>Who has it:</strong> every teacher on Canvas. Line 2 isn't a student: it's the "Points Possible" row, indented with four spaces.</p>
-            <p><strong>What the style does:</strong> <code>tr[data-row="2"]</code> styles that row as "out of", without moving it. An empty score (<code>:empty</code>) is a missing assignment and says so; a <code>0</code> (<code>.zero</code>) was handed in and scored zero. Students with something missing get a red dot. The ID columns are hidden.</p>
-          </div>
-          <button type="button" class="more" aria-expanded="false" aria-controls="gradebook-desc">More</button>
-          <ul class="stats"><li class="style" data-count></li><li>sample rows in Canvas's format</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-grades" id="v-grades-s" value="styled" checked><label for="v-grades-s">Styled</label>
-          <input type="radio" name="v-grades" id="v-grades-r" value="raw"><label for="v-grades-r">As exported</label>
-        </div>
-      </div>
-      <div class="stage"><cssv-table src="grades-bio-101.cssv"></cssv-table></div>
-      </article>
 
       <article class="example" id="translations">
       <header>
@@ -1171,28 +1093,6 @@
       <div class="stage"><cssv-table src="git-log.cssv"></cssv-table></div>
       </article>
 
-      <article class="example" id="badges">
-      <header>
-        <div>
-          <h3>An attendee list, printed as name badges</h3>
-          <div class="file">attendees.cssv</div>
-          <div class="desc" id="badges-desc">
-            <p><strong>Who has it:</strong> anyone running a meetup or a conference, the night before. Usually this is a mail merge in a word processor.</p>
-            <p><strong>What the style does:</strong> each row becomes a 9 × 5.5 cm badge, and <code>@media print</code> lays them out two to a row for an A4 page. The ticket type is the key, so <code>tr[data-key="Speaker"]</code> gets its own color. The order number, email and check-in columns are hidden; they stay in the file for the door.</p>
-          </div>
-          <button type="button" class="more" aria-expanded="false" aria-controls="badges-desc">More</button>
-          <ul class="stats"><li class="style" data-count></li><li>sample rows; the people are invented</li></ul>
-        </div>
-      </header>
-      <div class="controls">
-        <div class="seg" role="radiogroup" aria-label="View">
-          <input type="radio" name="v-badges" id="v-badges-s" value="styled" checked><label for="v-badges-s">Styled</label>
-          <input type="radio" name="v-badges" id="v-badges-r" value="raw"><label for="v-badges-r">As exported</label>
-        </div>
-        <span class="hint">On paper, the file's <code>@media print</code> rules make a sheet two badges wide, ready to cut.</span>
-      </div>
-      <div class="stage"><cssv-table src="attendees.cssv"></cssv-table></div>
-      </article>
       </div>
     </section>
 
@@ -1381,7 +1281,7 @@ The date picker uses each locale's first day of the week.",tomas
       <ul class="why">
         <li><strong>The file stays a CSV.</strong> Delete the lines down to the second <code>---</code> and it's the export again. Spreadsheets, pandas and translation tools keep reading the data, and a diff shows a change to the data or to the looks, never both mixed up.</li>
         <li><strong>The values are the hooks.</strong> Numbers get <code>.negative</code>, <code>.zero</code> and <code>.positive</code>, empty cells match <code>:empty</code>, every cell knows its column and row. Nobody writes markup or code to connect the data to the styles.</li>
-        <li><strong>Write the look once.</strong> An <code>@import</code> gives next month's download, next term's gradebook or next year's attendee list the same look, with one line each.</li>
+        <li><strong>Write the look once.</strong> An <code>@import</code> gives each city's weather download, or each page of the ledger, the same look, with one line each.</li>
         <li><strong>Nothing to install.</strong> One <code>&lt;cssv-table src="…"&gt;</code> tag and a browser render it. The <a href="../site/editor/">editor</a> opens it too.</li>
       </ul>
     </section>
