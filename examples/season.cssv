@@ -1,10 +1,10 @@
 ---
 /* Standings from a spreadsheet export: semicolons, and the clubs in
-   alphabetical order. (The gallery's league.cssv is the same table, sorted
-   by rank.) Pos is the key column, so each row knows its rank,
-   and slides there: typed attr() reads the rank and sibling-index() the
-   row's place in the file. Give the table the next matchday's export with
-   update() and the rows glide to their new places. */
+   alphabetical order. (league.cssv is the same table, sorted by rank.)
+   Pos is the key column, so each row knows its rank and slides there:
+   typed attr() reads the rank and sibling-index() the row's place in the
+   file. Give the table the next matchday's export with update() and the
+   rows glide to their new places. */
 table {
   --cssv-key: Pos;
   --h: 2.9em;                    /* a row */

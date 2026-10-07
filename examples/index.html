@@ -565,9 +565,9 @@
         </a>
       </li>
       <li>
-        <a class="tile" href="#league" data-src="league.cssv" style="--virtual: 720">
+        <a class="tile" href="#league" data-src="season.cssv" style="--virtual: 720">
           <span class="thumb" aria-hidden="true" inert>
-            <cssv-table src="league.cssv"></cssv-table>
+            <cssv-table src="season.cssv"></cssv-table>
             <pre class="raw"></pre>
           </span>
           <span class="caption"><strong>League table</strong><span class="lines"></span></span>
@@ -975,17 +975,18 @@
       <header>
         <div>
           <h3>League table</h3>
-          <div class="file">league.cssv</div>
+          <div class="file">season.cssv</div>
           <div class="desc" id="league-desc">
-            <p>A semicolon-delimited spreadsheet export, detected from the header. Ranks come from a CSS counter, and crests come from two colors set per club by name. Zones are selected by position. The style block switches palettes with <code>prefers-color-scheme</code>.</p>
+            <p>A semicolon-delimited spreadsheet export, detected from the header, with the clubs in alphabetical order. <code>Pos</code> is the key column, so typed <code>attr()</code> reads each row's rank, and <code>translate</code> moves the row there from its place in the file, which <code>sibling-index()</code> gives: each time the file loads, the rows slide into the standings. Play the season and the page works out the table after each matchday from the 90 results in <a href="season-results.csv">season-results.csv</a> and hands it over with <code>update()</code>. The rows stay the same elements, so their transition carries them to their new places, and <code>z-index</code> from the rank puts a club moving up over the club it overtakes. Crests come from two colors per club, and the lines and zones stay put while the rows pass.</p>
           </div>
           <button type="button" class="more" aria-expanded="false" aria-controls="league-desc">More</button>
-          <ul class="stats"><li class="style" data-count></li><li>data: an invented league</li></ul>
+          <ul class="stats"><li class="style" data-count></li><li>data: an invented league, 90 results</li></ul>
           <ul class="chips" aria-label="Techniques">
             <li>; delimiter</li>
-            <li>counter(rank)</li>
-            <li>:nth-child zones</li>
-            <li>prefers-color-scheme</li>
+            <li>--cssv-key: Pos</li>
+            <li>attr(data-key type(&lt;number&gt;))</li>
+            <li>sibling-index()</li>
+            <li>table.update()</li>
           </ul>
           <div class="legend">
             <span style="--swatch: #3b82f6">Title race</span>
@@ -999,8 +1000,10 @@
           <input type="radio" name="v-league" id="v-league-s" value="styled" checked><label for="v-league-s">Styled</label>
           <input type="radio" name="v-league" id="v-league-r" value="raw"><label for="v-league-r">Plain CSV</label>
         </div>
+        <button type="button" id="season-play">Play the season</button>
+        <span class="hint" id="season-status">18 matchdays, one every 1.6 seconds.</span>
       </div>
-      <div class="stage"><cssv-table src="league.cssv"></cssv-table></div>
+      <div class="stage"><cssv-table src="season.cssv"></cssv-table></div>
       </article>
       </div>
     </section>
@@ -1542,6 +1545,82 @@ The date picker uses each locale's first day of the week.",tomas
     card.querySelector('.seg').addEventListener('change', () => {
       stop('Start the sale');
       sections = [];
+      status.innerHTML = hint;
+    });
+  </script>
+
+  <script type="module">
+    // The season: every 1.6 seconds the league table gets the standings
+    // after the next matchday with update(). The rows on screen stay, so the
+    // table's transitions slide them to their new places. Switching between
+    // Styled and Plain CSV loads the file again and ends the season.
+    import { parse } from '../src/core.js';
+    import { dataSection, readResults, standings } from './season.js';
+
+    const card = document.getElementById('league');
+    const stage = card.querySelector('.stage');
+    const league = stage.querySelector('cssv-table');
+    const button = document.getElementById('season-play');
+    const status = document.getElementById('season-status');
+    const plain = document.getElementById('v-league-r');
+    const hint = status.innerHTML;
+    let season = null;
+    let loading = null;
+    let matchday = -1;
+    let timer = 0;
+
+    async function load() {
+      const [text, results] = await Promise.all([league.getAttribute('src'), 'season-results.csv']
+        .map((path) => fetch(path).then((res) => res.text())));
+      const { columns, rows } = parse(text);
+      const matches = readResults(results);
+      return {
+        style: text.slice(0, text.indexOf('\n---\n') + 5),
+        clubs: rows.map(({ fields }) => fields[columns.indexOf('club')]),
+        matches,
+        last: Math.max(...matches.map((m) => m.matchday)),
+      };
+    }
+
+    function render() {
+      const data = dataSection(standings(season.matches, season.clubs, matchday));
+      league.update(plain.checked ? data : season.style + data);
+      const date = season.matches.find((m) => m.matchday === matchday)?.date;
+      status.textContent = date
+        ? `Matchday ${matchday} of ${season.last}, ${new Date(date).toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}`
+        : 'Before the first matchday';
+    }
+
+    function tick() {
+      matchday++;
+      render();
+      if (matchday === season.last) stop('Play again');
+    }
+
+    function stop(label) {
+      clearInterval(timer);
+      timer = 0;
+      button.textContent = label;
+    }
+
+    button.addEventListener('click', async () => {
+      if (timer) return stop('Resume');
+      season ??= await (loading ??= load());
+      if (timer) return;
+      if (matchday < 0 || matchday === season.last) {
+        matchday = 0;
+        render();
+      }
+      button.textContent = 'Pause';
+      timer = setInterval(tick, 1600);
+    });
+
+    // Scrolled out of view, the season pauses.
+    new IntersectionObserver(([entry]) => { if (!entry.isIntersecting && timer) stop('Resume'); }).observe(stage);
+
+    card.querySelector('.seg').addEventListener('change', () => {
+      stop('Play the season');
+      matchday = -1;
       status.innerHTML = hint;
     });
   </script>

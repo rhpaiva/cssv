@@ -2,8 +2,8 @@
 // gallery's examples/league.cssv: 18 matchdays, each club playing every other
 // club home and away, with results that end exactly at the table in that
 // file. Then it rewrites season.cssv's data section from the results, with
-// the clubs in alphabetical order. The gallery's League table card plays the season from
-// these two files.
+// the clubs in alphabetical order. The gallery's League table card plays the
+// season from these two files.
 //
 // The results come from a seeded search: the outcomes are found first (wins,
 // draws and losses per club), then the scores (goals for and against), then

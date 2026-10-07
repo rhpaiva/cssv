@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CSSV experiments</title>
-  <meta name="description" content="Seven .cssv files used in ways CSSV wasn't made for: a film, a trading chart, a solar system, a skyline, a lava lamp, a music visualizer and a league table that plays its season. Each one is rendered by <cssv-table> and leans on something the format already does.">
+  <meta name="description" content="Six .cssv files used in ways CSSV wasn't made for: a film, a trading chart, a solar system, a skyline, a lava lamp and a music visualizer. Each one is rendered by <cssv-table> and leans on something the format already does.">
   <link rel="canonical" href="https://cssv.dev/examples/experiments.html">
   <link rel="icon" href="../site/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../site/apple-touch-icon.png">
@@ -265,8 +265,6 @@
     #visualizer .stage { background: #07060c; }
     #visualizer .stage.plain { background: var(--stage); }
     #visualizer .stage.plain cssv-table { max-height: 60vh; overflow: auto; font-size: 12px; }
-    /* 07, the season: a real table, which scrolls sideways on a phone. */
-    #season .stage cssv-table { overflow-x: auto; }
   </style>
 </head>
 <body>
@@ -294,7 +292,7 @@
     <header class="hero">
       <p class="eyebrow">CSSV v1 · Examples · Experiments</p>
       <h1>Not what it's for. <span>It works anyway.</span></h1>
-      <p class="lede">CSSV is for tables: a CSV file with a CSS style block on top. Six of the seven files on this page aren't tables in any useful sense: a film, a trading chart, a solar system, a skyline, a lava lamp and a music visualizer. The other one is a league table that plays its whole season. Each is still an ordinary <code>.cssv</code> file rendered by <code>&lt;cssv-table&gt;</code>, with no other markup, and each leans on something the format already does.</p>
+      <p class="lede">CSSV is for tables: a CSV file with a CSS style block on top. None of the six files on this page is a table in any useful sense: a film, a trading chart, a solar system, a skyline, a lava lamp and a music visualizer. Each is still an ordinary <code>.cssv</code> file rendered by <code>&lt;cssv-table&gt;</code>, with no other markup, and each leans on something the format already does.</p>
       <p class="lede">Nobody should build a film this way. The point is that the pieces hold: field types work as selectors, typed <code>attr()</code> reads the key column as a number, <code>sibling-index()</code> gives every row a place, and <code>update()</code> patches a live table fast enough to animate.</p>
       <nav class="jump" aria-label="Experiments">
         <a href="#film">01 Film</a>
@@ -303,7 +301,6 @@
         <a href="#skyline">04 Skyline</a>
         <a href="#lava">05 Lava lamp</a>
         <a href="#visualizer">06 Visualizer</a>
-        <a href="#season">07 League season</a>
       </nav>
     </header>
 
@@ -562,43 +559,6 @@ tbody tr::before { /* the bar */
             <input type="radio" name="visualizer-view" id="visualizer-plain" value="plain"><label for="visualizer-plain">Plain CSV</label>
           </div>
           <span class="readout" id="visualizer-readout">A 9.6-second loop in A minor, with sound. Press play.</span>
-        </div>
-      </section>
-      <section class="experiment" id="season" aria-labelledby="season-title">
-        <header>
-          <div>
-            <p class="number">07</p>
-            <h2 id="season-title">A league table that plays its season</h2>
-            <div class="file">season.cssv</div>
-            <div class="desc" id="season-desc">
-              <p>The one real table on this page: standings from a semicolon-delimited spreadsheet export, with the clubs in alphabetical order. <code>Pos</code> is the key column, so typed <code>attr()</code> reads each row's rank, and <code>translate</code> moves the row from its place in the file, which <code>sibling-index()</code> gives, to its rank. Each time the file loads, the rows slide from alphabetical order into the standings. Play the season and the page works out the standings after each matchday from the 90 results in <a href="season-results.csv">season-results.csv</a> and hands them to the table with <code>update()</code>. The rows stay the same elements, so their transition slides them to their new places, and <code>z-index</code> from the rank puts a club moving up over the club it overtakes. The lines and the zones stay where they are. The season ends at the gallery's <a href="./#league">League table</a>.</p>
-            </div>
-            <button type="button" class="more" aria-expanded="false" aria-controls="season-desc">More</button>
-            <ul class="stats"><li class="style" data-count="season.cssv"></li><li>data: an invented league, 90 results</li></ul>
-            <ul class="chips" aria-label="Techniques">
-              <li>; delimiter</li>
-              <li>--cssv-key: Pos</li>
-              <li>attr(data-key type(&lt;number&gt;))</li>
-              <li>sibling-index()</li>
-              <li>transition: translate</li>
-              <li>table.update()</li>
-            </ul>
-          </div>
-          <pre class="trick"><code>tbody tr {             /* from its place to its rank */
-  translate: 0 calc((attr(data-key type(&lt;number&gt;), sibling-index())
-    - sibling-index()) * var(--step));
-  z-index: calc(100 - attr(data-key type(&lt;integer&gt;), 0));
-  transition: translate 1s cubic-bezier(.65, 0, .35, 1);
-}</code></pre>
-        </header>
-        <div class="stage" id="season-stage"><cssv-table src="season.cssv"></cssv-table></div>
-        <div class="controls">
-          <button type="button" id="season-play">Play the season</button>
-          <div class="seg" role="radiogroup" aria-label="View">
-            <input type="radio" name="season-view" id="season-styled" value="styled" checked><label for="season-styled">Styled</label>
-            <input type="radio" name="season-view" id="season-plain" value="plain"><label for="season-plain">Plain CSV</label>
-          </div>
-          <span class="readout" id="season-readout">18 matchdays, one every 1.6 seconds.</span>
         </div>
       </section>
     </div>
@@ -1076,85 +1036,6 @@ tbody tr::before { /* the bar */
       stage.classList.toggle('plain', plain.checked);
       if (!file) await load();
       if (!player) show(file.data);
-    });
-  </script>
-  <script type="module">
-    // 07. The season: every 1.6 seconds the table gets the standings after
-    // the next matchday with update(). The rows on screen stay, so the
-    // table's transitions slide them to their new places. Switching between
-    // Styled and Plain CSV loads the file again and ends the season.
-    import { parse } from '../src/core.js';
-    import { dataSection, readResults, standings } from './season.js';
-
-    const stage = document.getElementById('season-stage');
-    const league = stage.querySelector('cssv-table');
-    const button = document.getElementById('season-play');
-    const readout = document.getElementById('season-readout');
-    const plain = document.getElementById('season-plain');
-    const hint = readout.textContent;
-    let file = '';
-    let season = null;
-    let loading = null;
-    let matchday = -1;
-    let timer = 0;
-
-    async function load() {
-      const [text, results] = await Promise.all([league.getAttribute('src'), 'season-results.csv']
-        .map((path) => fetch(path).then((res) => res.text())));
-      const { columns, rows } = parse(text);
-      const matches = readResults(results);
-      file = text;
-      return {
-        style: text.slice(0, text.indexOf('\n---\n') + 5),
-        clubs: rows.map(({ fields }) => fields[columns.indexOf('club')]),
-        matches,
-        last: Math.max(...matches.map((m) => m.matchday)),
-      };
-    }
-
-    function render() {
-      const data = dataSection(standings(season.matches, season.clubs, matchday));
-      league.update(plain.checked ? data : season.style + data);
-      const date = season.matches.find((m) => m.matchday === matchday)?.date;
-      readout.textContent = date
-        ? `Matchday ${matchday} of ${season.last}, ${new Date(date).toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}`
-        : 'Before the first matchday';
-    }
-
-    function tick() {
-      matchday++;
-      render();
-      if (matchday === season.last) stop('Play again');
-    }
-
-    function stop(label) {
-      clearInterval(timer);
-      timer = 0;
-      button.textContent = label;
-    }
-
-    button.addEventListener('click', async () => {
-      if (timer) return stop('Resume');
-      season ??= await (loading ??= load());
-      if (timer) return;
-      if (matchday < 0 || matchday === season.last) {
-        matchday = 0;
-        render();
-      }
-      button.textContent = 'Pause';
-      timer = setInterval(tick, 1600);
-    });
-
-    // Scrolled out of view, the season pauses.
-    new IntersectionObserver(([entry]) => { if (!entry.isIntersecting && timer) stop('Resume'); }).observe(stage);
-
-    // Plain CSV shows the file without its style block, from matchday 18.
-    document.querySelector('#season .seg').addEventListener('change', async () => {
-      stop('Play the season');
-      matchday = -1;
-      readout.textContent = hint;
-      file ||= await fetch(league.getAttribute('src')).then((res) => res.text());
-      league.update(plain.checked ? file.slice(file.indexOf('\n---\n') + 5) : file);
     });
   </script>
   <script type="module">

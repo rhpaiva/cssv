@@ -1,6 +1,7 @@
-// The league table after any matchday of season-results.csv, for the season
-// on experiments.html and tools/season.js. The table keeps one order, the
-// clubs' order in season.cssv; Pos says where each club stands.
+// The league table after any matchday of season-results.csv, for the
+// gallery's League table card (index.html) and tools/season.js. The table
+// keeps one order, the clubs' order in season.cssv; Pos says where each club
+// stands.
 import { parse } from '../src/core.js';
 
 export const HEADER = ['Pos', 'club', 'P', 'W', 'D', 'L', 'GF', 'GA', 'GD', 'Pts', 'xG'];
