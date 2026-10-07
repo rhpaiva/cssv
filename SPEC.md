@@ -358,14 +358,14 @@ Steps 4 and 5 need computed styles. A processor that cannot compute styles, such
 
 CSSV v1 defines two CSS custom properties, `--cssv-key` and `--cssv-format`. Renderers read them from computed styles, so the usual cascade and inheritance apply.
 
-A CSSV property's value is either a CSS string (`"..."` or `'...'`) or a single CSS identifier. Renderers MUST remove the quotes and resolve CSS escapes in strings. Any other value is invalid; renderers MUST ignore it and SHOULD report it.
+A CSSV property's value is either a CSS string (`"..."` or `'...'`) or a single CSS identifier, and `--cssv-key` also takes `col()` (section 9.1). Renderers MUST remove the quotes and resolve CSS escapes in strings. Any other value is invalid; renderers MUST ignore it and SHOULD report it.
 
 ### 9.1 Key column: `--cssv-key`
 
 | | |
 | --- | --- |
 | Read from | The `table` element |
-| Value | A column name |
+| Value | A column name, or `col()` with a column number |
 | Default | None (no `data-key` attributes) |
 
 The key column gives body rows a name: each `tr` in `tbody` gets `data-key` set to its field in that column, exactly as written. The attribute is left out when that field is empty.
@@ -373,14 +373,17 @@ The key column gives body rows a name: each `tr` in `tbody` gets `data-key` set 
 ```css
 table { --cssv-key: category; }
 table { --cssv-key: "unit price"; }   /* a name with a space needs quotes */
+table { --cssv-key: col(2); }         /* the second column, whatever its name */
 ```
+
+`col(n)` picks the key column by position: n is a whole number of 1 or more, written with digits only, and columns are counted from 1, as `:nth-child()` counts cells and `data-row` counts records. Whitespace may surround n, and `col` is ASCII case-insensitive, like CSS function names. Any other argument makes the value invalid (section 9). Use it when a column's name changes between exports, such as a name that carries a date, or to pick one of several columns that share a name. A quoted `"col(2)"` is a column name.
 
 The key column can be set in two places:
 
 1. **In the stylesheet**, with `--cssv-key` as above.
 2. **By the host.** Renderers SHOULD let the embedding context set the key column, for example with a `key` attribute on a web component. A host setting takes precedence over `--cssv-key`.
 
-A file whose stylesheet selects on `data-key` SHOULD set `--cssv-key` itself, so it renders the same in every host. If several columns share the key column's name, the first one is used. If no column has that name, no row gets `data-key`, and renderers SHOULD report it.
+A file whose stylesheet selects on `data-key` SHOULD set `--cssv-key` itself, so it renders the same in every host. If several columns share the key column's name, the first one is used. If no column has that name, or the table has fewer than n columns, no row gets `data-key`, and renderers SHOULD report it.
 
 > **Note:** Key values are copied into an attribute. Authors should choose a column of short names or codes, not free text.
 

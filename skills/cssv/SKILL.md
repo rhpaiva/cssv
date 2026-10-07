@@ -87,7 +87,7 @@ There are no other classes or attributes, and no `caption` or `tfoot`. Apart fro
 
 Two custom properties, read from computed styles after every stylesheet has loaded:
 
-- **`--cssv-key`**, set on `table`, names each body row after its value in that column, which enables `tr[data-key="…"]`. Pick a column of short, unique names or codes. Quote names that are not CSS identifiers: `--cssv-key: "unit price";`.
+- **`--cssv-key`**, set on `table`, names each body row after its value in that column, which enables `tr[data-key="…"]`. Pick a column of short, unique names or codes. Quote names that are not CSS identifiers: `--cssv-key: "unit price";`. `--cssv-key: col(2);` picks the second column, counted from 1, whatever its name: use it when the name changes between exports, such as a header with a date in it, or when several columns share the name.
 - **`--cssv-format`**, read from each number cell, is a CSS string of up to four `Intl.NumberFormat` options. It inherits, so set it on `table`, a column, a row or a cell.
   - `minimumIntegerDigits` 1–21, `minimumFractionDigits` 0–100, `maximumFractionDigits` 0–100 and not below the minimum, `useGrouping` `true` or `false`.
   - `"minimumFractionDigits: 2, maximumFractionDigits: 2"` shows `1234.5` as 1,234.50 in en-US and 1.234,50 in de-DE.
@@ -135,7 +135,7 @@ When a style depends on something CSS can't see, put it in the data:
 In a web page, load the renderer from a CDN; no build step is needed. With npm, run `npm install @rhpaiva/cssv` and `import '@rhpaiva/cssv/cssv-table.js'` instead of the script tag.
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.2/src/cssv-table.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.3/src/cssv-table.js"></script>
 
 <cssv-table src="report.cssv"></cssv-table>
 
@@ -162,7 +162,7 @@ The processor also runs in Node without a DOM: `import { parse, toHtml } from '@
 ## Before you finish
 
 1. The file starts with a `---` line and has exactly one closing `---` line, or it has no style block at all.
-2. Every name in `data-col`, `--cssv-key` and `key` matches a header field character for character.
+2. Every name in `data-col`, `--cssv-key` and `key` matches a header field character for character, and a `col(n)` key is no higher than the number of columns.
 3. Every row has as many fields as the header, and fields containing the delimiter, quotes or line breaks are quoted.
 4. Numbers are raw: no group separators, currency symbols, percent signs or plus signs.
 5. Selectors use only the hooks above, and every `--cssv-format` uses only the four options.
@@ -174,7 +174,7 @@ When Node and a POSIX shell such as bash are available, check the file with the 
 
 ```
 node --input-type=module - report.cssv <<'EOF'
-import { parse, parseCssvValue, parseFormat } from '@rhpaiva/cssv';
+import { parse, parseCssvValue, parseKey, parseFormat } from '@rhpaiva/cssv';
 import { readFileSync } from 'node:fs';
 
 const m = parse(readFileSync(process.argv[2], 'utf8'));
@@ -195,9 +195,10 @@ for (const [, name] of css.matchAll(/\[data-col\s*=\s*["']([^"']*)["']/g)) {
   if (!m.columns.includes(name)) problems.add(`no column is named "${name}"`);
 }
 for (const [, raw] of css.matchAll(/--cssv-key\s*:([^;}]*)/g)) {
-  const key = parseCssvValue(raw);
+  const key = parseKey(raw);
   if (key === null) problems.add(`invalid --cssv-key: ${raw.trim()}`);
-  else if (key !== undefined && !m.columns.includes(key)) problems.add(`--cssv-key names no column: "${key}"`);
+  else if (typeof key === 'number' && key > m.columns.length) problems.add(`--cssv-key: col(${key}) is past the last column (${m.columns.length})`);
+  else if (typeof key === 'string' && !m.columns.includes(key)) problems.add(`--cssv-key names no column: "${key}"`);
 }
 for (const [, raw] of css.matchAll(/--cssv-format\s*:([^;}]*)/g)) {
   if (!parseFormat(parseCssvValue(raw))) problems.add(`invalid --cssv-format: ${raw.trim()}`);

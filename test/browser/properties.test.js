@@ -51,6 +51,56 @@ describe('§9.1 Key column', () => {
     assert.deepEqual(await keys(page), [null]);
     assert.deepEqual(await errors(page), ['9']);
   });
+
+  it('picks the key column by number with col(), whatever its name', async () => {
+    const page = await ctx.open(inline('---\ntable { --cssv-key: col(2); }\ntr[data-key="Total"] { font-weight: 700; }\n---\nn,"name (Sept 2026)"\n1,A\n2,\n3,Total'));
+    assert.deepEqual(await keys(page), ['A', null, 'Total']);
+    assert.equal(await page.evaluate(() => getComputedStyle(document.getElementById('t').table.tBodies[0].rows[2]).fontWeight), '700');
+    assert.deepEqual(await errors(page), []);
+  });
+
+  it('counts col() from 1, so it can pick any of several columns with one name', async () => {
+    const first = await ctx.open(inline('---\ntable { --cssv-key: col(1); }\n---\nid,x,id\nfirst,y,third'));
+    assert.deepEqual(await keys(first), ['first']);
+    const third = await ctx.open(inline('---\ntable { --cssv-key: COL( 3 ); }\n---\nid,x,id\nfirst,y,third'));
+    assert.deepEqual(await keys(third), ['third']);
+  });
+
+  it('moves the keys when update() changes a name to col()', async () => {
+    const page = await ctx.open(inline('---\ntable { --cssv-key: id; }\n---\nid,x,id\nfirst,y,third'));
+    const table = await page.evaluate(() => {
+      const t = document.getElementById('t');
+      window.__table = t.table;
+      return t.update('---\ntable { --cssv-key: col(3); }\n---\nid,x,id\nfirst,y,third\n').then(() => t.table === window.__table);
+    });
+    assert.equal(table, true); // patched, not rebuilt
+    assert.deepEqual(await keys(page), ['third']);
+  });
+
+  it('reads a quoted "col(2)" as a column name', async () => {
+    const page = await ctx.open(inline('---\ntable { --cssv-key: "col(2)"; }\n---\na,col(2)\nx,named'));
+    assert.deepEqual(await keys(page), ['named']);
+  });
+
+  it('reports col() past the last column', async () => {
+    const page = await ctx.open(inline('---\ntable { --cssv-key: col(3); }\n---\na,b\nx,y'));
+    assert.deepEqual(await keys(page), [null]);
+    assert.deepEqual(await errors(page), ['9.1']);
+  });
+
+  it('ignores and reports col() without a column number from 1', async () => {
+    for (const value of ['col(0)', 'col(-1)', 'col(1.5)', 'col(a)']) {
+      const page = await ctx.open(inline(`---\ntable { --cssv-key: ${value}; }\n---\na,b\nx,y`));
+      assert.deepEqual(await keys(page), [null], value);
+      assert.deepEqual(await errors(page), ['9'], value);
+    }
+  });
+
+  it('reads the host key attribute as a name, never as col()', async () => {
+    const page = await ctx.open(inline('---\ntable { --cssv-key: a; }\n---\na,b\nx,y', 'key="col(2)"'));
+    assert.deepEqual(await keys(page), [null]);
+    assert.deepEqual(await errors(page), ['9.1']);
+  });
 });
 
 describe('§9.2 Number format', () => {

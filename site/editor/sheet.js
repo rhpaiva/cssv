@@ -11,7 +11,7 @@
 // styles, a new locale), and otherwise keeps it on screen until the new one
 // is ready. Text that doesn't parse isn't sent, so the last good table stays.
 import '../../src/cssv-table.js';
-import { classify, parseCssvValue, parseFormat, formatNumber, rewriteCssUrls } from '../../src/core.js';
+import { classify, parseCssvValue, parseKey, parseFormat, formatNumber, rewriteCssUrls } from '../../src/core.js';
 import {
   scan, fieldEdit, recordEdit, applyEdits, rebuildBody, rebuildColumns, blankRecord, readRules, writeRules, cssString, remapRows,
 } from './cssv-text.js';
@@ -894,11 +894,12 @@ function rekeyRules(text, from, to) {
 
 // --- The key column (9.1) ------------------------------------------------------------
 
-/** The key column the table was rendered with, or null. */
+/** The name of the key column the table was rendered with, or null. col(n) gives the nth column's name. */
 function currentKey() {
   const table = front.table;
   if (!table) return null;
-  const key = parseCssvValue(getComputedStyle(table).getPropertyValue('--cssv-key'));
+  const key = parseKey(getComputedStyle(table).getPropertyValue('--cssv-key'));
+  if (typeof key === 'number') return key <= state.width ? columnName(key - 1) : null;
   return typeof key === 'string' && columnIndexes().some((c) => columnName(c) === key) ? key : null;
 }
 

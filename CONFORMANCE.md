@@ -44,8 +44,9 @@ Files: **U** = `test/unit/`, **B** = `test/browser/`, **S** = `test/spec-example
 | 9 | Ignore invalid values | MUST | U `properties`; B `properties`: ignores and reports an invalid value |
 | 9 | Report invalid values | SHOULD | B `properties`: ignores and reports…; ignores and reports an invalid format once |
 | 9.1 | Key column from `--cssv-key` on `table`; first column of that name; empty fields get no `data-key` | — | B `properties`: §9.1 tests |
-| 9.1 | Host can set the key column and wins | SHOULD | B `properties`: lets the host key attribute win over --cssv-key |
-| 9.1 | Report a key column that does not exist | SHOULD | B `properties`: reports a key column that does not exist |
+| 9.1 | `col(n)` picks the nth column, counted from 1, whatever its name; any other argument is invalid; a quoted `"col(2)"` is a name | — | U `properties`: §9.1 --cssv-key values; B `properties`: picks the key column by number with col()…; counts col() from 1…; ignores and reports col() without a column number from 1; reads a quoted "col(2)" as a column name |
+| 9.1 | Host can set the key column and wins | SHOULD | B `properties`: lets the host key attribute win over --cssv-key; reads the host key attribute as a name, never as col() |
+| 9.1 | Report a key column that does not exist | SHOULD | B `properties`: reports a key column that does not exist; reports col() past the last column |
 | 9.2 | Option grammar, ranges, defaults, invalid strings | — | U `properties`: §9.2 |
 | 9.2 | Intl formatting with `halfExpand` and `signDisplay: "negative"`; sign class follows the field | MUST | U `display`; B `properties`: §9.2 tests; S `core`: §9.2 table |
 | 9.2 | No effect outside number cells | — | B `properties`: has no effect on headers or text cells |

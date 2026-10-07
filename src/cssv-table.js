@@ -22,7 +22,7 @@
 // table a full render would build.
 
 import {
-  parse, inlineText, DEFAULT_CSS, rewriteCssUrls, parseCssvValue, parseFormat, formatNumber,
+  parse, inlineText, DEFAULT_CSS, rewriteCssUrls, parseCssvValue, parseKey, parseFormat, formatNumber,
   defaultDisplay, display, keyIndex, toMarkdown, CssvError,
 } from './core.js';
 
@@ -445,19 +445,21 @@ export class CssvTable extends Base {
     };
   }
 
-  // 9.1: the host's key attribute wins over --cssv-key. Sets, changes or
-  // removes data-key on every row, so it also brings an updated table in line.
+  // 9.1: the host's key attribute, always a column name, wins over
+  // --cssv-key, which may also be col(n). Sets, changes or removes data-key
+  // on every row, so it also brings an updated table in line.
   #applyKey(table, model) {
     let key;
     if (this.hasAttribute('key')) {
       key = this.getAttribute('key');
     } else {
       const raw = getComputedStyle(table).getPropertyValue('--cssv-key');
-      key = parseCssvValue(raw);
+      key = parseKey(raw);
       if (key === null) this.#report('9', `--cssv-key has an invalid value: ${raw.trim()}`);
     }
-    const k = typeof key === 'string' ? keyIndex(model, key) : -1;
+    const k = keyIndex(model, key);
     if (typeof key === 'string' && k < 0) this.#report('9.1', `No column is named "${key}", so rows get no data-key.`);
+    if (typeof key === 'number' && k < 0) this.#report('9.1', `col(${key}) is past the last column (${model.columns.length}), so rows get no data-key.`);
     [...table.tBodies[0].rows].forEach((tr, i) => {
       const value = k < 0 ? '' : model.rows[i].fields[k];
       if (value === '') tr.removeAttribute('data-key');

@@ -36,15 +36,15 @@ npm install @rhpaiva/cssv
 Or load it in a page from a CDN, with no install or build step:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.2/src/cssv-table.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.3/src/cssv-table.js"></script>
 ```
 
-The package has no dependencies and two entry points: `@rhpaiva/cssv/cssv-table.js` defines the `<cssv-table>` element, and `@rhpaiva/cssv` is the processor, which needs no DOM. Versions are 0.x, so pin the minor version (`@0.2`) to get fixes without breaking changes.
+The package has no dependencies and two entry points: `@rhpaiva/cssv/cssv-table.js` defines the `<cssv-table>` element, and `@rhpaiva/cssv` is the processor, which needs no DOM. Versions are 0.x, so pin the minor version (`@0.3`) to get fixes without breaking changes.
 
 ## Use in a page
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.2/src/cssv-table.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.3/src/cssv-table.js"></script>
 
 <cssv-table src="budget.cssv"></cssv-table>
 <cssv-table src="export.csv" key="category"></cssv-table>
@@ -63,7 +63,7 @@ The package has no dependencies and two entry points: `@rhpaiva/cssv/cssv-table.
 | Attribute | Meaning |
 | --- | --- |
 | `src` | URL of a `.cssv` (or plain `.csv`) file. Without it, the element reads a child `<script type="text/cssv">`. |
-| `key` | Key column set by the host; wins over `--cssv-key` (SPEC §9.1). |
+| `key` | Key column set by the host, by name (never `col()`); wins over `--cssv-key` (SPEC §9.1). |
 | `lang` | Display locale; otherwise the nearest `lang` around the element, then the browser's locale (§10.1). |
 
 | Property, method or event | Meaning |
@@ -114,10 +114,11 @@ The page can style the table with `cssv-table::part(table)`. Wide tables overflo
 The processor (`src/core.js`) has no DOM dependencies and runs in Node:
 
 ```js
-import { parse, toHtml, defaultDisplay, parseFormat, parseCssvValue, formatNumber } from '@rhpaiva/cssv';
+import { parse, toHtml, defaultDisplay, parseFormat, parseCssvValue, parseKey, formatNumber } from '@rhpaiva/cssv';
 
 const model = parse(text);                                  // SPEC §3–6
 const html = toHtml(model, { locale: 'de-DE', key: 'id' }); // the §8.3 step 2 table model
+// key is a column name, or a column number counted from 1, as parseKey() reads col(2)
 ```
 
 ## Tests

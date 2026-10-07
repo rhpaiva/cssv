@@ -249,6 +249,19 @@ export function parseCssvValue(raw) {
   return readIdentifier(s);
 }
 
+// 9.1: --cssv-key is a column name, as a CSSV property value (9), or col(n),
+// the nth column counted from 1. Returns undefined when unset, null when
+// invalid, otherwise the name as a string or the column number.
+const COL = /^col\([ \t\n\r\f]*([0-9]+)[ \t\n\r\f]*\)$/i;
+
+export function parseKey(raw) {
+  const s = (raw ?? '').trim();
+  const col = COL.exec(s);
+  if (!col) return parseCssvValue(s);
+  const n = Number(col[1]);
+  return n >= 1 ? n : null;
+}
+
 // 9.2: the --cssv-format option string.
 const FORMAT_LIMITS = {
   minimumIntegerDigits: [1, 21],
@@ -348,11 +361,15 @@ export function escapeHtml(s) {
   return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 }
 
+// 9.1: the key column's index, or -1. A name picks the first column of that
+// name, a number n the nth column.
 export function keyIndex(model, key) {
-  return key === undefined || key === null ? -1 : model.columns.indexOf(key);
+  if (typeof key === 'number') return Number.isInteger(key) && key >= 1 && key <= model.columns.length ? key - 1 : -1;
+  return typeof key === 'string' ? model.columns.indexOf(key) : -1;
 }
 
-// Builds the step-2 table model of 8.3. `key` is a host-set key column (9.1).
+// Builds the step-2 table model of 8.3. `key` is a host-set key column (9.1):
+// a column name, or a column number counted from 1.
 export function toHtml(model, { locale = 'en-US', key, part = false } = {}) {
   const k = keyIndex(model, key);
   const attr = (name, value) => ` ${name}="${escapeHtml(String(value))}"`;

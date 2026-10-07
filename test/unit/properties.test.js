@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseCssvValue, parseFormat } from '../../src/core.js';
+import { parse, parseCssvValue, parseKey, keyIndex, parseFormat, toHtml } from '../../src/core.js';
 
 describe('§9 CSSV property values', () => {
   it('accepts a single identifier', () => {
@@ -31,9 +31,47 @@ describe('§9 CSSV property values', () => {
   });
 
   it('rejects anything else as invalid', () => {
-    for (const v of ['12px', '2024', 'a b', '"a" b', 'a "b"', '"a" "b"', 'calc(1)', '#fff', '"a\nb"', '1.5', '-1']) {
+    for (const v of ['12px', '2024', 'a b', '"a" b', 'a "b"', '"a" "b"', 'calc(1)', 'col(2)', '#fff', '"a\nb"', '1.5', '-1']) {
       assert.equal(parseCssvValue(v), null, v);
     }
+  });
+});
+
+describe('§9.1 --cssv-key values', () => {
+  it('reads col(n) as the nth column, counted from 1', () => {
+    assert.equal(parseKey('col(2)'), 2);
+    assert.equal(parseKey('  col(1)  '), 1);
+    assert.equal(parseKey('col( 12 )'), 12);
+    assert.equal(parseKey('col(\t3\n)'), 3);
+    assert.equal(parseKey('COL(2)'), 2);
+    assert.equal(parseKey('Col(02)'), 2);
+  });
+
+  it('reads anything else as a column name, like every CSSV property', () => {
+    assert.equal(parseKey('category'), 'category');
+    assert.equal(parseKey('"unit price"'), 'unit price');
+    assert.equal(parseKey('"col(2)"'), 'col(2)');
+    assert.equal(parseKey('col-2'), 'col-2');
+    assert.equal(parseKey(''), undefined);
+    assert.equal(parseKey(undefined), undefined);
+  });
+
+  it('rejects col() without a column number from 1', () => {
+    for (const v of ['col(0)', 'col(-1)', 'col(+2)', 'col(1.5)', 'col(2px)', 'col(x)', 'col()', 'col(1, 2)', 'col (2)', 'col(2', 'col(2) x', '2']) {
+      assert.equal(parseKey(v), null, v);
+    }
+  });
+
+  it('finds the key column by name or by number', () => {
+    const model = parse('id,name,id\n1,a,2');
+    assert.equal(keyIndex(model, 'id'), 0);
+    assert.equal(keyIndex(model, 'nope'), -1);
+    assert.equal(keyIndex(model, 3), 2);
+    assert.equal(keyIndex(model, 4), -1);
+    assert.equal(keyIndex(model, 0), -1);
+    assert.equal(keyIndex(model, 1.5), -1);
+    assert.equal(keyIndex(model, undefined), -1);
+    assert.match(toHtml(model, { key: 3 }), /<tr data-row="2" data-key="2">/);
   });
 });
 
