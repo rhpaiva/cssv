@@ -23,6 +23,7 @@ export const GROUPS = [
     title: 'Real usage examples',
     files: [
       'examples/oslo.cssv',
+      'examples/browser-share.cssv',
       'examples/jira-export.cssv',
       'examples/whatsapp-chat.cssv',
       'examples/outlook-inbox.cssv',

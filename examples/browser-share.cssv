@@ -1,0 +1,93 @@
+---
+/* A bar chart. The records are StatCounter Global Stats' worldwide browser
+   market share for September 2026, all platforms, as the site's CSV
+   download saves them (retrieved 2026-10-07; CC BY-SA 3.0, gs.statcounter.com).
+   The share is the key column, so typed attr() reads it as a number and the
+   bar is that many percent of the track. StatCounter puts the month in the
+   column's name, so the key is col(2), the second column, and no rule names
+   it: next month's download fits as it is, and the subtitle, which is the
+   header itself, follows. */
+table {
+  --cssv-key: col(2);
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 14px;
+  width: 100%;
+  contain: inline-size;
+  padding: 20px 22px 16px;
+  border-radius: 12px;
+  color-scheme: light dark;
+  --bar: light-dark(#2a64d6, #6f9dff);
+  --track: light-dark(#eef1f6, #232831);
+  --muted: light-dark(#5f6878, #9aa3b2);
+  background: light-dark(#fff, #171a20);
+  font: 13px/1.4 system-ui, sans-serif;
+  color: light-dark(#1b2130, #e6e9ef);
+}
+colgroup, thead th:not(.number) { display: none; }
+thead, thead tr, tbody { display: contents; }
+table::before { content: "Browser market share"; grid-column: 1 / -1; font-size: 17px; font-weight: 650; }
+th.number { grid-column: 1 / -1; padding: 0 0 14px; font-weight: 400; text-align: start; color: var(--muted); }
+table::after { content: "Source: StatCounter Global Stats"; grid-column: 1 / -1; padding-top: 12px; font-size: 11px; color: var(--muted); }
+
+/* A row is a line of the chart: the name, then the bar with its value at
+   the tip. A share under a pixel still gets a sliver. */
+tbody tr {
+  --v: attr(data-key type(<number>), 0);
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+}
+td { padding: 3px 0; white-space: nowrap; }
+td.number {
+  --cssv-format: "minimumFractionDigits: 2";
+  position: relative;
+  padding-inline-start: calc(var(--v) * 1% + 6px);
+  text-align: start;
+  color: var(--muted);
+  background: linear-gradient(var(--track), var(--track)) no-repeat center / 100% 14px;
+}
+td.number::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: calc(50% - 7px);
+  width: max(2px, var(--v) * 1%);
+  height: 14px;
+  border-radius: 0 4px 4px 0;
+  background: var(--bar);
+}
+td.number::after { content: "%"; }
+tbody tr:hover { --bar: light-dark(#17449e, #a3c0ff); }
+tbody tr:hover td.number { color: inherit; }
+
+/* Engines without typed attr() (WebKit, as of 2026) can't read a share, so
+   there the chart is a list: the names and the shares, with no bars. */
+@supports not (width: attr(data-key type(<length>), 0px)) {
+  td.number { padding-inline-start: 0; background: none; }
+  td.number::before { display: none; }
+}
+---
+"Browser","Market Share Perc. (Sept 2026)"
+"Chrome",66.45
+"Safari",18.2
+"Edge",6.02
+"Firefox",2.79
+"Samsung Internet",2.31
+"Opera",1.77
+"UC Browser",0.47
+"Brave",0.45
+"Yandex Browser",0.34
+"Android",0.24
+"Mozilla",0.22
+"360 Safe Browser",0.18
+"QQ Browser",0.18
+"Coc Coc",0.12
+"Whale Browser",0.06
+"Ecosia",0.04
+"Unknown",0.03
+"Pale Moon",0.02
+"Sogou Explorer",0.02
+"Sony PS4",0.01
+"Other",0.05

@@ -477,7 +477,7 @@
     <header class="hero">
       <p class="eyebrow">CSSV v1 · Examples</p>
       <h1>The CSV you already have, <span>worth looking at.</span></h1>
-      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first nine were made for this page, to show how far a style block goes. The next seven start from files people already have. The last two show other ways to put a table in a page. Files used in ways CSSV wasn't made for, from a film to a lava lamp, are on the <a href="experiments.html">experiments</a> page.</p>
+      <p class="lede">Every table on this page is one <code>.cssv</code> file: a CSS style block between two <code>---</code> lines, then ordinary CSV, rendered live by <code>&lt;cssv-table&gt;</code>. The first nine were made for this page, to show how far a style block goes. The next eight start from files people already have. The last two show other ways to put a table in a page. Files used in ways CSSV wasn't made for, from a film to a lava lamp, are on the <a href="experiments.html">experiments</a> page.</p>
       <p class="lede">Each tile below is the file itself, rendered live and scaled down. Point at one to see its plain CSV; click it for the full card. In a card, the yellow figure is the size of the style block, and <strong>View source</strong> shows the whole file.</p>
     </header>
 
@@ -577,6 +577,15 @@
         </a>
       </li>
       <li>
+        <a class="tile" href="#browser-share" data-src="browser-share.cssv" style="--virtual: 720">
+          <span class="thumb" aria-hidden="true" inert>
+            <cssv-table src="browser-share.cssv"></cssv-table>
+            <pre class="raw"></pre>
+          </span>
+          <span class="caption"><strong>StatCounter download</strong><span class="lines"></span></span>
+        </a>
+      </li>
+      <li>
         <a class="tile" href="#jira" data-src="jira-export.cssv" style="--virtual: 640">
           <span class="thumb" aria-hidden="true" inert>
             <cssv-table src="jira-export.cssv"></cssv-table>
@@ -644,6 +653,7 @@
       <a href="#league">League table</a>
       <span class="sep" aria-hidden="true"></span>
       <a href="#weather">Weather</a>
+      <a href="#browser-share">Bar chart</a>
       <a href="#jira">Jira board</a>
       <a href="#whatsapp">WhatsApp</a>
       <a href="#outlook">Outlook</a>
@@ -990,6 +1000,29 @@
         <cssv-table src="berlin.cssv"></cssv-table>
         <cssv-table src="lisbon.cssv"></cssv-table>
       </div>
+      </article>
+
+      <article class="example" id="browser-share">
+      <header>
+        <div>
+          <h3>A StatCounter download, as a bar chart</h3>
+          <div class="file">browser-share.cssv</div>
+          <div class="desc" id="browser-share-desc">
+            <p><strong>Who has it:</strong> anyone who has put browser numbers on a slide or in a support policy. StatCounter Global Stats offers every chart as a CSV download. This one is real: worldwide browser market share for September 2026, all platforms, saved and left untouched, quotes and all.</p>
+            <p><strong>What the style does:</strong> the share is the key column, so every row's <code>data-key</code> holds its number, and typed <code>attr()</code> reads it. The bar is that many percent of the track, drawn by the cell's <code>::before</code>, with the value at its tip. A share is a percentage, so the axis is 100 and nothing is scaled by hand. Every name and value is still a cell's text. StatCounter puts the month in the column's name, so <code>--cssv-key: col(2)</code> picks the column by position and no rule names it: next month's download drops in as it is, and the subtitle, which is that header, follows. Without typed <code>attr()</code> (WebKit, for now) the chart is a list of shares.</p>
+          </div>
+          <button type="button" class="more" aria-expanded="false" aria-controls="browser-share-desc">More</button>
+          <ul class="stats"><li class="style" data-count></li><li>data: the download, unchanged</li></ul>
+        </div>
+      </header>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="View">
+          <input type="radio" name="v-browser-share" id="v-browser-share-s" value="styled" checked><label for="v-browser-share-s">Styled</label>
+          <input type="radio" name="v-browser-share" id="v-browser-share-r" value="raw"><label for="v-browser-share-r">As exported</label>
+        </div>
+        <span class="hint">Data by <a href="https://gs.statcounter.com/">StatCounter Global Stats</a> (CC BY-SA 3.0).</span>
+      </div>
+      <div class="stage"><cssv-table src="browser-share.cssv"></cssv-table></div>
       </article>
 
       <article class="example" id="jira">
