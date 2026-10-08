@@ -134,6 +134,7 @@ CHROME_PATH=/path/to/chrome npm test   # with a Chrome or Chromium you already h
 npm run test:unit                 # no browser needed
 npm run test:browser
 npm run coverage                  # npm test under c8: line coverage of src/, from Node and the browser together
+npm run mutate                    # mutation tests of src/core.js against the unit tests; report in reports/mutation/
 ```
 
 - `test/unit/`: the processor (core.js), one file per spec area. Test names start with the spec section.
@@ -142,7 +143,9 @@ npm run coverage                  # npm test under c8: line coverage of src/, fr
 
 [CONFORMANCE.md](CONFORMANCE.md) maps each requirement in the spec to the tests that cover it.
 
-`.github/workflows/ci.yml` runs `npm run coverage` on every push to `main` and every pull request.
+`npm run mutate` runs [Stryker](https://stryker-mutator.io/), which changes `src/core.js` one small edit at a time (a `<` for a `<=`, a removed line) and checks that the unit tests fail for each change. A change they miss is a gap in the tests. It fails below the score set in `stryker.config.json`. The renderer, `src/cssv-table.js`, isn't mutated, because each mutant would need a full browser run.
+
+`.github/workflows/ci.yml` runs `npm run coverage` and `npm run mutate` on every push to `main` and every pull request.
 
 ## Performance
 

@@ -6,6 +6,11 @@
 # Their line coverage of src/ goes to the website as coverage.json, which the
 # README's coverage badge reads through shields.io.
 #
+# The mutation tests: Stryker mutates src/core.js and runs the unit tests
+# against each mutant; the run fails below the score in stryker.config.json.
+# The browser half isn't mutated, since every mutant would cost a browser run.
+# The deploy doesn't wait for them.
+#
 # The website: GitHub Pages, served at https://cssv.dev (the custom domain is
 # set in the repository's Pages settings). site/ becomes the root; its pages
 # load ../src/ and ../examples/, which resolve to /src/ and /examples/ there,
@@ -48,6 +53,22 @@ jobs:
         with:
           name: coverage
           path: coverage.json
+
+  mutation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+      - run: npm run mutate
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report
+          path: reports/mutation/mutation.html
 
   deploy:
     needs: test

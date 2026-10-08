@@ -43,10 +43,12 @@
     "test:unit": "node --test \"test/unit/*.test.js\" test/spec-examples/core.test.js",
     "test:browser": "node --test --test-concurrency=1 \"test/browser/*.test.js\" test/spec-examples/browser.test.js",
     "coverage": "c8 --include \"src/**\" --reporter text --reporter json-summary npm test",
+    "mutate": "stryker run",
     "bench": "node bench/render.bench.js"
   },
   "license": "MIT",
   "devDependencies": {
+    "@stryker-mutator/core": "^10.0.0",
     "c8": "^12.0.0",
     "playwright": "^1.63.0"
   }
