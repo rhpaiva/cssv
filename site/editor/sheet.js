@@ -2042,9 +2042,15 @@ function goToMatch(i) {
   showFindCount();
 }
 
+// The toolbar's Find button shows whether the box is open, and closes it.
+function showFind(open) {
+  find.box.hidden = !open;
+  $('find-open').setAttribute('aria-pressed', String(open));
+}
+
 function openFind(replace = false) {
   if (document.body.classList.contains('home')) return;
-  find.box.hidden = false;
+  showFind(true);
   if (replace) find.replaceRow.hidden = false;
   $('find-replace-toggle').setAttribute('aria-pressed', String(!find.replaceRow.hidden));
   (replace && find.text.value ? find.replace : find.text).focus();
@@ -2053,7 +2059,7 @@ function openFind(replace = false) {
 }
 
 function closeFind() {
-  find.box.hidden = true;
+  showFind(false);
   drawMarks();
   focusSheet();
 }
@@ -2125,7 +2131,7 @@ $('find-replace-toggle').addEventListener('click', () => {
 });
 $('replace-one').addEventListener('click', replaceOne);
 $('replace-all').addEventListener('click', replaceAll);
-$('find-open').addEventListener('click', () => openFind());
+$('find-open').addEventListener('click', () => (find.box.hidden ? openFind() : closeFind()));
 
 // --- Print -----------------------------------------------------------------------------
 
