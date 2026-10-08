@@ -1,5 +1,7 @@
 # CSSV
 
+[![CI](https://img.shields.io/github/actions/workflow/status/rhpaiva/cssv/ci.yml?branch=main&label=CI)](https://github.com/rhpaiva/cssv/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fcssv.dev%2Fcoverage.json)](https://github.com/rhpaiva/cssv/actions/workflows/ci.yml)
+
 **CSSV (Comma-Separated Styled Values)** keeps a table's data and its look in one plain-text file: CSV for the data, with a CSS style block on top for the presentation. A renderer turns the CSV into an HTML table and applies the file's own styles, so the table carries its look to every page that shows it.
 
 This repository holds the specification, [SPEC.md](SPEC.md), and its reference implementation: the `<cssv-table>` element and a processor that runs in Node.
@@ -131,6 +133,7 @@ npm test                          # unit + browser
 CHROME_PATH=/path/to/chrome npm test   # with a Chrome or Chromium you already have, instead of the install
 npm run test:unit                 # no browser needed
 npm run test:browser
+npm run coverage                  # npm test under c8: line coverage of src/, from Node and the browser together
 ```
 
 - `test/unit/`: the processor (core.js), one file per spec area. Test names start with the spec section.
@@ -138,6 +141,8 @@ npm run test:browser
 - `test/spec-examples/`: every example printed in SPEC.md, asserted literally. Another implementation can reuse these to check itself against the spec.
 
 [CONFORMANCE.md](CONFORMANCE.md) maps each requirement in the spec to the tests that cover it.
+
+`.github/workflows/ci.yml` runs `npm run coverage` on every push to `main` and every pull request.
 
 ## Performance
 
@@ -157,7 +162,7 @@ Parsing is a small share. Most of the time is creating the DOM and computing sty
 python3 -m http.server   # from the repository root: website at http://localhost:8000/site/, demo at /examples/, editor at /site/editor/
 ```
 
-The website lives in `site/`. Like the demo, it loads `../src/` and `../examples/`, so any static server at the repository root works, and every table on it is a `<cssv-table>`. `.github/workflows/pages.yml` publishes it to [cssv.dev](https://cssv.dev/) on each push to `main`, with `site/` as the root.
+The website lives in `site/`. Like the demo, it loads `../src/` and `../examples/`, so any static server at the repository root works, and every table on it is a `<cssv-table>`. `.github/workflows/ci.yml` publishes it to [cssv.dev](https://cssv.dev/) on each push to `main` once the tests pass, with `site/` as the root.
 
 Two scripts make animations from the real renderer. Each renders its tables with `<cssv-table>` in Chromium and embeds them, with their stylesheets, in an SVG that has no script and also animates as an `<img>`. `node tools/intro.js` makes `site/intro.svg`, the animation at the top of this README, and with `--mp4 intro.mp4` also records it as a 1080p video (this needs ffmpeg). `node tools/demo-svg.js` makes `site/demo.svg`, in which a file is typed next to the table it renders. Run them again after changing the renderer, its default styles or the files they show.
 

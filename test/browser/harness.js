@@ -1,9 +1,9 @@
 // Shared setup for browser tests: a static server for the repository plus
 // in-memory files (with optional delay or status), and a Chromium page.
 import http from 'node:http';
-import { readFile, realpath } from 'node:fs/promises';
+import { readFile, realpath, writeFile } from 'node:fs/promises';
 import { extname, join, normalize, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { before, after } from 'node:test';
 import { chromium } from 'playwright';
 
@@ -90,6 +90,10 @@ export function startServer() {
 /** Registers before/after hooks and returns a context filled in by `before`. */
 export function setup() {
   const ctx = {};
+  // Under c8 (npm run coverage), NODE_V8_COVERAGE names the folder where Node
+  // writes its coverage; the pages' coverage of src/ goes there too.
+  const coverage = process.env.NODE_V8_COVERAGE;
+  const pages = [];
   before(async () => {
     ctx.server = await startServer();
     ctx.browser = await launchChromium();
@@ -100,6 +104,10 @@ export function setup() {
       const page = await ctx.browser.newPage();
       page.errors = [];
       page.on('pageerror', (e) => page.errors.push(e));
+      if (coverage) {
+        await page.coverage.startJSCoverage({ resetOnNavigation: false });
+        pages.push(page);
+      }
       const head = '<script>window.__cssvErrors = []; document.addEventListener("cssv-error", (e) => '
         + '__cssvErrors.push({ id: e.target.id, ...e.detail }));</script>' + (options.head ?? '');
       await page.goto(ctx.server.page(body, { ...options, head }));
@@ -109,6 +117,18 @@ export function setup() {
     };
   });
   after(async () => {
+    if (coverage) {
+      const src = `${ctx.server.origin}/src/`;
+      const result = [];
+      for (const page of pages) {
+        for (const { scriptId, url, functions } of await page.coverage.stopJSCoverage()) {
+          if (!url.startsWith(src)) continue;
+          // c8 reads the source from the file the URL names.
+          result.push({ scriptId, url: pathToFileURL(join(ROOT, new URL(url).pathname)).href, functions });
+        }
+      }
+      await writeFile(join(coverage, `coverage-browser-${process.pid}-${Date.now()}.json`), JSON.stringify({ result }));
+    }
     await ctx.browser?.close();
     await ctx.server?.close();
   });

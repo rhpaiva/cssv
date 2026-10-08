@@ -1,0 +1,81 @@
+# Runs the tests on every push to main and every pull request, and on main
+# publishes the website once they pass.
+#
+# The tests: the unit tests in Node, then the browser tests in headless
+# Chromium, which Playwright downloads here (CHROME_PATH stays unset), under c8.
+# Their line coverage of src/ goes to the website as coverage.json, which the
+# README's coverage badge reads through shields.io.
+#
+# The website: GitHub Pages, served at https://cssv.dev (the custom domain is
+# set in the repository's Pages settings). site/ becomes the root; its pages
+# load ../src/ and ../examples/, which resolve to /src/ and /examples/ there,
+# so they work unchanged.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run coverage
+      - name: Coverage badge
+        run: |
+          node -e '
+            const { pct } = require("./coverage/coverage-summary.json").total.lines;
+            const color = pct >= 90 ? "brightgreen" : pct >= 75 ? "yellow" : "red";
+            console.log(JSON.stringify({ schemaVersion: 1, label: "coverage", message: `${pct}%`, color }));
+          ' > coverage.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage.json
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Assemble the site
+        run: |
+          mkdir _site
+          cp -r src examples skills SPEC.md CONFORMANCE.md README.md llms.txt _site/
+          cp -r site/. _site/
+          # The examples pages reach the website as ../site/; here it is the root.
+          sed -i 's#\.\./site/#../#g' _site/examples/index.html _site/examples/experiments.html
+      - uses: actions/download-artifact@v8
+        with:
+          name: coverage
+          path: _site
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v5
