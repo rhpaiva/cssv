@@ -1,0 +1,45 @@
+# Makes each pushed version tag (v0.5.0) a GitHub release. The tag is an
+# annotated one whose message is the version, a blank line and the
+# changelog; the changelog becomes the release's notes. A tag pushed before
+# this workflow, or whose message changed, becomes one from the Actions tab
+# (Run workflow, with the tag), which updates a release that exists.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to release, such as v0.5.0
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Release the tag, with its changelog as the notes
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Not a version tag: $TAG" >&2
+            exit 1
+          fi
+          ref=$(gh api "repos/$GH_REPO/git/ref/tags/$TAG")
+          if [ "$(jq -r .object.type <<<"$ref")" != tag ]; then
+            echo "$TAG isn't an annotated tag, so it has no changelog" >&2
+            exit 1
+          fi
+          # The message without its first line, the version, and the blank one after it.
+          gh api "repos/$GH_REPO/git/tags/$(jq -r .object.sha <<<"$ref")" --jq .message | tail -n +3 > notes.md
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TAG" --notes-file notes.md
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
+          fi
