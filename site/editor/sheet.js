@@ -2420,8 +2420,17 @@ async function openFile(path) {
 
 // A file from the computer. Its relative URLs can't reach the files next to
 // it, so they resolve against this page. The address goes back to the home,
-// which a reload then shows.
+// which a reload then shows. A file past MAX_FILE isn't read at all: the
+// source pane and the sheet couldn't show it anyway.
+const MAX_FILE = 32 * 1024 * 1024;
+
 async function openLocal(file, handle = null) {
+  if (file.size > MAX_FILE) {
+    const note = `${file.name} is ${Math.round(file.size / 1024 / 1024)} MB; the editor opens files up to ${MAX_FILE / 1024 / 1024} MB.`;
+    if (document.body.classList.contains('home')) return showHome(note);
+    say(note, 'error');
+    return false;
+  }
   if (location.search) history.replaceState(null, '', './');
   return load(await file.text(), file.name, { handle });
 }
