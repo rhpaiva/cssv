@@ -33,6 +33,13 @@ describe('§10.2 Default display', () => {
     assert.equal(defaultDisplay(field, 'en-US'), field);
     assert.equal(defaultDisplay(field, 'de-DE'), field.replace('.', ','));
     assert.equal(defaultDisplay(`-0.${'0'.repeat(101)}`, 'en-US'), `0.${'0'.repeat(101)}`);
+    assert.equal(defaultDisplay(field.slice(1), 'en-US'), field.slice(1));
+  });
+
+  it('§10.3 localizes symbols and digits past 100 fraction digits too', () => {
+    const sevens = '7'.repeat(120);
+    assert.equal(defaultDisplay(`-1.${sevens}`, 'sv-SE'), `\u22121,${sevens}`);
+    assert.equal(defaultDisplay(`12.${sevens}`, 'ar-EG'), `١٢٫${'٧'.repeat(120)}`);
   });
 });
 

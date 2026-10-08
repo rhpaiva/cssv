@@ -16,6 +16,14 @@ describe('Appendix B: Markdown serialization', () => {
     assert.equal(md.split('\n')[1], '|--:|:-:|---|:--|');
   });
 
+  it('maps the -webkit- alignments too', () => {
+    const md = toMarkdown({
+      header: ['a', 'b', 'c'],
+      rows: [[cell('1', { align: '-webkit-left' }), cell('2', { align: '-webkit-center' }), cell('3', { align: '-webkit-right' })]],
+    });
+    assert.equal(md.split('\n')[1], '|:--|:-:|--:|');
+  });
+
   it('mirrors start and end in right-to-left tables', () => {
     const md = toMarkdown({ header: ['a', 'b'], rows: [[cell('1', { align: 'end' }), cell('x')]] }, { direction: 'rtl' });
     assert.equal(md.split('\n')[1], '|:--|--:|');
@@ -53,6 +61,11 @@ describe('Appendix B: Markdown serialization', () => {
   it('builds code spans that survive backticks and pipes', () => {
     const md = toMarkdown({ header: ['c'], rows: [[cell('a`b|c', { mono: true })]] });
     assert.equal(md.split('\n')[2], '| ``a`b\\|c`` |');
+    const code = (text) => toMarkdown({ header: ['c'], rows: [[cell(text, { mono: true })]] }).split('\n')[2];
+    assert.equal(code('a``b'), '| ```a``b``` |');
+    assert.equal(code('`a'), '| `` `a `` |');
+    assert.equal(code('a`'), '| `` a` `` |');
+    assert.equal(code('a\nb'), '| `a b` |');
   });
 
   it('writes monospace text with a backslash before a | as escaped <code>, so the cell stays one cell', () => {

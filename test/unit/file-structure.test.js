@@ -43,7 +43,8 @@ describe('§3.4 Fences and the style block', () => {
   });
 
   it('reports a missing closing fence as an error and returns no data', () => {
-    assert.throws(() => parse('---\ntd { color: red }\nitem\n1\n'), (e) => e instanceof CssvError && e.section === '3.4');
+    assert.throws(() => parse('---\ntd { color: red }\nitem\n1\n'), (e) => e instanceof CssvError && e.name === 'CssvError'
+      && e.section === '3.4' && /no closing fence/.test(e.message));
   });
 
   it('finds fences by line, even inside a CSS comment', () => {

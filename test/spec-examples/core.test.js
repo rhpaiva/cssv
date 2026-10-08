@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parse, metadata, classify, parseFormat, formatNumber, defaultDisplay, toHtml } from '../../src/core.js';
+import { parse, metadata, classify, parseFormat, formatNumber, defaultDisplay, toHtml, DEFAULT_CSS } from '../../src/core.js';
 
 describe('Spec examples (processor)', () => {
   it('§1.1 the introduction example', () => {
@@ -60,6 +60,15 @@ Deposit refund,-450
 
   it('§6.2 the sign examples', () => {
     for (const f of ['0', '0.00', '-0']) assert.equal(classify(f).sign, 'zero', f);
+  });
+
+  it('§8.2 the default stylesheet', () => {
+    assert.equal(DEFAULT_CSS, `@layer cssv-defaults {
+  table   { border-collapse: collapse; }
+  th, td  { text-align: start; vertical-align: top; padding: 0.25em 0.5em; white-space: pre-wrap; }
+  th      { font-weight: bold; }
+  .number { text-align: end; font-variant-numeric: tabular-nums; }
+}`);
   });
 
   it('§9.2 the format table', () => {

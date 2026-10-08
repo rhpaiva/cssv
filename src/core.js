@@ -29,7 +29,7 @@ function* lines(text) {
       yield { text: text.slice(start), start, next: text.length + 1 };
       return;
     }
-    const end = lf > start && text[lf - 1] === '\r' ? lf - 1 : lf;
+    const end = text[lf - 1] === '\r' ? lf - 1 : lf;
     yield { text: text.slice(start, end), start, next: lf + 1 };
     start = lf + 1;
   }
@@ -65,7 +65,7 @@ export function metadata(text) {
     while (/[ \t\n\r\f]/.test(style[i] ?? '')) i++;
     if (!style.startsWith('/*', i)) break;
     const end = style.indexOf('*/', i + 2);
-    if (end < 0) break;
+    if (end === -1) break;
     const m = /^[ \t\n\r\f]*cssv:([a-z0-9-]+)(?:[ \t\n\r\f]([^]*))?$/.exec(style.slice(i + 2, end));
     if (m && METADATA.includes(m[1])) found[m[1]] ??= (m[2] ?? '').replace(/[ \t\n\r\f]+/g, ' ').trim();
     i = end + 2;
@@ -371,7 +371,7 @@ export function defaultDisplay(field, locale) {
   }
   // Intl allows at most 100 fraction digits: build the text from the
   // locale's symbols instead.
-  const nf = new Intl.NumberFormat(locale, { useGrouping: false });
+  const nf = new Intl.NumberFormat(locale);
   const parts = nf.formatToParts(-1.5);
   const symbol = (type, fallback) => parts.find((p) => p.type === type)?.value ?? fallback;
   const digit = (d) => nf.format(Number(d));
@@ -427,7 +427,7 @@ export function toHtml(model, { locale = 'en-US', key, part = false } = {}) {
 // --- 4.3 Relative URLs in the style block ----------------------------------
 
 function serializeUrl(url) {
-  return `url("${url.replace(/[\\"]/g, '\\$&').replace(/\n/g, '\\a ')}")`;
+  return `url("${url.replace(/[\\"]/g, '\\$&')}")`;
 }
 
 function resolveUrl(value, base) {

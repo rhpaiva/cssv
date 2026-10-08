@@ -34,6 +34,10 @@ describe('Appendix C Embedding', () => {
     assert.deepEqual(model.rows.map((r) => r.fields), [['A', 'first\nsecond']]);
   });
 
+  it('empties a line that is only the indentation', () => {
+    assert.equal(inlineText('  a\n  \n  b'), 'a\n\nb');
+  });
+
   it('removes only indentation that matches the first line', () => {
     assert.equal(inlineText('    a\n\tb\n  \tc'), 'a\n\tb\n\tc');
   });

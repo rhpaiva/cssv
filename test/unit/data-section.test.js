@@ -31,7 +31,7 @@ describe('§5 Data section: RFC 4180 with differences', () => {
   });
 
   it('reports an unterminated quoted field as an error', () => {
-    assert.throws(() => parse('a\n"open\n'), (e) => e instanceof CssvError && e.section === '5');
+    assert.throws(() => parse('a\n"open\n'), (e) => e instanceof CssvError && e.section === '5' && /not terminated/.test(e.message));
   });
 
   it('treats a quote inside an unquoted field as a literal character', () => {

@@ -37,6 +37,19 @@ describe('§4.6 Metadata', () => {
     assert.deepEqual(metadata(file('td {}\n/* cssv:title A */')), {});
   });
 
+  it('reads an empty value, with or without white space after the name', () => {
+    assert.deepEqual(metadata(file('/* cssv:title*/')), { title: '' });
+    assert.deepEqual(metadata(file('/* cssv:title \n */')), { title: '' });
+  });
+
+  it('ends a comment at the first */ after its /*', () => {
+    assert.deepEqual(metadata(file('/*/ */\n/* cssv:title A */')), { title: 'A' });
+  });
+
+  it('stops at the first character that does not start a comment', () => {
+    assert.deepEqual(metadata(file('// cssv:title A\n/* cssv:description B */')), {});
+  });
+
   it('stops at a comment with no closing */', () => {
     assert.deepEqual(metadata(file('/* cssv:title A */\n/* cssv:description B')), { title: 'A' });
   });

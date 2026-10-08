@@ -39,7 +39,7 @@ Files: **U** = `test/unit/`, **B** = `test/browser/`, **S** = `test/spec-example
 | 8.1 | Author styles apply only to their own table, never the page or other tables | MUST | B `rendering`: keeps author styles away from the page and other tables |
 | 8.1 | Page styles stay out; inherited properties still inherit | SHOULD | B `rendering`: keeps page styles out but inherits font and color |
 | 8.1 | `part="table"` with shadow DOM | SHOULD | B `rendering`: exposes the table as part "table" |
-| 8.2 | Default stylesheet in layer `cssv-defaults`, before author styles | MUST | B `table-model`: §8.2 tests |
+| 8.2 | Default stylesheet in layer `cssv-defaults`, before author styles | MUST | B `table-model`: §8.2 tests; S `core`: §8.2 the default stylesheet |
 | 8.3 | Wait for every stylesheet, including nested imports, before steps 4 and 5 | — | B `rendering`: waits for nested imports before reading CSSV properties |
 | 8.3 | Do not display the table before step 6 | SHOULD NOT | B `rendering`: …and hides the table until then; keeps the previous table on screen until the next one is ready |
 | 8.3 | `--cssv-key` is read once | — | By construction (`#applyKey` runs once per render); not tested |
