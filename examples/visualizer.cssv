@@ -1,4 +1,7 @@
 ---
+/* cssv:title Music visualizer */
+/* cssv:description A music visualizer drawn from a spectrum: each record
+   is a frequency band and its level. */
 /* A spectrum: one record per frequency band, its center in Hz, and its
    level from 0 to 100. The level is the key column, so typed attr() reads
    it as a number and sets the length of the band's bar, and

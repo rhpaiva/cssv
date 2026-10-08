@@ -1,5 +1,8 @@
 ---
-/* git log, as a changelog card. Made with:
+/* cssv:title Changelog */
+/* cssv:description The last 18 commits of this repository's git log, as a
+   changelog card. */
+/* Made with:
    git log -18 --shortstat --format='%ad%x09%h%x09%s' --date=short
    and a few lines of Node that write one CSV line per commit, with the
    deleted lines as a negative number. */

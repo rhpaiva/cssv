@@ -1,5 +1,8 @@
 ---
-/* Bitcoin by the week, from CoinGecko's daily price export: one record a
+/* cssv:title Bitcoin by the week */
+/* cssv:description A year of Bitcoin prices from CoinGecko's daily export,
+   drawn as weekly candles. */
+/* CoinGecko's daily price export has one record a
    day, with the price at midnight UTC. The price is the key column, so
    typed attr() turns it into a height, and every seven records from a
    Monday are a week: a candle. The other columns draw it. Each day's date

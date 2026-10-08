@@ -1,5 +1,8 @@
 ---
-/* An invoice on paper. Line items are keyed by SKU; the summary rows have none. */
+/* cssv:title Invoice */
+/* cssv:description A design studio's invoice for a brand identity project,
+   laid out as a printed page. */
+/* Line items are keyed by SKU; the summary rows have none. */
 table {
   --cssv-key: sku;
   --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2";

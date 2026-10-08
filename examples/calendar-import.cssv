@@ -1,7 +1,9 @@
 ---
-/* A week of events in Google Calendar's CSV import format, the file people
-   build in a spreadsheet and upload. Here it's also the week, readable and
-   printable. Start Date is the key: five rules put each date in its column,
+/* cssv:title Calendar week */
+/* cssv:description A week of events in Google Calendar's CSV import
+   format, laid out as the week. */
+/* People build this file in a spreadsheet and upload it. Here it's also
+   the week, readable and printable. Start Date is the key: five rules put each date in its column,
    and a day's events stack in file order, which is time order.
    Sample rows. */
 table {

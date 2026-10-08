@@ -1,4 +1,7 @@
 ---
+/* cssv:title Berlin, January 2026 */
+/* cssv:description Open-Meteo's daily weather download for Berlin,
+   unchanged, as a month calendar. */
 @import url("weather.css");
 ---
 latitude,longitude,elevation,utc_offset_seconds,timezone,timezone_abbreviation

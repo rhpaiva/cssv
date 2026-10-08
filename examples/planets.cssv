@@ -1,5 +1,8 @@
 ---
-/* The solar system. Every planet's look is set by name, through --cssv-key. */
+/* cssv:title The planets */
+/* cssv:description The eight planets with their type, distance from the
+   Sun, size, day, year and temperature. */
+/* Every planet's look is set by name, through --cssv-key. */
 table {
   --cssv-key: planet;
   width: 100%;

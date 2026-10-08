@@ -1,5 +1,7 @@
 ---
-/* Market close: a trading-terminal look from one style block. */
+/* cssv:title Market close */
+/* cssv:description A day's closing prices for eight stocks, with a
+   trading-terminal look from one style block. */
 table {
   --cssv-key: ticker;
   --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2";

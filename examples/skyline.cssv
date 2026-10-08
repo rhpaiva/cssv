@@ -1,5 +1,8 @@
 ---
-/* A skyline. Every record is a building of 400 m or more from Wikipedia's
+/* cssv:title Skyline */
+/* cssv:description Every building of 400 m or more, tallest in the middle,
+   standing as a skyline. */
+/* Every record is a building of 400 m or more from Wikipedia's
    "List of tallest buildings" (revision 1376498189, retrieved 2026-10-05), tallest
    first, and every row is a tower. Its place in the file gives it a plot on
    a sunflower spiral, so the tallest stands in the middle; the height is the

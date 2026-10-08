@@ -1,6 +1,8 @@
 ---
-/* A Canvas gradebook export, ready to print for a parent-teacher meeting.
-   Line 2 is Canvas's "Points Possible" row. An empty score means nothing
+/* cssv:title Bio 101 gradebook */
+/* cssv:description A Canvas gradebook export for one biology class, ready
+   to print for a parent-teacher meeting. */
+/* Line 2 is Canvas's "Points Possible" row. An empty score means nothing
    was handed in; a 0 was handed in and scored zero.
    Sample rows; the students are invented. */
 table {

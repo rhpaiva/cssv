@@ -1,5 +1,8 @@
 ---
-/* An Outlook mail folder as Outlook exports it: File > Open & Export >
+/* cssv:title Inbox */
+/* cssv:description An Outlook mail folder, exported as CSV and shown as an
+   inbox with a reading pane. */
+/* Outlook's export: File > Open & Export >
    Import/Export > Export to a file > Comma Separated Values. The export has
    19 columns, quotes every field, and has no dates, so the list keeps the
    folder's order. Sample mailbox; the people and companies are invented. */

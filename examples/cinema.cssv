@@ -1,5 +1,8 @@
 ---
-/* The projector. A frame is 45 records of 80 fields, one per pixel, and a
+/* cssv:title Cinema */
+/* cssv:description The projector for a film stored as CSV: every field is
+   a pixel, shaded by its type. */
+/* A frame is 45 records of 80 fields, one per pixel, and a
    field's type is its shade, from dark to light: empty, negative, zero,
    positive and text. Hand the table the next frame with update() and only
    the cells that changed are touched. The scene column is the key column:

@@ -114,11 +114,12 @@ The page can style the table with `cssv-table::part(table)`. Wide tables overflo
 The processor (`src/core.js`) has no DOM dependencies and runs in Node:
 
 ```js
-import { parse, toHtml, defaultDisplay, parseFormat, parseCssvValue, parseKey, formatNumber } from '@rhpaiva/cssv';
+import { parse, metadata, toHtml, defaultDisplay, parseFormat, parseCssvValue, parseKey, formatNumber } from '@rhpaiva/cssv';
 
 const model = parse(text);                                  // SPEC §3–6
 const html = toHtml(model, { locale: 'de-DE', key: 'id' }); // the §8.3 step 2 table model
 // key is a column name, or a column number counted from 1, as parseKey() reads col(2)
+const { title, description } = metadata(text);              // SPEC §4.6, plain text; either may be missing
 ```
 
 ## Tests

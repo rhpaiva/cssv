@@ -47,7 +47,7 @@ Formulas, computed values, multiple sheets, merged cells and editing are out of 
 - **The table model is the contract.** Every renderer produces the same HTML structure (section 7), so a stylesheet works in every implementation.
 - **CSS does what CSS can do.** CSSV only adds what CSS cannot know on its own: column names, row positions and value types.
 - **Names in attributes, fixed words in classes, no copied content.** Attributes hold column names, plus row names when the author asks for them. Classes come from a short fixed list. Cell content is never copied into the markup, so a long value never appears in three places.
-- **Extensions are CSS custom properties.** Settings such as the key column and number formats are `--cssv-*` properties, so a CSSV stylesheet stays valid CSS.
+- **Extensions stay valid CSS.** Settings such as the key column and number formats are `--cssv-*` custom properties, and facts about the file, such as its title, are `cssv:` comments (section 4.6).
 
 ### 1.5 Processing model
 
@@ -163,6 +163,36 @@ The author stylesheet cascades like a single CSS file. Rules from imported style
 ### 4.5 What selectors can match
 
 The author stylesheet is matched against the table model only (section 7). The `table` element is the topmost element it can match. Selectors for `:root`, `html`, `body` or elements of an embedding page match nothing. Authors SHOULD set inherited custom properties on `table` instead of `:root`.
+
+### 4.6 Metadata
+
+A style block can start with metadata comments, which say what the file is without changing how it renders:
+
+```
+---
+/* cssv:title Office move */
+/* cssv:description What the move to the new office cost,
+   item by item, in euros. */
+/* Colors and fonts come from the brand stylesheet. */
+@import url("brand.css");
+---
+item,amount
+Movers,1800
+Deposit refund,-450
+```
+
+This file's title is `Office move` and its description is `What the move to the new office cost, item by item, in euros.` The third comment is an ordinary comment.
+
+- A **metadata comment** is a CSS comment whose text, after any white space, is `cssv:` and a name, followed by white space or the end of the comment. A name is one or more lowercase ASCII letters, digits and hyphens. Any other comment, such as `/* cssv:Title … */` or `/* cssv:title: … */`, is an ordinary comment.
+- Only comments at the start of the style block count, with nothing but white space and other comments before them. The first other character, such as the `@` of an `@import`, ends the start; so does a comment with no closing `*/`.
+- The value is the rest of the comment's text, with each run of white space replaced by one space and the white space at both ends removed. It can be empty. If a name appears more than once, the first one counts. White space here is space, tab, line feed, carriage return and form feed, as in CSS.
+- This version defines two names:
+  - `title`: a short name for the table, for example for a window title or a list of files.
+  - `description`: a sentence or two saying what the table is, for example for a preview.
+- Processors MAY show metadata values. The values are plain text: processors MUST NOT interpret them as markup. Metadata is not part of the table model (section 7.5).
+- Every name after `cssv:` is reserved. Authors MUST NOT use names that this specification does not define, and processors MUST ignore names they do not know.
+
+> **Note:** Metadata is written in comments, not in CSSV properties, so any program can read it from the start of the file without a CSS parser, and an imported stylesheet cannot change it. Ordinary comments, such as notes on how the styles work, can follow it.
 
 ## 5. Data section
 
@@ -507,6 +537,8 @@ This section is informative. It shows one file, the table model a renderer build
 
 ```
 ---
+/* cssv:title Team budget */
+/* cssv:description Planned and actual spending per category, with the difference and whether it's paid. */
 @import url("brand.css");
 
 table   { --cssv-key: category; --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }
@@ -569,6 +601,7 @@ Total,,2800,2994.50,194.50,
 
 ### 12.3 What each rule does
 
+- The two comments at the top give the file a title and a description that a list of files can show (section 4.6). They change nothing in the table.
 - `brand.css` supplies fonts and colors shared with other reports.
 - `--cssv-key: category` names each body row after its category, so the Total row can be styled by name.
 - `--cssv-format` on `table` is inherited by every number cell, so all amounts show two decimals with grouping.

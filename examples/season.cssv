@@ -1,4 +1,7 @@
 ---
+/* cssv:title League season */
+/* cssv:description A league's standings in alphabetical order, where each
+   club slides to its rank. */
 /* Standings from a spreadsheet export: semicolons, and the clubs in
    alphabetical order. (league.cssv is the same table, sorted by rank.)
    Pos is the key column, so each row knows its rank and slides there:

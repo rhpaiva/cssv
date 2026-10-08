@@ -1,5 +1,8 @@
 ---
-/* A Jira CSV export, as a board. Status is the key, so each status gets a
+/* cssv:title Jira board */
+/* cssv:description A Jira CSV export, laid out as a board with a lane for
+   each status. */
+/* Status is the key, so each status gets a
    lane; dense packing stacks the cards in file order. Jira writes one column
    per sprint and per label under the same name, so [data-col="Labels"]
    styles every label column at once.

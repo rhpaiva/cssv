@@ -52,6 +52,27 @@ export function splitFile(text) {
   throw new CssvError('The opening fence has no closing fence.', '3.4');
 }
 
+// --- 4.6 Metadata ------------------------------------------------------------
+
+const METADATA = ['title', 'description'];
+
+// 4.6: the cssv: comments at the start of the style block, read without
+// parsing CSS. Returns the names this version defines, as plain text.
+export function metadata(text) {
+  const { style } = splitFile(text);
+  const found = {};
+  for (let i = 0; style !== null;) {
+    while (/[ \t\n\r\f]/.test(style[i] ?? '')) i++;
+    if (!style.startsWith('/*', i)) break;
+    const end = style.indexOf('*/', i + 2);
+    if (end < 0) break;
+    const m = /^[ \t\n\r\f]*cssv:([a-z0-9-]+)(?:[ \t\n\r\f]([^]*))?$/.exec(style.slice(i + 2, end));
+    if (m && METADATA.includes(m[1])) found[m[1]] ??= (m[2] ?? '').replace(/[ \t\n\r\f]+/g, ' ').trim();
+    i = end + 2;
+  }
+  return found;
+}
+
 // --- 5. Data section -------------------------------------------------------
 
 // 5.1: every quote toggles; count delimiters outside quotes up to the first

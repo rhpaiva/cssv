@@ -10,6 +10,8 @@ CSSV (Comma-Separated Styled Values) is a CSV file with an optional CSS styleshe
 
 ```
 ---
+/* cssv:title Monthly costs */
+/* cssv:description What each item cost this month, with the refund and the total. */
 table { --cssv-key: item; --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }
 .negative { color: crimson; }
 tr[data-key="Total"] td { font-weight: bold; border-top: 1px solid; }
@@ -27,6 +29,7 @@ Write the data as plain CSV and the presentation as CSS. The renderer adds the c
 - The first line is `---` (the opening fence). Every line up to the next `---` line is CSS; everything after that line is CSV.
 - A file with no style block starts directly with the CSV header. Any CSV file is a valid CSSV file.
 - A line holding only `---` must never appear inside the CSS, not even in a comment or a string.
+- Open the style block with a title and a description, each in its own comment, before any other rule: `/* cssv:title Team budget */` and `/* cssv:description Planned and actual spending per category. */`. Programs that list or preview files show them. Write `cssv:`, the lowercase name and a space exactly like that. The title is a few words; the description says in a sentence or two what the table is. Notes on how the styles work go in ordinary comments after them. Those two are the only `cssv:` names.
 - Encoding is UTF-8. Use the extension `.cssv`.
 
 ## The CSV part
@@ -157,16 +160,17 @@ In a web page, load the renderer from a CDN; no build step is needed. With npm, 
 - Serve `.cssv` files as `text/plain; charset=utf-8`.
 - In Markdown, use a fenced code block with the language `cssv`.
 
-The processor also runs in Node without a DOM: `import { parse, toHtml } from '@rhpaiva/cssv'`. `parse(text)` returns `{ style, delimiter, columns, numberColumns, rows }`, and `toHtml(model, { locale, key })` returns the table model as HTML.
+The processor also runs in Node without a DOM: `import { parse, toHtml } from '@rhpaiva/cssv'`. `parse(text)` returns `{ style, delimiter, columns, numberColumns, rows }`, `metadata(text)` returns `{ title, description }` from the `cssv:` comments, and `toHtml(model, { locale, key })` returns the table model as HTML.
 
 ## Before you finish
 
 1. The file starts with a `---` line and has exactly one closing `---` line, or it has no style block at all.
-2. Every name in `data-col`, `--cssv-key` and `key` matches a header field character for character, and a `col(n)` key is no higher than the number of columns.
-3. Every row has as many fields as the header, and fields containing the delimiter, quotes or line breaks are quoted.
-4. Numbers are raw: no group separators, currency symbols, percent signs or plus signs.
-5. Selectors use only the hooks above, and every `--cssv-format` uses only the four options.
-6. Run the checks below when you can.
+2. A style block, if the file has one, opens with `/* cssv:title … */` and `/* cssv:description … */`.
+3. Every name in `data-col`, `--cssv-key` and `key` matches a header field character for character, and a `col(n)` key is no higher than the number of columns.
+4. Every row has as many fields as the header, and fields containing the delimiter, quotes or line breaks are quoted.
+5. Numbers are raw: no group separators, currency symbols, percent signs or plus signs.
+6. Selectors use only the hooks above, and every `--cssv-format` uses only the four options.
+7. Run the checks below when you can.
 
 ## Checking a file
 

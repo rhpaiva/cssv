@@ -1,5 +1,8 @@
 ---
-/* A bar chart. The records are StatCounter Global Stats' worldwide browser
+/* cssv:title Browser market share */
+/* cssv:description StatCounter's worldwide browser market share download,
+   unchanged, as a bar chart. */
+/* The records are StatCounter Global Stats' worldwide browser
    market share for September 2026, all platforms, as the site's CSV
    download saves them (retrieved 2026-10-07; CC BY-SA 3.0, gs.statcounter.com).
    The share is the key column, so typed attr() reads it as a number and the

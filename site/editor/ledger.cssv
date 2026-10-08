@@ -1,8 +1,10 @@
 ---
+/* cssv:title Liber Transmutationum */
+/* cssv:description The ledger of a society of adepts, 1683 to 1702: a
+   thousand entries of their work, on parchment. */
 @import url("fonts/fonts.css");
 
-/* Liber Transmutationum: the ledger of a society of adepts, 1683 to 1702.
-   Parchment, iron-gall ink, rubrication and gold leaf, from one style block.
+/* Parchment, iron-gall ink, rubrication and gold leaf, from one style block.
    Every effect hangs off what CSSV exposes: column names, key rows, sign
    classes, empty cells and the order of rows. */
 

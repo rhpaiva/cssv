@@ -1,5 +1,8 @@
 ---
-/* A lava lamp. Each record is a blob of wax, and its volume is the key
+/* cssv:title Lava lamp */
+/* cssv:description A lava lamp whose blobs of wax are the records, rising
+   and sinking on their own. */
+/* Each record is a blob of wax, and its volume is the key
    column: typed attr() reads the millilitres and a cube root turns them
    into the blob's size. Each blob rises and sinks on its own animation,
    timed by sibling-index(), and a blur plus a contrast filter melts the

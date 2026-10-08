@@ -1,5 +1,8 @@
 ---
-/* A resume as CSV. Each row is one line of the resume, and the kind column
+/* cssv:title Resume */
+/* cssv:description A data engineer's resume, one record per line of it,
+   printable on A4. */
+/* Each row is one line of the resume, and the kind column
    says what that line is (a job, one of its points, a skill), so it is the
    key every rule selects on. The left column holds dates, places and labels;
    the rail between the columns carries the timeline. It is a sheet of

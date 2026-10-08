@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parse, classify, parseFormat, formatNumber, defaultDisplay, toHtml } from '../../src/core.js';
+import { parse, metadata, classify, parseFormat, formatNumber, defaultDisplay, toHtml } from '../../src/core.js';
 
 describe('Spec examples (processor)', () => {
   it('§1.1 the introduction example', () => {
@@ -29,6 +29,25 @@ Total,1154.50
     assert.equal(model.style, '@import url("brand.css");\ntd { padding: 4px; }\n');
     assert.deepEqual(model.columns, ['item', 'amount']);
     assert.deepEqual(model.rows[0].fields, ['Rent', '1200']);
+  });
+
+  it('§4.6 the metadata example', () => {
+    const text = `---
+/* cssv:title Office move */
+/* cssv:description What the move to the new office cost,
+   item by item, in euros. */
+/* Colors and fonts come from the brand stylesheet. */
+@import url("brand.css");
+---
+item,amount
+Movers,1800
+Deposit refund,-450
+`;
+    assert.deepEqual(metadata(text), {
+      title: 'Office move',
+      description: 'What the move to the new office cost, item by item, in euros.',
+    });
+    assert.deepEqual(parse(text).columns, ['item', 'amount']);
   });
 
   it('§6.1 the number table', () => {
@@ -71,7 +90,12 @@ Total,1154.50
   });
 
   it('§12.1 the complete example parses into the §12.2 model (step 2, before styles)', () => {
-    const model = parse(readFileSync(new URL('../fixtures/budget.cssv', import.meta.url), 'utf8'));
+    const text = readFileSync(new URL('../fixtures/budget.cssv', import.meta.url), 'utf8');
+    assert.deepEqual(metadata(text), {
+      title: 'Team budget',
+      description: "Planned and actual spending per category, with the difference and whether it's paid.",
+    });
+    const model = parse(text);
     assert.deepEqual(model.columns, ['category', 'owner', 'planned', 'actual', 'diff', 'status']);
     assert.deepEqual(model.numberColumns, [false, false, true, true, true, false]);
     const html = toHtml(model, { key: 'category' });

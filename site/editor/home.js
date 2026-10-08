@@ -1,6 +1,6 @@
 // The home: a card for every .cssv file the website serves. Each card shows
 // the file's first rows, rendered by <cssv-table> from the file's own styles.
-import { parse, rewriteCssUrls } from '../../src/core.js';
+import { metadata, parse, rewriteCssUrls } from '../../src/core.js';
 import { scan } from './cssv-text.js';
 import { hoistFonts } from './fonts.js';
 import { DRAFTS, GROUPS, urlOf } from './files.js';
@@ -22,17 +22,6 @@ function preview(text, s, url) {
   return cut.slice(0, s.style.start) + rewriteCssUrls(cut.slice(s.style.start, s.style.end), url) + cut.slice(s.style.end);
 }
 
-// The style block's opening comment, when it comes before the first rule.
-function summary(text, s) {
-  if (!s.style) return '';
-  const style = text.slice(s.style.start, s.style.end);
-  const open = style.indexOf('/*');
-  const brace = style.indexOf('{');
-  if (open < 0 || (brace >= 0 && brace < open)) return '';
-  const close = style.indexOf('*/', open + 2);
-  return close < 0 ? '' : style.slice(open + 2, close).replace(/\s+/g, ' ').trim();
-}
-
 const plural = (n, word) => `${n.toLocaleString('en-US')} ${word}${n === 1 ? '' : 's'}`;
 const size = (bytes) => (bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`);
 
@@ -47,7 +36,14 @@ async function fill(card, path) {
     const text = await res.text();
     const model = parse(text);
     const s = scan(text);
-    desc.textContent = summary(text, s);
+    // The file's own title and description (4.6). With a title, the path
+    // line names the file.
+    const { title, description } = metadata(text);
+    if (title) {
+      card.querySelector('.card-name').firstChild.data = title;
+      card.querySelector('.card-path').textContent = path;
+    }
+    desc.textContent = description ?? '';
     stats.textContent = `${plural(model.rows.length, 'row')} · ${plural(model.columns.length, 'column')} · ${size(new Blob([text]).size)}`;
     await table.update(preview(text, s, url));
     hoistFonts(table.model);

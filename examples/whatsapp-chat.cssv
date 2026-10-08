@@ -1,5 +1,8 @@
 ---
-/* A WhatsApp group chat. "Export chat" writes a text file with a line per
+/* cssv:title Group chat */
+/* cssv:description A WhatsApp group chat as message bubbles, one record
+   per message. */
+/* "Export chat" writes a text file with a line per
    message (date, time, sender, text); a few lines of Node turned each
    message into a CSV line. Sam exported it, so Sam's messages go right.
    Lines with no sender (the encryption notice, "Ana added you") are

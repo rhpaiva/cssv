@@ -1,5 +1,8 @@
 ---
-/* A week of weather. Each row is a day, and the style block stands the
+/* cssv:title Weekly forecast */
+/* cssv:description Seven days of highs, lows, rain and wind, with the
+   table stood on its side and a sky for each day. */
+/* Each row is a day, and the style block stands the
    table on its side: rows become columns, and the header row becomes the
    labels. The condition is the key column, and each condition paints its
    own sky and icon in CSS. Temperatures below zero are .negative, even

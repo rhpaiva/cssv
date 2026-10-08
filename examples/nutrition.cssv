@@ -1,5 +1,8 @@
 ---
-/* A Nutrition Facts label. The CSV holds the label's numbers, one nutrient
+/* cssv:title Nutrition Facts */
+/* cssv:description A Nutrition Facts label, drawn by CSS around the
+   label's numbers. */
+/* The CSV holds the label's numbers, one nutrient
    per record; the nutrient is the key column, so each line is styled by
    name. The style block draws everything else: the title, the heavy rules,
    the indents, "Includes … Added Sugars" and the % signs. */

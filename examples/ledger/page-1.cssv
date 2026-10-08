@@ -1,5 +1,7 @@
 ---
-/* Page 1 of 5, as a server would send it. The styles live in ledger.css. */
+/* cssv:title Account activity, page 1 */
+/* cssv:description Page 1 of 5 of an account's transactions, newest first,
+   as a server would send it. */
 @import url("ledger.css");
 ---
 date,id,description,category,amount,balance

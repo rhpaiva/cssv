@@ -1,5 +1,8 @@
 ---
-/* The solar system, running itself. The key column is each planet's orbital
+/* cssv:title Orrery */
+/* cssv:description The eight planets circling the Sun, each orbit timed by
+   its real period, with CSS doing the animation. */
+/* The key column is each planet's orbital
    period in days (NASA's Planetary Fact Sheet), and typed attr() turns it
    into the orbit: its animation-duration, with one Earth year taking --year
    (8 s unless the page sets it on <cssv-table>), and its size. By Kepler's

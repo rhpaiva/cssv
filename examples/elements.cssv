@@ -1,6 +1,8 @@
 ---
-/* The periodic table: one row per element, in atomic-number order. The
-   table body becomes an 18-column grid, so row n is element n: most flow
+/* cssv:title The periodic table */
+/* cssv:description All 118 elements, one row each in atomic-number order,
+   laid out as the periodic table. */
+/* The table body becomes an 18-column grid, so row n is element n: most flow
    into place, and five rules move the rest. The category is the key column,
    and each category sets one color. */
 table {

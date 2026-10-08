@@ -1,6 +1,8 @@
 ---
-/* A seat map from a booking export: one record per seat row, with the
-   passenger's initials where a seat is taken. Free seats are empty fields,
+/* cssv:title Seat map */
+/* cssv:description An aircraft seat map from a booking export, with each
+   passenger's initials on a taken seat. */
+/* One record per seat row. Free seats are empty fields,
    so :empty finds them. The row number is the middle column, which makes
    it the aisle, and the key column, so exit rows and your seat are picked
    by name. There is no row 13. */

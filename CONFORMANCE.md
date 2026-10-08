@@ -19,6 +19,10 @@ Files: **U** = `test/unit/`, **B** = `test/browser/`, **S** = `test/spec-example
 | 4.3 | Relative URLs resolve against the CSSV file (after redirects), the page for inline text, the stylesheet for imported sheets | — | U `urls`; B `style-block`: §4.3 tests |
 | 4.4 | Style block rules win over imported rules of equal specificity | — | B `style-block`: §4.4 |
 | 4.5 | Selectors match only the table model; `:root`, `html`, `body` and page elements match nothing | — | B `style-block`: §4.5 (see the known deviation in README.md) |
+| 4.6 | Metadata comments: only at the start of the style block, exact `cssv:` names, white space collapsed, first one counts | — | U `metadata`: §4.6 tests; S `core`: §4.6 example, §12.1 |
+| 4.6 | Showing `title` and `description` | MAY | `metadata()` in `src/core.js`; the editor's home shows both |
+| 4.6 | Metadata values are plain text, never markup | MUST NOT | U `metadata`: returns the values as written, never as markup |
+| 4.6 | Ignore names this version does not define | MUST | U `metadata`: ignores names it does not know |
 | 5 | RFC 4180 quoting, no trimming, empty lines ignored | MUST | U `data-section`: §5 tests |
 | 5 | Unterminated quoted field: report an error | MUST | U `data-section`; B `rendering`: unterminated quoted field |
 | 5 | A quote inside an unquoted field is literal | SHOULD | U `data-section`: treats a quote inside an unquoted field as a literal character |

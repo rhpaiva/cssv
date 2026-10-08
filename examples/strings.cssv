@@ -1,6 +1,8 @@
 ---
-/* An app's translation sheet, the CSV that translation tools import and
-   export. Empty cells are strings nobody has translated yet: they're marked
+/* cssv:title Translation sheet */
+/* cssv:description An app's strings in five languages, as translation
+   tools import and export them, with the gaps marked. */
+/* Empty cells are strings nobody has translated yet: they're marked
    in place and counted per language. */
 table {
   counter-reset: de fr es pt;

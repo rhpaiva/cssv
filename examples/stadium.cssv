@@ -1,4 +1,7 @@
 ---
+/* cssv:title Stadium tickets */
+/* cssv:description A ticket seller's seating plan for one match, drawn as
+   the stadium bowl with each section colored by category. */
 /* Ticketlark's seating plan for Northbridge FC v Harbor City: a record per
    section, with its stand, tier, category, price, seats and the seats left.
    Records run clockwise from the halfway line, tier by tier, so

@@ -1,4 +1,6 @@
 ---
+/* cssv:title Team budget */
+/* cssv:description Planned and actual spending per category, with the difference and whether it's paid. */
 @import url("brand.css");
 
 table   { --cssv-key: category; --cssv-format: "minimumFractionDigits: 2, maximumFractionDigits: 2"; }

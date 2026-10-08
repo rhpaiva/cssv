@@ -1,6 +1,8 @@
 ---
-/* A ticketing export, printed as name badges: 9 × 5.5 cm, two across on
-   paper. The ticket type is the key and colors the band.
+/* cssv:title Name badges */
+/* cssv:description A ticketing export's attendee list, printed as name
+   badges two across on paper. */
+/* Each badge is 9 × 5.5 cm. The ticket type is the key and colors the band.
    Sample rows; the people are invented. */
 table {
   --cssv-key: "Ticket Type";

@@ -1,4 +1,7 @@
 ---
+/* cssv:title League table */
+/* cssv:description A football league's standings, with club colors and the
+   zones at the top and bottom. */
 /* Standings from a spreadsheet export: semicolons, club colors by name, ranks from a counter. */
 table {
   --cssv-key: club;

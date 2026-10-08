@@ -1,4 +1,6 @@
 ---
+/* cssv:title Departures */
+/* cssv:description A split-flap departures board. */
 @import url("split-flap.css");
 
 table { --cssv-key: flight; }
