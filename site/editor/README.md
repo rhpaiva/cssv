@@ -47,7 +47,7 @@ node tools/editor-ledger.js     # regenerates ledger.cssv from ledger-theme.css
 
 ## Find and replace
 
-- Ctrl+F opens a box over the sheet's corner, and Ctrl+H opens it with replace. It searches the values as the file has them (what the formula bar shows, column names included), not the formatted text, with options for case and whole cells. Matches are marked on the table; Enter and Shift+Enter move between them. In the source pane, Ctrl+F stays the browser's own find.
+- Ctrl+F opens a box over the sheet's corner, and Ctrl+H opens it with replace. It searches the values as the file has them (what the formula bar shows, column names included), not the formatted text, with options for case and whole cells. The matched text is marked on the table, not the whole cell, so a cell laid across its row doesn't light up the row; a cell that shows its value otherwise, such as a formatted number, or a whole-cell search, marks all of the cell's text. Enter and Shift+Enter move between them. In the source pane, Ctrl+F stays the browser's own find.
 - Replace writes the new value as typed, without reading it as a localized number. Like an edit, a replaced column name renames the editor's `data-col` rules, and a replaced key value moves the editor's rules for that row. As in spreadsheets, the first Replace goes to the match and the next one replaces it.
 
 ## Printing

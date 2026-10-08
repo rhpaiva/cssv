@@ -1967,15 +1967,59 @@ function showFindCount() {
   find.count.classList.toggle('none', !!find.text.value && !matches.length);
 }
 
+// The boxes of characters `from` to `to` of the text that `texts`, a cell's
+// text nodes in order, show together.
+function textBoxes(texts, from, to) {
+  const out = [];
+  let at = 0;
+  for (const node of texts) {
+    const end = at + node.data.length;
+    if (end > from && at < to) {
+      const range = document.createRange();
+      range.setStart(node, Math.max(from - at, 0));
+      range.setEnd(node, Math.min(to - at, node.data.length));
+      out.push(...[...range.getClientRects()].filter((x) => x.width && x.height));
+    }
+    at = end;
+  }
+  return out;
+}
+
+// What to mark in a matched cell: each place its text shows the query, so a
+// cell laid across its row, as an inbox's message is, doesn't light up the
+// row. A cell that shows its value otherwise (a formatted number, text its
+// style block replaces), or a search for whole cells, marks all of its text,
+// and a cell whose text has no box marks the cell, as cellRect places it.
+function matchRects(r, c) {
+  const cell = front.table?.rows[r]?.cells[c];
+  if (!cell) return [];
+  const texts = [];
+  const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) texts.push(node);
+  const shown = texts.map((node) => node.data).join('');
+  const spans = [];
+  if (!find.whole.checked) {
+    const re = new RegExp(find.text.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), find.matchCase.checked ? 'gu' : 'giu');
+    for (const m of shown.matchAll(re)) spans.push([m.index, m.index + m[0].length]);
+  }
+  if (!spans.length) spans.push([0, shown.length]);
+  const boxes = spans.flatMap(([from, to]) => textBoxes(texts, from, to));
+  if (!boxes.length) {
+    const x = cellRect(r, c);
+    return x ? [x] : [];
+  }
+  const base = els.wrap.getBoundingClientRect();
+  return boxes.map((x) => ({ left: x.left - base.left - 1, top: x.top - base.top, right: x.right - base.left + 1, bottom: x.bottom - base.top }));
+}
+
 function drawMarks() {
   if (find.box.hidden || !state.find.matches.length) {
     els.marks.replaceChildren();
     return;
   }
-  els.marks.innerHTML = state.find.matches.slice(0, 2000).map(({ r, c }) => {
-    const x = cellRect(r, c);
-    return x ? `<div class="mark" style="left:${x.left}px;top:${x.top}px;width:${x.right - x.left}px;height:${x.bottom - x.top}px"></div>` : '';
-  }).join('');
+  els.marks.innerHTML = state.find.matches.slice(0, 2000).flatMap(({ r, c }) => matchRects(r, c)).map((x) => (
+    `<div class="mark" style="left:${x.left}px;top:${x.top}px;width:${x.right - x.left}px;height:${x.bottom - x.top}px"></div>`
+  )).join('');
 }
 
 function runFind({ jump = true } = {}) {
