@@ -448,7 +448,7 @@ Total,1154.50</code></pre>
   &lt;/script&gt;
 &lt;/cssv-table&gt;</code></pre>
             </div>
-            <p class="step-note">Serve <code>.cssv</code> files as <code>text/plain; charset=utf-8</code>. Wide tables overflow the element; add <code>cssv-table { overflow-x: auto; }</code> to scroll them, and style the table from the page with <code>cssv-table::part(table)</code>.</p>
+            <p class="step-note">Serve <code>.cssv</code> files as <code>text/plain; charset=utf-8</code>. Tables wider than the element are cut off at its edge; add <code>cssv-table { overflow-x: auto; }</code> to scroll them, and style the table from the page with <code>cssv-table::part(table)</code>.</p>
           </li>
           <li class="step">
             <div class="step-label"><span class="num">4</span><div><h3>Or render without a browser</h3><p><code>core.js</code> has no DOM dependencies. <code>toHtml()</code> produces the table model for server-side rendering or static output, in the locale you choose.</p></div></div>

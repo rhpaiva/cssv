@@ -27,7 +27,7 @@ import {
 } from './core.js';
 
 const OUTER_CSS = `
-:host { display: block; }
+:host { display: block; overflow-x: clip; } /* 11.4: a wide table can't cover what is beside the element */
 :host([hidden]) { display: none; }
 .clip { display: block; contain: paint; width: max-content; min-width: 100%; }
 .clip.pending { opacity: 0; }

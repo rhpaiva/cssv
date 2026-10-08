@@ -519,7 +519,7 @@ A stylesheet can match column names and key values with attribute selectors and 
 
 ### 11.4 Drawing outside the table
 
-CSS can place content anywhere on the screen, for example with `position: fixed`, and could cover the embedding page with fake content. Renderers MUST apply paint containment (`contain: paint`) or an equivalent to the element that holds the table, so author styles can only draw inside that element's box.
+CSS can place content anywhere on the screen, for example with `position: fixed`, and could cover the embedding page with fake content. Renderers MUST apply paint containment (`contain: paint`) or an equivalent to the element that holds the table, so author styles can only draw inside that element's box. If that box grows with the table, a wide table still covers what is beside it, so renderers SHOULD also clip or scroll what doesn't fit in the space the embedding page gives the table.
 
 ### 11.5 What the reader sees
 

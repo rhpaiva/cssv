@@ -57,6 +57,17 @@ describe('§11.4 Drawing outside the table', () => {
     });
     assert.deepEqual(hits, { above: 'above', below: 'below' });
   });
+
+  it('keeps a table wider than the element inside the element', async () => {
+    const page = await ctx.open(
+      `<div style="display: grid; grid-template-columns: 200px 200px">
+         ${inline('---\ntable { width: 600px; height: 100px; background: red; }\n---\na\n1')}
+         <p id="beside" style="height: 100px; margin: 0">page</p>
+       </div>`,
+    );
+    const hit = await page.evaluate(() => document.elementFromPoint(300, 50).id);
+    assert.equal(hit, 'beside');
+  });
 });
 
 describe('§8.3 Processing order', () => {

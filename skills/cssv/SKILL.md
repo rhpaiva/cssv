@@ -124,7 +124,7 @@ Every other `--cssv-*` name is reserved, so don't invent one. Your own custom pr
 - The renderer's defaults are `border-collapse: collapse`, small cell padding, bold `th`, `white-space: pre-wrap` and number cells aligned to the end with tabular digits. They sit in a cascade layer, so any rule of yours overrides them.
 - The table inherits the page's font and color. For lines and tints, prefer `currentColor` and `color-mix(in srgb, currentColor 12%, transparent)` so the table works on light and dark pages. Set explicit colors when the design brings its own background.
 - `@import url("…")` must come before every other rule. Relative URLs resolve against the `.cssv` file. Import only stylesheets you trust: an imported stylesheet can send column names and key values to its server (spec §11.3).
-- Painting is clipped to the table's box: give the table a margin when it has an outer `box-shadow`.
+- Painting is clipped to the table's box: give the table a margin when it has an outer `box-shadow`. A table wider than the element is cut off at the element's edge unless the page sets `cssv-table { overflow-x: auto; }`.
 - To lay the table out as cards, a board or a calendar, change `display` on its parts. With `table { display: grid; }` and `thead, tbody, tr { display: contents; }`, every cell is a grid item. Hide the column group with `colgroup { display: none; }`, or it takes the first grid cell and shifts every cell after it by one.
 - Text from `::before` and `::after` is decoration. Exports such as Markdown use the field values.
 

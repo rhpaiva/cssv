@@ -62,6 +62,7 @@ Files: **U** = `test/unit/`, **B** = `test/browser/`, **S** = `test/spec-example
 | 10.4 | Column names are never formatted; `:lang()` works | — | B `properties`: never formats column names; lets :lang() match |
 | 11.2 | Document the remote-load policy | SHOULD | README.md, Implementation notes |
 | 11.4 | Paint containment | MUST | B `rendering`: keeps fixed-position author content inside the table area |
+| 11.4 | Clip or scroll what doesn't fit beside the page | SHOULD | B `rendering`: keeps a table wider than the element inside the element |
 | 11.5 | Converters never use generated content | — | S `browser`: Appendix B (the `—` from `::after` is absent) |
 | 11.6 | Limits | MAY | Not implemented |
 | App. B | Markdown conversion | informative | U `markdown`; B `properties`: Appendix B; S `browser`: printed Markdown |
@@ -75,6 +76,7 @@ Each of these deliberate breaks to `src/` made at least one browser test fail (r
 | --- | --- |
 | Remove `contain: paint` | §11.4 |
 | Use a single shadow root | §11.4 |
+| Remove `overflow-x: clip` from the host | §11.4 |
 | Don't wait for imports before reading properties | §8.3 |
 | Show the table before step 6 | §8.3 |
 | Ignore the host `key` attribute | §9.1 |

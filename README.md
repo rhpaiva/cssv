@@ -107,7 +107,7 @@ If a new text has the same columns, and its style block changes only in rules th
 
 With 1,000 records and a heavy stylesheet, a one-cell change takes about a tenth as long as a full render until painted, and with 10,000 records about a twentieth. Inserting or deleting a row takes from a third to a sixth as long: rows below it move, so selectors that depend on position, such as `:nth-child()`, apply to them again. The rest is the browser laying the table out again, since one cell can change the column widths.
 
-The page can style the table with `cssv-table::part(table)`. Wide tables overflow the element; add `cssv-table { overflow-x: auto; }` to scroll them instead.
+The page can style the table with `cssv-table::part(table)`. A table wider than the element is cut off at the element's edge (§11.4); add `cssv-table { overflow-x: auto; }` to scroll it instead.
 
 ## Use without a browser
 
@@ -173,7 +173,7 @@ curl --create-dirs -o ~/.claude/skills/cssv/SKILL.md https://cssv.dev/skills/css
 
 ## Implementation notes
 
-- **Two shadow roots.** The table lives in a shadow root inside a second, renderer-owned shadow root. Paint containment (§11.4) sits on an element the file's stylesheet cannot select, so even `:host { position: fixed !important }` stays inside the table's box.
+- **Two shadow roots.** The table lives in a shadow root inside a second, renderer-owned shadow root. Paint containment (§11.4) sits on an element the file's stylesheet cannot select, so even `:host { position: fixed !important }` stays inside the table's box. That box is as wide as the table, so the element itself has `overflow-x: clip`: a table wider than the element can't cover what is beside it. A page can set `overflow-x` on the element to override it.
 - **Waiting for styles.** A `<style>` element fires `load` (or `error`) only after all its imports, including nested ones, have finished, so the renderer waits on that single event before reading `--cssv-key` and `--cssv-format` (§8.3). When a new file replaces the table, the old table stays visible while the file loads and is swapped out only when the new one is inserted, which is then hidden until its styles have loaded.
 - **Relative URLs.** The style block's `@import` and `url()` references are rewritten to absolute URLs based on the file's final URL after redirects (§4.3). URLs inside `image-set()` strings are not rewritten.
 - **Remote loads (§11.2).** This renderer does not restrict them: a style block can load anything the browser allows. To restrict them, give the page a Content Security Policy such as `default-src 'self'; style-src 'self' 'unsafe-inline'`, which blocks `@import` and `url()` loads from other origins; a blocked import is reported like any failed import. `style-src` needs `'unsafe-inline'`, because the renderer adds its styles as `<style>` elements, and without it no styles apply.
