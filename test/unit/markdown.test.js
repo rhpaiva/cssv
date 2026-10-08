@@ -54,4 +54,9 @@ describe('Appendix B: Markdown serialization', () => {
     const md = toMarkdown({ header: ['c'], rows: [[cell('a`b|c', { mono: true })]] });
     assert.equal(md.split('\n')[2], '| ``a`b\\|c`` |');
   });
+
+  it('writes monospace text with a backslash before a | as escaped <code>, so the cell stays one cell', () => {
+    const md = toMarkdown({ header: ['c', 'd'], rows: [[cell('x\\|<img src=x>', { mono: true }), cell('ok')]] });
+    assert.equal(md.split('\n')[2], '| <code>x\\\\\\|\\<img src=x></code> | ok |');
+  });
 });

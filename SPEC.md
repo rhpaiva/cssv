@@ -650,6 +650,7 @@ A converter can turn a rendered table into a GitHub Flavored Markdown table by r
 - The header row holds the column names, not wrapped, because Markdown renderers already show headers in bold.
 - Cells use the displayed value, which is formatted and localized.
 - `|` is escaped as `\|`, line breaks become `<br>`, and Markdown syntax characters in values are escaped with a backslash.
+- In a table, a backslash before a `|` escapes the backslash, even in a code span, so the `|` would end the cell. Monospace text with a backslash before a `|` is written as `<code>value</code>`, escaped like other text, instead of as a code span.
 - Alignment is per column in Markdown, so a column whose cells differ gets `---`.
 - Colors, backgrounds, borders, widths and CSS-generated content are lost.
 

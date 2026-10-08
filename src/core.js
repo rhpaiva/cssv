@@ -522,9 +522,16 @@ function codeSpan(text) {
   return fence + pad + text.replace(/\|/g, '\\|').replace(/\r\n|\r|\n/g, ' ') + pad + fence;
 }
 
+// In a table, a backslash before a | escapes the backslash instead of the
+// pipe, even in a code span, so the pipe would end the cell and the rest
+// would be read as Markdown. Such text goes in <code> as escaped text.
+function monoCell(text) {
+  return /\\\|/.test(text) ? `<code>${escapeMarkdown(text)}</code>` : codeSpan(text);
+}
+
 function mdCell(cell) {
   if (cell.text === '') return '';
-  let s = cell.mono ? codeSpan(cell.text) : escapeMarkdown(cell.text);
+  let s = cell.mono ? monoCell(cell.text) : escapeMarkdown(cell.text);
   if (cell.strike) s = `~~${s}~~`;
   if (cell.italic) s = `*${s}*`;
   if (cell.bold) s = `**${s}**`;
