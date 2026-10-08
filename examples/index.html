@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The demos' scripts are inline, so script-src allows inline scripts; everything else comes from this site only. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>CSSV examples</title>
   <meta name="description" content="CSSV examples: CSV files people already have, from a Jira export to a WhatsApp chat, and files made to show what a style block can do, from a periodic table to a seat map. Each one is a .cssv file rendered by <cssv-table>.">
   <link rel="canonical" href="https://cssv.dev/examples/">
