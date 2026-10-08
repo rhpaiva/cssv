@@ -200,7 +200,7 @@ export function normalizeSelector(text) {
     .replace(/(^|[^:]):(before|after|first-line|first-letter)\b/gi, '$1::$2')
     .replace(/\(\s*even\s*\)/gi, '(2n)')
     .replace(/\(\s*odd\s*\)/gi, '(2n+1)')
-    .replace(/(\[[^\]="]+[~|^$*]?=)\s*"((?:[^"\\]|\\.)*)"\s*([is])?\s*\]/g, '$1$2$3]')
+    .replace(/(\[[^[\]="]+[~|^$*]?=)\s*"((?:[^"\\]|\\.)*)"\s*([is])?\s*\]/g, '$1$2$3]')
     .replace(/\s+/g, '')
     .toLowerCase();
 }
@@ -261,18 +261,28 @@ export function rulePreludes(css) {
  * selector text, so rules the browser dropped don't shift the rest.
  */
 export function locateRules(rules, preludes) {
+  // Each selector, normalized once, and where it occurs, in order: rules
+  // the browser dropped would otherwise cost a scan of the rest each.
+  const places = new Map();
+  preludes.forEach((prelude, j) => {
+    const key = normalizeSelector(prelude.text);
+    if (places.has(key)) places.get(key).push(j);
+    else places.set(key, [j]);
+  });
+  const passed = new Map(); // selector → how many of its places lie before p
   const where = new Map();
   let p = 0;
   for (const entry of rules) {
     if (entry.origin !== 'author') continue;
     const want = normalizeSelector(entry.rule.selectorText);
-    for (let j = p; j < preludes.length; j++) {
-      if (normalizeSelector(preludes[j].text) === want) {
-        where.set(entry.rule, preludes[j]);
-        p = j + 1;
-        break;
-      }
-    }
+    const list = places.get(want);
+    if (!list) continue;
+    let i = passed.get(want) ?? 0;
+    while (i < list.length && list[i] < p) i++;
+    passed.set(want, i);
+    if (i === list.length) continue;
+    where.set(entry.rule, preludes[list[i]]);
+    p = list[i] + 1;
   }
   return where;
 }
