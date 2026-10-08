@@ -1,6 +1,6 @@
 {
   "name": "@rhpaiva/cssv",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A table's data and its look in one plain-text file: CSV with a CSS style block on top. Reference implementation of CSSV v1 (Comma-Separated Styled Values) and the <cssv-table> element.",
   "keywords": [
     "cssv",
