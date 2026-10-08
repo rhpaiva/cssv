@@ -46,7 +46,7 @@ async function fill(card, path) {
     desc.textContent = description ?? '';
     stats.textContent = `${plural(model.rows.length, 'row')} · ${plural(model.columns.length, 'column')} · ${size(new Blob([text]).size)}`;
     await table.update(preview(text, s, url));
-    hoistFonts(table.model);
+    hoistFonts(table.model, undefined, `card ${url}`);
   } catch (error) {
     card.classList.add('failed');
     stats.textContent = error.message;
