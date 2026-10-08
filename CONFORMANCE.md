@@ -64,7 +64,7 @@ Files: **U** = `test/unit/`, **B** = `test/browser/`, **S** = `test/spec-example
 | 11.4 | Paint containment | MUST | B `rendering`: keeps fixed-position author content inside the table area |
 | 11.4 | Clip or scroll what doesn't fit beside the page | SHOULD | B `rendering`: keeps a table wider than the element inside the element |
 | 11.5 | Converters never use generated content | — | S `browser`: Appendix B (the `—` from `::after` is absent) |
-| 11.6 | Limits | MAY | Not implemented |
+| 11.6 | Limits: at most 1,000,000 cells, reported | MAY, SHOULD | U `data-section`: §11.6 tests; B `rendering`: reports the cell limit as a fatal error |
 | App. B | Markdown conversion | informative | U `markdown`; B `properties`: Appendix B; S `browser`: printed Markdown |
 | App. C | Inline text, leading empty lines, indentation, page-relative URLs | informative | U `embedding`; B `rendering`: Appendix C; S `browser`: Appendix C |
 

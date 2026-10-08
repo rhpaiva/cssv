@@ -172,6 +172,15 @@ describe('§3.4 §5 Malformed files', () => {
   });
 });
 
+describe('§11.6 Resource limits', () => {
+  it('reports the cell limit as a fatal error and shows nothing', async () => {
+    ctx.server.file('/limits/wide.cssv', `h\n${','.repeat(1000)}\n${'a\n'.repeat(1199)}`);
+    const page = await ctx.open('<cssv-table id="t" src="/limits/wide.cssv"></cssv-table>');
+    assert.equal(await page.evaluate(() => document.getElementById('t').table), null);
+    assert.deepEqual(await page.evaluate(() => __cssvErrors.map((e) => [e.section, e.fatal])), [['11.6', true]]);
+  });
+});
+
 describe('§3.3 File name and media type', () => {
   it('does not rely on the media type', async () => {
     ctx.server.file('/types/data.txt', '---\ntable { --x: y; }\n---\na\n1\n', { type: 'application/octet-stream' });

@@ -527,7 +527,7 @@ CSS can add text that is not in the data (`td::after { content: "approved" }`) a
 
 ### 11.6 Resource limits
 
-Large files and deep import chains use memory and time. Renderers MAY limit file size, row count or import depth, and SHOULD report when a limit is reached.
+Large files and deep import chains use memory and time. A short file can also describe a large table, because one long record makes every record that wide (section 5.3). Renderers MAY limit file size, row count, cell count or import depth, and SHOULD report when a limit is reached.
 
 ## 12. Complete example
 

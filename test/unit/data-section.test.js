@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { detectDelimiter, parseRecords, parse, CssvError } from '../../src/core.js';
+import { detectDelimiter, parseRecords, parse, CssvError, MAX_CELLS } from '../../src/core.js';
 
 describe('§5 Data section: RFC 4180 with differences', () => {
   it('reads quoted fields with delimiters, escaped quotes and line breaks', () => {
@@ -110,5 +110,20 @@ describe('§5.3 Records and columns', () => {
     const model = parse('a,b\n');
     assert.deepEqual(model.columns, ['a', 'b']);
     assert.deepEqual(model.rows, []);
+  });
+});
+
+describe('§11.6 Resource limits', () => {
+  it('refuses a short file that describes more than MAX_CELLS cells', () => {
+    // 1,201 records, one of them 1,001 fields long: every record is padded to that width.
+    const text = `h\n${','.repeat(1000)}\n${'a\n'.repeat(1199)}`;
+    assert.ok(text.length < 4000);
+    assert.throws(() => parse(text), (e) => e instanceof CssvError && e.section === '11.6' && /1,202,201 cells/.test(e.message));
+  });
+
+  it('counts records × columns, header included, and takes another limit', () => {
+    assert.equal(MAX_CELLS, 1_000_000);
+    assert.equal(parse('a,b\n1,2\n', { maxCells: 4 }).rows.length, 1);
+    assert.throws(() => parse('a,b\n1,2\n', { maxCells: 3 }), { section: '11.6' });
   });
 });

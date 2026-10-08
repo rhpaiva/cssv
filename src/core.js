@@ -170,11 +170,21 @@ export function classify(field) {
 
 // --- Parsing a whole file (sections 3 to 6) --------------------------------
 
-export function parse(text) {
+// 11.6: one long record makes every record that wide (5.3), so a short file
+// can describe a huge table. Past this many cells, header included, parsing
+// stops with an error before the records are padded.
+export const MAX_CELLS = 1_000_000;
+
+export function parse(text, { maxCells = MAX_CELLS } = {}) {
   const { style, data } = splitFile(text);
   const delimiter = detectDelimiter(data);
   const records = parseRecords(data, delimiter);
   const width = records.reduce((max, r) => Math.max(max, r.length), 0);
+  const cells = records.length * width;
+  if (cells > maxCells) {
+    const n = (x) => x.toLocaleString('en-US');
+    throw new CssvError(`The table would have ${n(cells)} cells (${n(records.length)} records × ${n(width)} columns); the limit is ${n(maxCells)}.`, '11.6');
+  }
   const pad = (r) => r.concat(Array(width - r.length).fill(''));
 
   const columns = records.length ? pad(records[0]) : [];
