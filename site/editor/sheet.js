@@ -2671,8 +2671,8 @@ for (const [id, property, verb] of [['color', 'color', 'Text color'], ['fill', '
   input.addEventListener('change', () => setStyle(property, input.value, `${verb} ${input.value}`));
 }
 
-// For the browser checks in the scratchpad.
-window.sheet = {
+// For the browser checks in the scratchpad, which run on a local server.
+if (['localhost', '127.0.0.1'].includes(location.hostname)) window.sheet = {
   state, select, sortRows, addRow, deleteRows, insertColumn, deleteColumns, moveColumns, pasteValues, parseTsv,
   undo, redo, setStyle, toggleStyle, normalize, openEditor, closeEditor,
   setFormat, stepDecimals, toggleGrouping, cellFormat, formatString, align, renderInspector, setInspectorOpen,
@@ -2685,4 +2685,5 @@ window.sheet = {
 
 state.locale = els.locale.value;
 const file = new URLSearchParams(location.search).get('file');
-window.sheet.loaded = file === null ? showHome() : openFile(file);
+const loaded = file === null ? showHome() : openFile(file);
+if (window.sheet) window.sheet.loaded = loaded;
