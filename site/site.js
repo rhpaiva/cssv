@@ -180,9 +180,17 @@ for (const example of $$('.example')) {
       status.textContent = `${model.rows.length} ${model.rows.length === 1 ? 'row' : 'rows'} × ${model.columns.length} columns`;
       // Imported stylesheets open in a new tab, so the whole look can be read.
       for (const [, href] of (model.style ?? '').matchAll(/@import\s+(?:url\(\s*)?["']([^"']+)["']/g)) {
+        let url;
+        try {
+          url = new URL(href, document.baseURI);
+        } catch {
+          continue;
+        }
+        if (url.protocol !== 'https:' && url.protocol !== 'http:') continue; // typed text: no javascript: links
         const link = document.createElement('a');
-        link.href = new URL(href, document.baseURI).href;
+        link.href = url.href;
         link.target = '_blank';
+        link.rel = 'noopener';
         link.textContent = href;
         status.append(' · imports ', link);
       }
