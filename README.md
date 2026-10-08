@@ -1,6 +1,6 @@
 # CSSV
 
-[![CI](https://img.shields.io/github/actions/workflow/status/rhpaiva/cssv/ci.yml?branch=main&label=CI)](https://github.com/rhpaiva/cssv/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fcssv.dev%2Fcoverage.json)](https://github.com/rhpaiva/cssv/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/rhpaiva/cssv/ci.yml?branch=main&label=CI)](https://github.com/rhpaiva/cssv/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fcssv.dev%2Fcoverage.json)](https://github.com/rhpaiva/cssv/actions/workflows/ci.yml) [![Mutation score](https://img.shields.io/endpoint?url=https%3A%2F%2Fcssv.dev%2Fmutation.json)](https://github.com/rhpaiva/cssv/actions/workflows/ci.yml)
 
 **CSSV (Comma-Separated Styled Values)** keeps a table's data and its look in one plain-text file: CSV for the data, with a CSS style block on top for the presentation. A renderer turns the CSV into an HTML table and applies the file's own styles, so the table carries its look to every page that shows it.
 

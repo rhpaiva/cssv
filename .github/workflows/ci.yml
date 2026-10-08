@@ -9,7 +9,7 @@
 # The mutation tests: Stryker mutates src/core.js and runs the unit tests
 # against each mutant; the run fails below the score in stryker.config.json.
 # The browser half isn't mutated, since every mutant would cost a browser run.
-# The deploy doesn't wait for them.
+# The score goes to the website as mutation.json, for the README's badge.
 #
 # The website: GitHub Pages, served at https://cssv.dev (the custom domain is
 # set in the repository's Pages settings). site/ becomes the root; its pages
@@ -64,6 +64,24 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run mutate
+      # Also when the score is below the break threshold: the badge shows it.
+      - name: Mutation badge
+        if: ${{ !cancelled() }}
+        run: |
+          node -e '
+            const { files } = require("./reports/mutation/mutation.json");
+            const { thresholds } = require("./stryker.config.json");
+            const count = (...s) => Object.values(files).flatMap((f) => f.mutants).filter((m) => s.includes(m.status)).length;
+            const detected = count("Killed", "Timeout");
+            const score = (100 * detected) / (detected + count("Survived", "NoCoverage"));
+            const color = score >= thresholds.high ? "brightgreen" : score >= thresholds.low ? "yellow" : "red";
+            console.log(JSON.stringify({ schemaVersion: 1, label: "mutation score", message: `${score.toFixed(2)}%`, color }));
+          ' > mutation.json
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation
+          path: mutation.json
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
@@ -71,8 +89,10 @@ jobs:
           path: reports/mutation/mutation.html
 
   deploy:
-    needs: test
-    if: github.ref == 'refs/heads/main'
+    # Waits for the mutation tests to publish their score, but doesn't need
+    # them to pass: a lower score shows on the badge.
+    needs: [test, mutation]
+    if: ${{ !cancelled() && needs.test.result == 'success' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -93,6 +113,11 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: coverage
+          path: _site
+      - uses: actions/download-artifact@v8
+        continue-on-error: true # missing when the mutation job failed before its score
+        with:
+          name: mutation
           path: _site
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

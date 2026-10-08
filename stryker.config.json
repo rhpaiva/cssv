@@ -6,6 +6,6 @@
   "coverageAnalysis": "off",
   "concurrency": 4,
   "thresholds": { "high": 95, "low": 93, "break": 93 },
-  "reporters": ["html", "clear-text", "progress"],
+  "reporters": ["html", "json", "clear-text", "progress"],
   "ignorePatterns": ["coverage", "reports"]
 }
