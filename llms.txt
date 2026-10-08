@@ -4,7 +4,7 @@
 
 A CSSV file starts with a `---` line, then CSS, then another `---` line, then CSV with a header record. Stylesheets select the table model's hooks: `data-col` (the column name), `data-row` (the record number), `data-key` (the row's name from the key column) and the classes `number`, `negative`, `zero` and `positive`. Two custom properties configure rendering: `--cssv-key` picks the key column, by name or by position with `col(2)`, and `--cssv-format` takes `Intl.NumberFormat` options. Numbers are written as `-1234.5` in every file and shown in the reader's locale. The style block can open with `/* cssv:title … */` and `/* cssv:description … */` comments, which file lists and previews show.
 
-The reference renderer is the `<cssv-table>` custom element, published on npm as `@rhpaiva/cssv` with no dependencies. Install it with `npm install @rhpaiva/cssv`, or load it in a page with `<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.3/src/cssv-table.js"></script>`. The package's processor also parses CSSV and renders the table model as HTML in Node.
+The reference renderer is the `<cssv-table>` custom element, published on npm as `@rhpaiva/cssv` with no dependencies. Install it with `npm install @rhpaiva/cssv`, or load it in a page with `<script type="module" src="https://cdn.jsdelivr.net/npm/@rhpaiva/cssv@0.4/src/cssv-table.js"></script>`. The package's processor also parses CSSV and renders the table model as HTML in Node.
 
 ## Docs
 
