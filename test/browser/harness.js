@@ -1,13 +1,14 @@
 // Shared setup for browser tests: a static server for the repository plus
 // in-memory files (with optional delay or status), and a Chromium page.
 import http from 'node:http';
-import { readFile } from 'node:fs/promises';
-import { extname, join, normalize } from 'node:path';
+import { readFile, realpath } from 'node:fs/promises';
+import { extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { before, after } from 'node:test';
 import { chromium } from 'playwright';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
+const REAL_ROOT = realpath(ROOT).then((path) => path + sep);
 const TYPES = { '.js': 'text/javascript', '.css': 'text/css', '.html': 'text/html', '.cssv': 'text/plain; charset=utf-8', '.csv': 'text/csv', '.png': 'image/png' };
 
 /**
@@ -24,7 +25,20 @@ export function startServer() {
   const requests = [];
   let pages = 0;
   const server = http.createServer(async (req, res) => {
-    const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    // Only this machine's names for the server: a page that rebinds its own
+    // host name to 127.0.0.1 can't read the repository through it.
+    const { port } = server.address();
+    if (req.headers.host !== `127.0.0.1:${port}` && req.headers.host !== `localhost:${port}`) {
+      res.writeHead(421);
+      return res.end();
+    }
+    let path;
+    try {
+      path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    } catch {
+      res.writeHead(400); // a malformed %-escape
+      return res.end();
+    }
     requests.push(path);
     const entry = files.get(path);
     if (entry) {
@@ -37,7 +51,8 @@ export function startServer() {
     }
     try {
       const file = normalize(join(ROOT, path));
-      if (!file.startsWith(ROOT)) throw new Error('outside root');
+      // A symbolic link inside the repository can point anywhere.
+      if (!file.startsWith(ROOT) || !(await realpath(file)).startsWith(await REAL_ROOT)) throw new Error('outside root');
       const body = await readFile(file);
       res.writeHead(200, { 'content-type': TYPES[extname(path)] ?? 'application/octet-stream' });
       res.end(body);
