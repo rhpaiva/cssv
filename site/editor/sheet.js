@@ -1289,7 +1289,16 @@ function preludes() {
   return preludeCache;
 }
 
-const fileOf = (href) => decodeURIComponent((href ?? '').split(/[?#]/)[0].split('/').pop() || 'an imported file');
+// The last part of an import's URL, as text: callers escape it.
+function fileOf(href) {
+  const name = (href ?? '').split(/[?#]/)[0].split('/').pop();
+  if (!name) return 'an imported file';
+  try {
+    return decodeURIComponent(name);
+  } catch {
+    return name; // a malformed %-escape
+  }
+}
 
 function ruleCard(entry, where) {
   const p = where.get(entry.rule);
@@ -1323,7 +1332,7 @@ function formatSection(cell, r, c, lists, where) {
   const source = level >= 0 ? lists[level].find(sets) : null;
   const line = source && where.get(source.rule)?.line;
   const how = level > 0 ? `inherited from the ${level === 1 ? 'row' : 'table'}` : 'set';
-  const from = !set ? 'default display (§10.2)' : line ? `${how}, line ${line}` : source?.origin === 'import' ? `${how}, in ${fileOf(source.href)}` : 'set by the style block';
+  const from = !set ? 'default display (§10.2)' : line ? `${how}, line ${line}` : source?.origin === 'import' ? `${how}, in ${esc(fileOf(source.href))}` : 'set by the style block';
   const asWritten = { minimumIntegerDigits: 1, minimumFractionDigits: decimalsOf(value), maximumFractionDigits: decimalsOf(value), useGrouping: false };
   const presets = PRESETS.map((p) => {
     const on = p.options ? set && sameFormat(options, p.options) : !set;
