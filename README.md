@@ -161,6 +161,10 @@ The website lives in `site/`. Like the demo, it loads `../src/` and `../examples
 
 Two scripts make animations from the real renderer. Each renders its tables with `<cssv-table>` in Chromium and embeds them, with their stylesheets, in an SVG that has no script and also animates as an `<img>`. `node tools/intro.js` makes `site/intro.svg`, the animation at the top of this README, and with `--mp4 intro.mp4` also records it as a 1080p video (this needs ffmpeg). `node tools/demo-svg.js` makes `site/demo.svg`, in which a file is typed next to the table it renders. Run them again after changing the renderer, its default styles or the files they show.
 
+## Desktop viewer
+
+[CSSV Viewer](https://github.com/rhpaiva/cssv-viewer) is an app that opens `.cssv` files from disk: a [Tauri](https://tauri.app/) window around `<cssv-table>`, with a tab for each file, find, a plain and a source view, copying, saving as CSV, PNG or SVG, and printing. It lives in its own repository and takes the renderer from this package on npm.
+
 ## Use with AI agents
 
 [skills/cssv/SKILL.md](skills/cssv/SKILL.md) is a Claude Code skill that teaches Claude to write correct CSSV files: the format rules, the table model's hooks, the CSSV properties, a checklist and a script that checks a file. Save it as `~/.claude/skills/cssv/SKILL.md` for every project, or as `.claude/skills/cssv/SKILL.md` in one:
