@@ -23,7 +23,7 @@
 
 import {
   parse, inlineText, DEFAULT_CSS, rewriteCssUrls, parseCssvValue, parseKey, parseFormat, formatNumber,
-  defaultDisplay, display, keyIndex, toMarkdown, CssvError,
+  defaultDisplay, display, keyIndex, toMarkdown, CssvError, readCssString,
 } from './core.js';
 
 const OUTER_CSS = `
@@ -35,6 +35,50 @@ const OUTER_CSS = `
 `;
 
 const IMPORT_FAILED = 'An imported stylesheet failed to load; the rest of the styles still apply.';
+
+// Detect CSS at-keyword tokens rather than text, including escaped spellings.
+// Comments and strings cannot produce at-keywords and are skipped.
+function hasImportRule(css) {
+  for (let i = 0; i < css.length;) {
+    if (css[i] === '/' && css[i + 1] === '*') {
+      const end = css.indexOf('*/', i + 2);
+      i = end === -1 ? css.length : end + 2;
+      continue;
+    }
+    if (css[i] === '"' || css[i] === "'") {
+      const string = readCssString(css, i);
+      i = string ? string[1] : css.length;
+      continue;
+    }
+    if (css[i] === '@') {
+      let j = i + 1;
+      let name = '';
+      while (j < css.length) {
+        const ch = css[j];
+        if (/[a-z0-9_-]/i.test(ch) || ch.charCodeAt(0) >= 0x80) {
+          name += ch;
+          j++;
+        } else if (ch === '\\' && j + 1 < css.length && !/[\n\r\f]/.test(css[j + 1])) {
+          let k = j + 1;
+          if (/[0-9a-f]/i.test(css[k])) {
+            let hex = '';
+            while (hex.length < 6 && /[0-9a-f]/i.test(css[k] ?? '')) hex += css[k++];
+            if (/[\t\n\r\f ]/.test(css[k] ?? '')) k++;
+            const codepoint = parseInt(hex, 16);
+            name += codepoint === 0 || codepoint > 0x10ffff ? '\uFFFD' : String.fromCodePoint(codepoint);
+          } else {
+            name += css[k++];
+          }
+          j = k;
+        } else break;
+      }
+      if (name.toLowerCase() === 'import') return true;
+      if (j > i + 1) { i = j; continue; }
+    }
+    i++;
+  }
+  return false;
+}
 
 function styleElement(css) {
   const el = document.createElement('style');
@@ -358,6 +402,8 @@ export class CssvTable extends Base {
     if (old.columns.some((name, c) => name !== model.columns[c])) return false; // names are on every cell
     const css = model.style === null ? '' : rewriteCssUrls(model.style, base);
     if (css !== shown.css) {
+      // Firefox reuses an empty import parsed in #planStyle's inert document.
+      if (hasImportRule(css)) return false;
       const restyle = this.#planStyle(css);
       if (!restyle) return false;
       try {

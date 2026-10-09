@@ -418,6 +418,39 @@ Total,1154.5,9`;
     assert.deepEqual(result, { same: false, color: 'rgb(0, 128, 0)' });
   });
 
+  it('renders in full for escaped and case-insensitive @import at-keywords', async () => {
+    ctx.server.file('/update/escaped-import.css', 'td { color: rgb(0, 128, 0); }');
+    ctx.server.file('/update/uppercase-import.css', 'td { color: rgb(1, 2, 3); }');
+    const page = await ctx.open(inline(BASE));
+    const result = await page.evaluate(async ({ escapedText, uppercaseText }) => {
+      const t = document.getElementById('t');
+      const initial = t.table;
+      await t.update(escapedText);
+      const escaped = { same: t.table === initial, color: getComputedStyle(t.table.querySelector('td')).color };
+      const escapedTable = t.table;
+      await t.update(uppercaseText);
+      return [escaped, { same: t.table === escapedTable, color: getComputedStyle(t.table.querySelector('td')).color }];
+    }, {
+      escapedText: BASE.replace('---\ntable', '---\n@\\69mport url("/update/escaped-import.css");\ntable'),
+      uppercaseText: BASE.replace('---\ntable', '---\n@IMPORT url("/update/uppercase-import.css");\ntable'),
+    });
+    assert.deepEqual(result, [
+      { same: false, color: 'rgb(0, 128, 0)' },
+      { same: false, color: 'rgb(1, 2, 3)' },
+    ]);
+  });
+
+  it('ignores @import text in comments and strings when updating in place', async () => {
+    const page = await ctx.open(inline(BASE));
+    const result = await page.evaluate(async (text) => {
+      const t = document.getElementById('t');
+      const before = t.table;
+      await t.update(text);
+      return { same: t.table === before, color: getComputedStyle(t.table.querySelector('td')).color };
+    }, BASE.replace('---\ntable', '---\n/* @import "comment.css"; */\ntd::before { content: "@IMPORT string.css"; }\ntd { color: rgb(1, 2, 3); }\ntable'));
+    assert.deepEqual(result, { same: true, color: 'rgb(1, 2, 3)' });
+  });
+
   it('adds and removes rows in place', async () => {
     const page = await ctx.open(inline(BASE));
     const [head, body] = [BASE.slice(0, BASE.indexOf('Rent')), BASE.slice(BASE.indexOf('Rent')).split('\n')];
