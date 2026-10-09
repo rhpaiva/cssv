@@ -1,8 +1,10 @@
-// Behavior for the CSSV website. The tables themselves need none of this:
-// <cssv-table> renders them. This adds the playground, the inspector, tabs,
-// "View source" panels and copy buttons.
+// Behavior for the CSSV website's home page. The tables themselves need none
+// of this: <cssv-table> renders them. This adds the playground, the
+// inspector and "View source" panels; common.js adds the tabs and the code
+// blocks' copy buttons.
 import { inlineText as normalize } from '../src/core.js';
 import { highlightCssv, highlighters, span } from './highlight.js';
+import { copyButton } from './common.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -18,63 +20,6 @@ async function sourceOf(table) {
   const res = await fetch(new URL(src, document.baseURI));
   if (!res.ok) throw new Error(`Could not load ${src} (HTTP ${res.status}).`);
   return { text: await res.text(), name: src.replace(/^(?:\.\.\/)+/, ''), url: res.url };
-}
-
-// Tabs ------------------------------------------------------------------
-
-for (const list of $$('[role="tablist"]')) {
-  const tabs = $$('[role="tab"]', list);
-  const select = (tab, focus = false) => {
-    for (const t of tabs) {
-      const on = t === tab;
-      t.setAttribute('aria-selected', String(on));
-      t.tabIndex = on ? 0 : -1;
-      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
-    }
-    if (focus) tab.focus();
-    list.dispatchEvent(new CustomEvent('tabchange', { detail: tab }));
-  };
-  list.addEventListener('click', (event) => {
-    const tab = event.target.closest('[role="tab"]');
-    if (tab) select(tab);
-  });
-  list.addEventListener('keydown', (event) => {
-    const i = tabs.indexOf(document.activeElement);
-    if (i < 0) return;
-    const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[event.key];
-    if (next === undefined) return;
-    event.preventDefault();
-    select(tabs[(next + tabs.length) % tabs.length], true);
-  });
-}
-
-// Code blocks: highlighting and copy buttons -----------------------------
-
-function copyButton(getText, label = 'Copy') {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'copy';
-  button.textContent = label;
-  button.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(getText());
-      button.textContent = 'Copied';
-    } catch {
-      button.textContent = 'Copy failed';
-    }
-    setTimeout(() => { button.textContent = label; }, 1400);
-  });
-  return button;
-}
-
-for (const pre of $$('pre.code[data-lang]')) {
-  const code = $('code', pre);
-  const text = code.textContent;
-  code.replaceChildren(highlighters[pre.dataset.lang](text));
-  const wrap = document.createElement('div');
-  wrap.className = 'code-wrap';
-  pre.replaceWith(wrap);
-  wrap.append(pre, copyButton(() => text));
 }
 
 // "View source" panels ---------------------------------------------------

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>CSSV Viewer · A desktop app for .cssv files</title>
+  <meta name="description" content="CSSV Viewer opens .cssv files as the styled tables they describe, in tabs, with find, a source view, copying, export and printing. Downloads for Linux, macOS and Windows, with installation notes.">
+  <link rel="canonical" href="https://cssv.dev/viewer.html">
+  <meta property="og:url" content="https://cssv.dev/viewer.html">
+  <meta property="og:title" content="CSSV Viewer · A desktop app for .cssv files">
+  <meta property="og:description" content="Open .cssv files on Linux, macOS and Windows: styled tables in tabs, updated as you save.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CSSV">
+  <meta property="og:image" content="https://cssv.dev/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CSSV: Plain text in, styled tables out.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d0d0c" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="site.css">
+  <script type="module" src="common.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="./" aria-label="CSSV home">
+        <img src="favicon.svg" alt="" width="30" height="30">
+        <span>CSSV</span>
+      </a>
+      <nav aria-label="Site">
+        <button class="nav-learn" type="button" popovertarget="nav-learn">Learn</button>
+        <div class="nav-pop" id="nav-learn" popover>
+          <a href="./#why">Why CSSV</a>
+          <a href="./#how">How it works</a>
+          <a href="./#start">Get started</a>
+          <a href="./#ai">For AI agents</a>
+        </div>
+        <a href="../examples/">Examples</a>
+        <a class="wide-only" href="../examples/experiments.html">Experiments</a>
+        <a href="spec.html">Spec</a>
+        <span class="nav-sep" aria-hidden="true"></span>
+        <a class="phone-hidden" href="editor/">Editor</a>
+        <a class="nav-app" href="viewer.html" aria-current="page" aria-label="Desktop app"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7M4.75 6.5 8 9.75l3.25-3.25M3 13h10"/></svg><span class="long">Desktop app</span><span class="short">App</span></a>
+        <a class="gh" href="https://github.com/rhpaiva/cssv" aria-label="CSSV on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero ------------------------------------------------------------- -->
+    <section class="hero app-hero" id="top">
+      <div class="wrap">
+        <p class="eyebrow">CSSV Viewer · Desktop app</p>
+        <h1>A desktop app for <span>.cssv files</span>.</h1>
+        <p class="lede">CSSV Viewer shows a <code>.cssv</code> file as the styled table it describes, rendered by the same <code>&lt;cssv-table&gt;</code> as this website. Open files from your file manager, keep them in tabs, and edit them in your own editor: each save updates the table in place.</p>
+        <div class="cta">
+          <a class="button primary" href="#download">Download</a>
+          <a class="button" href="https://github.com/rhpaiva/cssv-viewer">Source on GitHub</a>
+        </div>
+        <ul class="facts">
+          <li>Version 0.1.0</li>
+          <li>Linux, macOS and Windows</li>
+          <li>Free and open source, MIT licensed</li>
+          <li>Nothing remote unless you allow it</li>
+        </ul>
+
+        <figure class="card shot">
+          <img src="img/cssv-viewer-document.webp" width="1598" height="1093" alt="The CSSV Viewer window with three tabs. The open one shows elements.cssv as a periodic table, with the Source pane beside it listing the file's style block with line numbers.">
+          <figcaption><code>elements.cssv</code> in a tab, with the Source pane open beside it. The tab is named after the file's <code>cssv:title</code>.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Features --------------------------------------------------------- -->
+    <section class="section" id="features">
+      <div class="wrap">
+        <p class="eyebrow">What it does</p>
+        <h2>Made for reading tables, <em>not editing them</em>.</h2>
+        <p class="lede">The viewer never changes your file. Write it in any editor, or have a script or a language model write it, and the viewer shows the result each time the file is saved.</p>
+
+        <div class="goals">
+          <article>
+            <h3>Tabs</h3>
+            <p>A tab for each file, named after its <code>cssv:title</code>. A file you open from the file manager joins the window that's already open.</p>
+          </article>
+          <article>
+            <h3>Live reload</h3>
+            <p>Save the file and its table updates in place, in background tabs too. The scroll position and the rows that didn't change stay.</p>
+          </article>
+          <article>
+            <h3>Find</h3>
+            <p>Searches the values as the file holds them, so <code>1234.5</code> finds the cell that shows <code>1,234.50</code>.</p>
+          </article>
+          <article>
+            <h3>Plain and source views</h3>
+            <p>See the data without its style block, or the file's text beside the table. Problems the renderer reports are listed with their section of the spec and, where it's known, a link to their line.</p>
+          </article>
+          <article>
+            <h3>Copy and save</h3>
+            <p>Copy cells for a spreadsheet, the table as Markdown or the data as CSV. Save a picture as PNG, or as SVG, which keeps its animations.</p>
+          </article>
+          <article>
+            <h3>Print</h3>
+            <p>A preview with the file's own <code>@media print</code> rules, then the paper, orientation and scale. Print to paper or to a PDF.</p>
+          </article>
+          <article>
+            <h3>Light, dark, any language</h3>
+            <p>Follow the system or pick a theme, and the table's <code>prefers-color-scheme</code> rules follow. Show numbers in another language to see a file as readers elsewhere will.</p>
+          </article>
+          <article>
+            <h3>Keyboard first</h3>
+            <p><kbd>Ctrl</kbd> <kbd>K</kbd> finds any command or recent file. Tabs have the shortcuts a browser has, from <kbd>Ctrl</kbd> <kbd>T</kbd> to <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>T</kbd>.</p>
+          </article>
+          <article>
+            <h3>Nothing remote unless you allow it</h3>
+            <p>A file loads only files from its own folder. Remote stylesheets, fonts and images wait until you allow them, once or always for that file.</p>
+          </article>
+        </div>
+
+        <figure class="card shot">
+          <img src="img/cssv-viewer-home.webp" width="1598" height="1093" loading="lazy" alt="The viewer's home: a button to choose a file, and eight cards for recent files, from a stadium seating plan to a resume, each showing the file's first rows in its own styles with its title, description and size.">
+          <figcaption>Started without a file, the viewer opens its home: the latest files, each previewed from its own style block, with its title, description and size.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Download and install -------------------------------------------- -->
+    <section class="section alt" id="download">
+      <div class="wrap">
+        <p class="eyebrow">Download and install</p>
+        <h2>Version 0.1.0, for <em>Linux, macOS and Windows</em>.</h2>
+        <p class="lede">Released on October 9, 2026, and built by GitHub Actions from the tagged source (<a href="https://github.com/rhpaiva/cssv-viewer/releases/tag/v0.1.0">release notes</a>). The macOS and Windows builds aren't signed with a developer certificate yet, so both systems ask you to confirm the first start: the notes with each file say how.</p>
+
+        <div class="platforms">
+          <article class="platform" id="linux">
+            <header><h3>Linux</h3><p>64-bit Intel and AMD (x86_64)</p></header>
+            <div class="file">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV-Viewer-x86_64.AppImage">
+                <strong>AppImage</strong><span class="size">81.6 MB</span>
+                <span>Runs without installing, on Ubuntu 22.04 or a distribution as recent. Brings its own WebKitGTK and GTK.</span>
+              </a>
+              <div class="file-notes">
+                <p>Make the file executable and start it. In most file managers, the file's Properties can also allow it to run as a program.</p>
+                <div class="code-card">
+<pre class="code" data-lang="shell"><code>chmod +x CSSV-Viewer-x86_64.AppImage
+./CSSV-Viewer-x86_64.AppImage</code></pre>
+                </div>
+                <p>An AppImage registers nothing by itself, so the viewer's home offers <strong>Set up</strong>: it adds the viewer to your applications and makes it the app for <code>.cssv</code> files, all inside your home folder. If you move the AppImage, its next start updates that. <strong>▾ → Stop opening .cssv files with CSSV Viewer</strong> removes it all; then delete the file.</p>
+                <p>If it doesn't start and says FUSE is missing, install your distribution's <code>fuse3</code> package, or start it with <code>--appimage-extract-and-run</code>.</p>
+              </div>
+            </div>
+            <div class="file">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer_0.1.0_amd64.deb">
+                <strong>.deb</strong><span class="size">4.5 MB</span>
+                <span>Debian 12, Ubuntu 22.04 and later, and the distributions based on them.</span>
+              </a>
+              <div class="file-notes">
+                <div class="code-card">
+<pre class="code" data-lang="shell"><code>sudo apt install ./CSSV.Viewer_0.1.0_amd64.deb</code></pre>
+                </div>
+                <p>apt installs WebKitGTK and GTK too if they're missing. The package registers <code>.cssv</code> files, so they open in the viewer. Remove it with <code>sudo apt remove cssv-viewer</code>.</p>
+              </div>
+            </div>
+            <div class="file">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer-0.1.0-1.x86_64.rpm">
+                <strong>.rpm</strong><span class="size">4.5 MB</span>
+                <span>Fedora, openSUSE and other RPM-based distributions.</span>
+              </a>
+              <div class="file-notes">
+                <div class="code-card">
+<pre class="code" data-lang="shell"><code>sudo dnf install ./CSSV.Viewer-0.1.0-1.x86_64.rpm</code></pre>
+                </div>
+                <p>On openSUSE, use <code>sudo zypper install</code> with the same file. This version's package doesn't register <code>.cssv</code> files yet, so open them with the viewer's <strong>Open…</strong> button or by dropping them on its window. Remove it with <code>sudo dnf remove cssv-viewer</code>.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="platform" id="macos">
+            <header><h3>macOS</h3><p>Apple silicon and Intel</p></header>
+            <div class="file">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer_0.1.0_universal.dmg">
+                <strong>.dmg</strong><span class="size">6.7 MB</span>
+                <span>A universal app, native on both kinds of Mac.</span>
+              </a>
+              <div class="file-notes">
+                <p>Open the <code>.dmg</code> and drag <strong>CSSV Viewer</strong> to <strong>Applications</strong>.</p>
+                <p>The app isn't notarized by Apple yet, so macOS stops its first start. Open <strong>System Settings → Privacy &amp; Security</strong>, scroll to <strong>Security</strong>, and click <strong>Open Anyway</strong> next to the message about CSSV Viewer. On macOS 14 and earlier, Control-clicking the app in Applications and choosing <strong>Open</strong> does the same.</p>
+                <p>If macOS says the app “is damaged and can't be opened”, that's how it treats a downloaded app without a signature. Removing the download's quarantine flag lets it start:</p>
+                <div class="code-card">
+<pre class="code" data-lang="shell"><code>xattr -dr com.apple.quarantine "/Applications/CSSV Viewer.app"</code></pre>
+                </div>
+                <p>Once it has started, Finder offers it for <code>.cssv</code> files; to make it their app, choose a file's <strong>Get Info</strong>, pick it under <strong>Open with</strong>, and click <strong>Change All…</strong>. To remove it, move it from Applications to the Trash.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="platform" id="windows">
+            <header><h3>Windows</h3><p>Windows 10 and 11, 64-bit</p></header>
+            <div class="file">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer_0.1.0_x64-setup.exe">
+                <strong>Installer (.exe)</strong><span class="size">2.2 MB</span>
+                <span>Installs for your account, without administrator rights. The one to pick if you're unsure.</span>
+              </a>
+              <div class="file-notes">
+                <p>Run it and follow its steps. It adds the viewer to the Start menu and registers it for <code>.cssv</code> files, so Windows offers it when you open one. The viewer needs the Microsoft Edge WebView2 Runtime, which Windows 11 and an up-to-date Windows 10 already have; if it's missing, the installer downloads it.</p>
+                <p>The installer isn't signed yet, so SmartScreen may say “Windows protected your PC”. Click <strong>More info</strong>, then <strong>Run anyway</strong>.</p>
+              </div>
+            </div>
+            <div class="file">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer_0.1.0_x64_en-US.msi">
+                <strong>.msi</strong><span class="size">3.3 MB</span>
+                <span>Installs for every user of the computer, with administrator rights. For deploying with management tools.</span>
+              </a>
+              <div class="file-notes">
+                <p>To install it without questions, from a prompt run as administrator:</p>
+                <div class="code-card">
+<pre class="code" data-lang="shell"><code>msiexec /i CSSV.Viewer_0.1.0_x64_en-US.msi /qn</code></pre>
+                </div>
+              </div>
+            </div>
+            <p class="platform-foot">To remove either, open the menu next to CSSV Viewer in <strong>Settings → Apps → Installed apps</strong> and choose <strong>Uninstall</strong>.</p>
+          </article>
+        </div>
+
+        <p class="step-note">CSSV Viewer is free software under the <a href="https://github.com/rhpaiva/cssv-viewer/blob/main/LICENSE">MIT license</a>, provided as is, without warranty of any kind.</p>
+        <p class="step-note">The viewer doesn't update itself: new versions appear here and on the <a href="https://github.com/rhpaiva/cssv-viewer/releases">releases page</a>. To build it yourself, see <a href="https://github.com/rhpaiva/cssv-viewer#run-it">Run it</a> in its README.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>CSSV Viewer</strong> · A desktop app for <code>.cssv</code> files · MIT license</p>
+      <p>The window renders each table with <code>&lt;cssv-table&gt;</code> from the <a href="https://www.npmjs.com/package/@rhpaiva/cssv">@rhpaiva/cssv</a> package, unchanged.</p>
+      <nav aria-label="Documents">
+        <a href="./">CSSV home</a>
+        <a href="spec.html">Spec</a>
+        <a href="../examples/">Examples gallery</a>
+        <a href="editor/">Editor</a>
+        <a href="https://github.com/rhpaiva/cssv-viewer">Viewer on GitHub</a>
+        <a href="https://github.com/rhpaiva/cssv">CSSV on GitHub</a>
+        <a href="imprint.html">Imprint</a>
+        <a href="privacy.html">Privacy</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -6,7 +6,7 @@
 
 This repository holds the specification, [SPEC.md](SPEC.md), and its reference implementation: the `<cssv-table>` element and a processor that runs in Node.
 
-[Website and live editor](https://cssv.dev/) · [npm package](https://www.npmjs.com/package/@rhpaiva/cssv) · [Skill for AI agents](skills/cssv/SKILL.md)
+[Website and live editor](https://cssv.dev/) · [Desktop viewer](https://cssv.dev/viewer.html) · [npm package](https://www.npmjs.com/package/@rhpaiva/cssv) · [Skill for AI agents](skills/cssv/SKILL.md)
 
 ![A plain CSV file of flights, captioned "This is a CSV.", flies line by line into a split-flap departures board: "This is also a CSV." So are a resume, the periodic table, a WhatsApp chat and an airplane seat map, each line landing on the row it becomes. Every one is a CSV with CSS on top: the board turns over to show its style block above the data, and deleting the CSS gives the plain CSV back.](https://cssv.dev/intro.svg)
 
@@ -124,6 +124,10 @@ const html = toHtml(model, { locale: 'de-DE', key: 'id' }); // the §8.3 step 2 
 const { title, description } = metadata(text);              // SPEC §4.6, plain text; either may be missing
 ```
 
+## Desktop viewer
+
+[CSSV Viewer](https://github.com/rhpaiva/cssv-viewer) is an app that opens `.cssv` files from disk: a [Tauri](https://tauri.app/) window around `<cssv-table>`, with a tab for each file, find, a plain and a source view, copying, saving as CSV, PNG or SVG, and printing. It lives in its own repository and takes the renderer from this package on npm. [Download it](https://cssv.dev/viewer.html) for Linux (AppImage, `.deb`, `.rpm`), macOS (`.dmg`) or Windows (`.exe`, `.msi`); the page has installation notes for each.
+
 ## Tests
 
 ```
@@ -168,10 +172,6 @@ python3 -m http.server   # from the repository root: website at http://localhost
 The website lives in `site/`. Like the demo, it loads `../src/` and `../examples/`, so any static server at the repository root works, and every table on it is a `<cssv-table>`. `.github/workflows/ci.yml` publishes it to [cssv.dev](https://cssv.dev/) on each push to `main` once the tests pass, with `site/` as the root.
 
 Two scripts make animations from the real renderer. Each renders its tables with `<cssv-table>` in Chromium and embeds them, with their stylesheets, in an SVG that has no script and also animates as an `<img>`. `node tools/intro.js` makes `site/intro.svg`, the animation at the top of this README, and with `--mp4 intro.mp4` also records it as a 1080p video (this needs ffmpeg). `node tools/demo-svg.js` makes `site/demo.svg`, in which a file is typed next to the table it renders. Run them again after changing the renderer, its default styles or the files they show.
-
-## Desktop viewer
-
-[CSSV Viewer](https://github.com/rhpaiva/cssv-viewer) is an app that opens `.cssv` files from disk: a [Tauri](https://tauri.app/) window around `<cssv-table>`, with a tab for each file, find, a plain and a source view, copying, saving as CSV, PNG or SVG, and printing. It lives in its own repository and takes the renderer from this package on npm.
 
 ## Use with AI agents
 

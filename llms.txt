@@ -43,5 +43,6 @@ The reference renderer is the `<cssv-table>` custom element, published on npm as
 
 - [npm package](https://www.npmjs.com/package/@rhpaiva/cssv): `@rhpaiva/cssv`
 - [GitHub repository](https://github.com/rhpaiva/cssv): issues and releases
+- [CSSV Viewer](https://cssv.dev/viewer.html): a desktop app for Linux, macOS and Windows that opens `.cssv` files; downloads and installation notes
 - [Conformance matrix](https://cssv.dev/CONFORMANCE.md): every requirement in the spec, mapped to the reference implementation's tests
 - [Website](https://cssv.dev/): a live editor, the examples rendered, and install instructions

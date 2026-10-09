@@ -36,14 +36,19 @@
         <span>CSSV</span>
       </a>
       <nav aria-label="Site">
-        <a href="#why">Why</a>
-        <a class="wide-only" href="#how">How it works</a>
+        <button class="nav-learn" type="button" popovertarget="nav-learn">Learn</button>
+        <div class="nav-pop" id="nav-learn" popover>
+          <a href="#why">Why CSSV</a>
+          <a href="#how">How it works</a>
+          <a href="#start">Get started</a>
+          <a href="#ai">For AI agents</a>
+        </div>
         <a href="../examples/">Examples</a>
-        <a class="phone-hidden" href="../examples/experiments.html">Experiments</a>
-        <a class="phone-hidden" href="editor/">Editor</a>
-        <a href="#start">Get started</a>
-        <a class="wide-only" href="#ai">AI</a>
+        <a class="wide-only" href="../examples/experiments.html">Experiments</a>
         <a href="spec.html">Spec</a>
+        <span class="nav-sep" aria-hidden="true"></span>
+        <a class="phone-hidden" href="editor/">Editor</a>
+        <a class="nav-app" href="viewer.html" aria-label="Desktop app"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7M4.75 6.5 8 9.75l3.25-3.25M3 13h10"/></svg><span class="long">Desktop app</span><span class="short">App</span></a>
         <a class="gh" href="https://github.com/rhpaiva/cssv" aria-label="CSSV on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg></a>
       </nav>
     </div>
@@ -53,6 +58,7 @@
     <!-- Hero ------------------------------------------------------------- -->
     <section class="hero" id="top">
       <div class="wrap">
+        <a class="news" href="viewer.html"><b>Desktop app</b> <span class="long">Open <code>.cssv</code> files on Linux, macOS and Windows</span><span class="short">Linux, macOS, Windows</span> <span aria-hidden="true">→</span></a>
         <p class="eyebrow">CSSV v1 · Comma-Separated Styled Values</p>
         <h1>Plain text in, <span>styled tables</span> out.</h1>
         <p class="lede">CSSV is a CSV file with a CSS stylesheet on top. One file holds the data and how it looks, renders as a real HTML table, and stays plain text you can read, diff and generate. Delete the stylesheet and it's a CSV again.</p>
@@ -524,8 +530,40 @@ cssv-loadend,event,"Fired when the latest render finishes, whether it succeeded 
       </div>
     </section>
 
+    <!-- Desktop app ----------------------------------------------------- -->
+    <section class="section alt" id="viewer">
+      <div class="wrap">
+        <p class="eyebrow">Desktop app</p>
+        <h2>Open .cssv files <em>on your desktop</em>.</h2>
+        <p class="lede">CSSV Viewer is a desktop app for <code>.cssv</code> files, with the same <code>&lt;cssv-table&gt;</code> inside as on this page. It opens files from your disk in tabs, and when you save a file in your editor, its table updates in place.</p>
+        <div class="cta">
+          <a class="button primary" href="viewer.html#download">Download CSSV Viewer</a>
+          <a class="button" href="viewer.html">See what it does</a>
+        </div>
+        <ul class="facts">
+          <li>Linux: AppImage, .deb, .rpm</li>
+          <li>macOS: .dmg</li>
+          <li>Windows: .exe, .msi</li>
+          <li>Open source, MIT licensed</li>
+        </ul>
+
+        <div class="tabs shot-tabs" role="tablist" aria-label="Screenshots">
+          <button role="tab" aria-selected="true" aria-controls="shot-file" id="tab-shot-file">A file and its source</button>
+          <button role="tab" aria-selected="false" aria-controls="shot-home" id="tab-shot-home" tabindex="-1">Recent files</button>
+        </div>
+        <figure class="card shot" id="shot-file" role="tabpanel" aria-labelledby="tab-shot-file">
+          <img src="img/cssv-viewer-document.webp" width="1598" height="1093" loading="lazy" alt="The CSSV Viewer window with three tabs. The open one shows elements.cssv as a periodic table, with the Source pane beside it listing the file's style block with line numbers.">
+          <figcaption><code>elements.cssv</code> in a tab, with the Source pane open beside it. The tab is named after the file's <code>cssv:title</code>.</figcaption>
+        </figure>
+        <figure class="card shot" id="shot-home" role="tabpanel" aria-labelledby="tab-shot-home" hidden>
+          <img src="img/cssv-viewer-home.webp" width="1598" height="1093" loading="lazy" alt="The viewer's home: a button to choose a file, and eight cards for recent files, from a stadium seating plan to a resume, each showing the file's first rows in its own styles with its title, description and size.">
+          <figcaption>The home: the latest files, each previewed from its own style block, with its title, description and size.</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- AI agents ------------------------------------------------------- -->
-    <section class="section alt" id="ai">
+    <section class="section" id="ai">
       <div class="wrap">
         <p class="eyebrow">For AI agents</p>
         <h2>Teach Claude to write CSSV with one skill.</h2>
@@ -593,7 +631,7 @@ planets.cssv,2361,2667,2847
     </section>
 
     <!-- Spec ------------------------------------------------------------- -->
-    <section class="section" id="spec">
+    <section class="section alt" id="spec">
       <div class="wrap">
         <p class="eyebrow">Open specification</p>
         <h2>A short spec, with tests for every rule.</h2>
@@ -697,6 +735,7 @@ records,parse(),until ready,until painted,toMarkdown()
         <a href="editor/">Editor</a>
         <a href="https://github.com/rhpaiva/cssv">GitHub</a>
         <a href="https://www.npmjs.com/package/@rhpaiva/cssv">npm package</a>
+        <a href="viewer.html">Desktop app</a>
         <a href="imprint.html">Imprint</a>
         <a href="privacy.html">Privacy</a>
       </nav>

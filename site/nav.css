@@ -33,7 +33,7 @@
   scrollbar-width: none;
 }
 .nav nav::-webkit-scrollbar { display: none; }
-.nav nav a {
+.nav nav a, .nav-learn {
   position: relative;
   isolation: isolate;
   flex: none;
@@ -44,10 +44,10 @@
   font-weight: 500;
   line-height: 1.6;
   text-decoration: none;
-  transition: background-color 0.15s, color 0.15s;
+  transition: background-color 0.15s, color 0.15s, opacity 0.15s;
 }
-.nav nav a:hover, .nav nav a[aria-current="page"] { color: var(--text); }
-.nav nav a:not([aria-current="page"]):hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.nav nav a:hover, .nav nav a[aria-current="page"], .nav-learn:hover { color: var(--text); }
+.nav nav a:not([aria-current="page"]):hover, .nav-learn:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
 /* The current page's pill is a layer of its own, so that a page transition
    slides it from the old page's link to the new one's. */
 .nav nav a[aria-current="page"]::before {
@@ -61,21 +61,96 @@
 }
 .nav nav a.gh { display: inline-flex; align-items: center; padding-inline: 8px; }
 .nav .gh svg { display: block; width: 19px; height: 19px; fill: currentColor; }
-/* Narrower, "How it works" and "AI" go (both are one scroll away on the
-   home page); on phones the name and "Editor" go too (the editor needs a
-   keyboard and a wider screen), "Experiments" for room (the examples page
-   links to it), and below 360px the GitHub icon, which the home page's
-   footer repeats. */
-@media (max-width: 860px) { .nav .wide-only { display: none; } }
+
+/* The links come in two groups: reading about CSSV (the home page's
+   sections under Learn, the examples, the spec), then, after a rule, the
+   tools (the editor, and the desktop app as a button). */
+.nav-sep { flex: none; align-self: center; width: 1px; height: 20px; margin: 0 6px; background: var(--border); }
+.nav nav a.nav-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: 4px;
+  padding-inline: 12px 14px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--surface);
+  font-weight: 600;
+}
+.nav nav a.nav-app:hover { background: var(--text); opacity: 0.88; }
+.nav nav a.nav-app[aria-current="page"]::before { display: none; }
+.nav-app svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nav-app .short { display: none; }
+
+/* Learn opens the home page's sections in a popover: it needs no script,
+   closes on Esc or a click elsewhere, and sits in the top layer, out of
+   reach of the link row's scrolling. Where anchor positioning exists it
+   hangs under its button; elsewhere, centered under the bar. */
+.nav-learn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.nav-learn::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border: solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  rotate: 45deg;
+  translate: 0 -2px;
+  transition: rotate 0.15s, translate 0.15s;
+}
+.nav-learn:has(+ :popover-open) { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.nav-learn:has(+ :popover-open)::after { rotate: 225deg; translate: 0 1px; }
+.nav-pop {
+  inset: calc(var(--nav-height) + 6px) 0 auto;
+  margin: 0 auto;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.nav-pop:popover-open { display: grid; min-width: 200px; }
+@supports (anchor-name: --a) {
+  .nav-learn { anchor-name: --nav-learn; }
+  .nav-pop {
+    position-anchor: --nav-learn;
+    inset: auto;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin: 8px 0 0;
+    position-try-fallbacks: flip-inline;
+  }
+}
+.nav nav .nav-pop a { padding: 8px 12px; color: var(--text); }
+
+/* Narrower, the rule goes, then "Experiments" (the examples page links to
+   it); on phones the name and "Editor" go too (the editor needs a keyboard
+   and a wider screen), and the app button says just "App". Below 400px the
+   GitHub icon goes, which the home page's footer repeats, and below 360px
+   the app button's icon. */
+@media (max-width: 820px) { .nav-sep, .nav .wide-only { display: none; } }
 @media (max-width: 640px) {
   .nav .phone-hidden { display: none; }
   .nav-inner { gap: 12px; }
   .brand span { display: none; }
-  .nav nav a { padding: 6px 6px; font-size: 13.5px; }
+  .nav nav a, .nav-learn { padding: 6px 6px; font-size: 13.5px; }
+  .nav nav a.nav-app { padding-inline: 10px 12px; }
+  .nav-app .long { display: none; }
+  .nav-app .short { display: inline; }
 }
+@media (max-width: 400px) { .nav nav a.gh { display: none; } }
 @media (max-width: 360px) {
-  .nav nav a { padding: 6px 4px; font-size: 13px; }
-  .nav nav a.gh { display: none; }
+  .nav nav a, .nav-learn { padding: 6px 4px; font-size: 13px; }
+  .nav nav a.nav-app { padding-inline: 10px; }
+  .nav-app svg { display: none; }
 }
 
 /* Page transitions ------------------------------------------------------
