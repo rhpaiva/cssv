@@ -136,13 +136,13 @@
       <div class="wrap">
         <p class="eyebrow">Download and install</p>
         <h2>Version 0.1.0, for <em>Linux, macOS and Windows</em>.</h2>
-        <p class="lede">Released on October 9, 2026, and built by GitHub Actions from the tagged source (<a href="https://github.com/rhpaiva/cssv-viewer/releases/tag/v0.1.0">release notes</a>). The macOS and Windows builds aren't signed with a developer certificate yet, so both systems ask you to confirm the first start: the notes with each file say how.</p>
+        <p class="lede">Released on October 9, 2026, and built by GitHub Actions from the tagged source (<a href="https://github.com/rhpaiva/cssv-viewer/releases/latest">release notes</a>). The macOS and Windows builds aren't signed with a developer certificate yet, so both systems ask you to confirm the first start: the notes with each file say how.</p>
 
         <div class="platforms">
           <article class="platform" id="linux">
             <header><h3>Linux</h3><p>64-bit Intel and AMD (x86_64)</p></header>
             <div class="file">
-              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV-Viewer-x86_64.AppImage">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/latest/download/CSSV-Viewer-x86_64.AppImage">
                 <strong>AppImage</strong><span class="size">81.6 MB</span>
                 <span>Runs without installing, on Ubuntu 22.04 or a distribution as recent. Brings its own WebKitGTK and GTK.</span>
               </a>
@@ -157,25 +157,25 @@
               </div>
             </div>
             <div class="file">
-              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer_0.1.0_amd64.deb">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/latest/download/CSSV-Viewer-amd64.deb">
                 <strong>.deb</strong><span class="size">4.5 MB</span>
                 <span>Debian 12, Ubuntu 22.04 and later, and the distributions based on them.</span>
               </a>
               <div class="file-notes">
                 <div class="code-card">
-<pre class="code" data-lang="shell"><code>sudo apt install ./CSSV.Viewer_0.1.0_amd64.deb</code></pre>
+<pre class="code" data-lang="shell"><code>sudo apt install ./CSSV-Viewer-amd64.deb</code></pre>
                 </div>
                 <p>apt installs WebKitGTK and GTK too if they're missing. The package registers <code>.cssv</code> files, so they open in the viewer. Remove it with <code>sudo apt remove cssv-viewer</code>.</p>
               </div>
             </div>
             <div class="file">
-              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer-0.1.0-1.x86_64.rpm">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/latest/download/CSSV-Viewer-x86_64.rpm">
                 <strong>.rpm</strong><span class="size">4.5 MB</span>
                 <span>Fedora, openSUSE and other RPM-based distributions.</span>
               </a>
               <div class="file-notes">
                 <div class="code-card">
-<pre class="code" data-lang="shell"><code>sudo dnf install ./CSSV.Viewer-0.1.0-1.x86_64.rpm</code></pre>
+<pre class="code" data-lang="shell"><code>sudo dnf install ./CSSV-Viewer-x86_64.rpm</code></pre>
                 </div>
                 <p>On openSUSE, use <code>sudo zypper install</code> with the same file. This version's package doesn't register <code>.cssv</code> files yet, so open them with the viewer's <strong>Open…</strong> button or by dropping them on its window. Remove it with <code>sudo dnf remove cssv-viewer</code>.</p>
               </div>
@@ -185,7 +185,7 @@
           <article class="platform" id="macos">
             <header><h3>macOS</h3><p>Apple silicon and Intel</p></header>
             <div class="file">
-              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer_0.1.0_universal.dmg">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/latest/download/CSSV-Viewer-macOS.dmg">
                 <strong>.dmg</strong><span class="size">6.7 MB</span>
                 <span>A universal app, native on both kinds of Mac.</span>
               </a>
@@ -204,7 +204,7 @@
           <article class="platform" id="windows">
             <header><h3>Windows</h3><p>Windows 10 and 11, 64-bit</p></header>
             <div class="file">
-              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer_0.1.0_x64-setup.exe">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/latest/download/CSSV-Viewer-Windows-setup.exe">
                 <strong>Installer (.exe)</strong><span class="size">2.2 MB</span>
                 <span>Installs for your account, without administrator rights. The one to pick if you're unsure.</span>
               </a>
@@ -214,14 +214,14 @@
               </div>
             </div>
             <div class="file">
-              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/download/v0.1.0/CSSV.Viewer_0.1.0_x64_en-US.msi">
+              <a class="dl" href="https://github.com/rhpaiva/cssv-viewer/releases/latest/download/CSSV-Viewer-Windows.msi">
                 <strong>.msi</strong><span class="size">3.3 MB</span>
                 <span>Installs for every user of the computer, with administrator rights. For deploying with management tools.</span>
               </a>
               <div class="file-notes">
                 <p>To install it without questions, from a prompt run as administrator:</p>
                 <div class="code-card">
-<pre class="code" data-lang="shell"><code>msiexec /i CSSV.Viewer_0.1.0_x64_en-US.msi /qn</code></pre>
+<pre class="code" data-lang="shell"><code>msiexec /i CSSV-Viewer-Windows.msi /qn</code></pre>
                 </div>
               </div>
             </div>
@@ -230,7 +230,7 @@
         </div>
 
         <p class="step-note">CSSV Viewer is free software under the <a href="https://github.com/rhpaiva/cssv-viewer/blob/main/LICENSE">MIT license</a>, provided as is, without warranty of any kind.</p>
-        <p class="step-note">The viewer doesn't update itself: new versions appear here and on the <a href="https://github.com/rhpaiva/cssv-viewer/releases">releases page</a>. To build it yourself, see <a href="https://github.com/rhpaiva/cssv-viewer#run-it">Run it</a> in its README.</p>
+        <p class="step-note">The viewer doesn't update itself: new versions appear here and on the <a href="https://github.com/rhpaiva/cssv-viewer/releases">releases page</a>, which keeps every version's files. To build it yourself, see <a href="https://github.com/rhpaiva/cssv-viewer#run-it">Run it</a> in its README.</p>
       </div>
     </section>
   </main>
