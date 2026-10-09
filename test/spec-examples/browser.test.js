@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { setup } from '../browser/harness.js';
 
 const ctx = setup();
-const compact = (html) => html.replace(/<!--.*?-->/g, '').replace(/>\s+</g, '><').trim();
+const compact = (html) => html.replace(/<!--[\s\S]*?-->/g, '').replace(/>\s+</g, '><').trim();
 
 // SPEC.md §12.2, as printed (the omitted rows are checked separately below).
 const SPEC_12_2 = {
